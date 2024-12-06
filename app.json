@@ -17,7 +17,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.joaopfreitas.auraescalaappv4"
+      "package": "com.escalaappaura"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +38,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "acda957e-c321-4951-a8a2-f7752567daeb"
+      }
     }
   }
 }
