@@ -8,15 +8,13 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const today = new Date();
-const todayDateString = toLocaleDateString(today);
-
 export default function HomeScreen() {
+  const today = new Date();
+  const todayDateString = toLocaleDateString(today);
   const [selectedDate, setSelectedDate] = useState<string>(todayDateString);
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [plantaoDates, setPlantaoDates] = useState<string[]>([]);
-  const months = Array.from({ length: 12 }, (_, i) => dayjs().add(i, 'month'));
 
   type Plantao = {
     id: string;
