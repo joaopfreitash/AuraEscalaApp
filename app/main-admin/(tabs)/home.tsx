@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import {CalendarList, InnerDayProps, toLocaleDateString} from "@fowusu/calendar-kit";
 import dayjs from 'dayjs';
-import firestore, { collection, getDocs, getFirestore, orderBy, query } from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -17,7 +17,6 @@ export default function HomeScreen() {
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [plantaoDates, setPlantaoDates] = useState<string[]>([]);
   const months = Array.from({ length: 12 }, (_, i) => dayjs().add(i, 'month'));
-  const db = getFirestore();
 
   type Plantao = {
     id: string;
@@ -29,28 +28,34 @@ export default function HomeScreen() {
   };
 
 
-  // Buscar Plantões no FireStore
-  const fetchPlantoes = async () => {
-    try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "plantoes"), orderBy("createdAt", "desc"))
-      );
-      const plantoesList = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          plantonista: data.plantonista,
-          data: data.data,
-          horario: data.horario,
-          local: data.local,
-          funcao: data.funcao
-        };
-      });
-      setPlantoes(plantoesList);
-    } catch (error) {
-      console.error("Erro ao buscar plantoes:", error);
-    }
-  };
+  // Buscar Plantões no Firestore
+const fetchPlantoes = async () => {
+  try {
+    // Consulta no Firestore
+    const querySnapshot = await firestore()
+      .collection("plantoes")
+      .orderBy("createdAt", "desc")
+      .get();
+
+    // Mapeando os resultados
+    const plantoesList = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        plantonista: data.plantonista,
+        data: data.data,
+        horario: data.horario,
+        local: data.local,
+        funcao: data.funcao
+      };
+    });
+
+    // Atualizando o estado com os dados
+    setPlantoes(plantoesList);
+  } catch (error) {
+    console.error("Erro ao buscar plantoes:", error);
+  }
+};
 
   useEffect(() => {
     fetchPlantoes();

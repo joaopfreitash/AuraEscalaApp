@@ -4,10 +4,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, S
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import auth, { getAuth } from '@react-native-firebase/auth';
-import firestore, { getFirestore } from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import "@/firebaseConfig";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -20,10 +19,6 @@ export default function LoginScreen() {
   const [isSenhaFocused, setIsSenhaFocused] = useState(false);
 
   const router = useRouter();
-
-  const auth = getAuth();
-  const db = getFirestore();
-
 
   const handleLogin = async () => {
           router.replace("../main-admin/(tabs)/home");

@@ -7,7 +7,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import firestore, { arrayUnion, collection, doc, getDocs, getFirestore, orderBy, query, setDoc, Timestamp, updateDoc, where } from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from 'expo-router';
 
 export default function PlantoesScreen() {
@@ -55,7 +55,6 @@ export default function PlantoesScreen() {
     { label: "Ambulatório", value: "Ambulatório"},
   ]);
 
-  const db = getFirestore();
   const sheetRef = useRef<BottomSheetMethods>(null);
 
    //Calcular rotação
@@ -83,13 +82,14 @@ export default function PlantoesScreen() {
     await fetchPlantoes();
   };
 
-  // Buscar Plantões no FireStore
   const fetchPlantoes = async () => {
     try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "plantoes"), orderBy("createdAt", "desc"))
-      );
-      const plantoesList = querySnapshot.docs.map((doc) => {
+      const plantoesSnapshot = await firestore()
+        .collection('plantoes')
+        .orderBy('createdAt', 'desc')
+        .get();
+  
+      const plantoesList = plantoesSnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -97,13 +97,13 @@ export default function PlantoesScreen() {
           data: data.data,
           horario: data.horario,
           local: data.local,
-          funcao: data.funcao
+          funcao: data.funcao,
         };
       });
+  
       setPlantoes(plantoesList);
     } catch (error) {
-      console.error("Erro ao buscar hospitais:", error);
-      setRefreshing(false);
+      console.error('Erro ao buscar plantões:', error);
     } finally {
       setRefreshing(false);
     }
@@ -117,38 +117,38 @@ useEffect(() => {
   // Buscar médicos no firestore para o Dropdown em Add plantão
   const fetchMedicos = async () => {
     try {
-      const querySnapshot = await getDocs(query(collection(db, "users")));
-
-      const medicosList = querySnapshot.docs.map((doc) => {
+      const medicosSnapshot = await firestore().collection('users').get();
+  
+      const medicosList = medicosSnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           value: data.name,
           label: data.name,
         };
       });
+  
       setItemsMedico(medicosList);
     } catch (error) {
-      console.error("Erro ao buscar médicos:", error);
+      console.error('Erro ao buscar médicos:', error);
     }
   };
 
   // Buscar Hospitais no firestore para o Dropdown em Add plantão
   const fetchHospitals = async () => {
     try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "hospitais"))
-      );
-
-      const hospitaisList = querySnapshot.docs.map((doc) => {
+      const hospitaisSnapshot = await firestore().collection('hospitais').get();
+  
+      const hospitaisList = hospitaisSnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           label: data.name,
           value: data.name,
         };
       });
+  
       setItemsLocal(hospitaisList);
     } catch (error) {
-      console.error("Erro ao buscar hospitais:", error);
+      console.error('Erro ao buscar hospitais:', error);
     }
   };
 
@@ -273,47 +273,69 @@ const handleFocusFuncao = () => {
   ) => {
     try {
       // Buscar médico pelo nome
-      const usersCollection = collection(db, "users");
-      const querySnapshot = await getDocs(query(usersCollection, where("name", "==", valueMedico)));
-      const medicoDoc = querySnapshot.docs[0];
+      const medicoSnapshot = await firestore()
+        .collection('users')
+        .where('name', '==', valueMedico)
+        .get();
+  
+      if (medicoSnapshot.empty) {
+        throw new Error('Médico não encontrado');
+      }
+  
+      const medicoDoc = medicoSnapshot.docs[0];
       const medicoUid = medicoDoc.id;
   
-      const localCollection = collection(db, "hospitais");
-      const querySnapshotLocal = await getDocs(query(localCollection, where("name", "==", valueLocal)));
-      const localDoc = querySnapshotLocal.docs[0];
+      // Buscar hospital pelo nome
+      const localSnapshot = await firestore()
+        .collection('hospitais')
+        .where('name', '==', valueLocal)
+        .get();
+  
+      if (localSnapshot.empty) {
+        throw new Error('Hospital não encontrado');
+      }
+  
+      const localDoc = localSnapshot.docs[0];
       const localUid = localDoc.id;
   
       // Criar documento de plantão
-      const shiftsDocRef = doc(collection(db, "plantoes"));
-      const shiftId = shiftsDocRef.id;
+      const plantaoRef = firestore().collection('plantoes').doc();
+      const shiftId = plantaoRef.id;
   
-      await setDoc(shiftsDocRef, {
+      await plantaoRef.set({
         plantonista: plantonista,
         local: local,
         data: data,
         horario: horario,
         funcao: funcao,
-        createdAt: Timestamp.now(),
+        createdAt: firestore.Timestamp.now(),
         medicoUid: medicoUid,
         localUid: localUid,
       });
   
-      const medicoRef = doc(db, "users", medicoUid);
-      await updateDoc(medicoRef, {
-        plantaoIds: arrayUnion(shiftId),
-      });
-
-      const localRef = doc(db, "hospitais", localUid);
-      await updateDoc(localRef, {
-        plantaoIdsH: arrayUnion(shiftId),
-      });
+      // Atualizar referência do médico
+      await firestore()
+        .collection('users')
+        .doc(medicoUid)
+        .update({
+          plantaoIds: firestore.FieldValue.arrayUnion(shiftId),
+        });
+  
+      // Atualizar referência do hospital
+      await firestore()
+        .collection('hospitais')
+        .doc(localUid)
+        .update({
+          plantaoIdsH: firestore.FieldValue.arrayUnion(shiftId),
+        });
   
       resetModal();
-      alert("Plantão cadastrado com sucesso!");
+      alert('Plantão cadastrado com sucesso!');
     } catch (error) {
-      alert("Ocorreu um erro ao tentar cadastrar o plantão. Tente novamente.");
+      console.error('Erro ao criar plantão:', error);
+      alert('Ocorreu um erro ao tentar cadastrar o plantão. Tente novamente.');
     }
-  };  
+  };
 
 
   const resetModal = () => {

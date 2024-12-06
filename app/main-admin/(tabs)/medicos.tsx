@@ -6,8 +6,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import auth, { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
-import firestore, { collection, doc, getDocs, getFirestore, orderBy, query, setDoc, Timestamp, where } from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import firestore  from '@react-native-firebase/firestore';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import Foundation from '@expo/vector-icons/Foundation';
@@ -23,8 +23,6 @@ export default function MedicosScreen() {
     plantaoIds?: string[];
   };
 
-  const auth = getAuth();
-  const db = getFirestore();
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [filteredMedicos, setFilteredMedicos] = useState<Medico[]>([]);
 
@@ -105,30 +103,33 @@ export default function MedicosScreen() {
   const sheetRef = useRef<BottomSheetMethods>(null);
 
   // Buscar médicos no FireStore
-    const fetchMedicos = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          query(collection(db, "users"), orderBy("createdAt", "desc"))
-        );
-        const medicosList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nome: data.name,
-            isAdmin: data.isAdmin,
-            avatar: require("@/assets/images/hipocrates.png"),
-            plantaoIds: data.plantaoIds || []
-          };
-        });
-        setMedicos(medicosList);
-        setFilteredMedicos(medicosList);
-      } catch (error) {
-        console.error("Erro ao buscar médicos:", error);
-        setRefreshing(false);
-      } finally {
-        setRefreshing(false);
-      }
-    };
+  const fetchMedicos = async () => {
+    try {
+      const querySnapshot = await firestore()
+        .collection('users')
+        .orderBy('createdAt', 'desc')
+        .get();
+  
+      const medicosList = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          nome: data.name,
+          isAdmin: data.isAdmin,
+          avatar: require('@/assets/images/hipocrates.png'),
+          plantaoIds: data.plantaoIds || [],
+        };
+      });
+  
+      setMedicos(medicosList);
+      setFilteredMedicos(medicosList);
+    } catch (error) {
+      console.error('Erro ao buscar médicos:', error);
+      setRefreshing(false);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
@@ -182,6 +183,7 @@ const toggleFilter = () => {
       setFilteredMedicos(medicos.filter((medico) => !medico.isAdmin));
     }
   }, [filterType, medicos]);
+  
 
   // Handler pra cadastrar o médico
   const handleRegisterDoctor = async (
@@ -189,33 +191,40 @@ const toggleFilter = () => {
     name: string,
   ) => {
     try {
-
-      const usersCollection = collection(db, "users");
-      const querySnapshot = await getDocs(query(usersCollection, where("email", "==", emailMedico)));
-
+      // Verificar se o e-mail já está registrado
+      const querySnapshot = await firestore()
+        .collection('users')
+        .where('email', '==', emailMedico)
+        .get();
+  
       if (!querySnapshot.empty) {
-        alert("Este e-mail já está cadastrado. Por favor, use outro e-mail.");
+        alert('Este e-mail já está cadastrado. Por favor, use outro e-mail.');
         return;
       }
-
-      const randomPassword = Math.random().toString(36).slice(-8);
-      const userCredential = await createUserWithEmailAndPassword(auth, emailMedico, randomPassword);
-      const user = userCredential.user; //`user.uid` é gerado automaticamente
-      const isAdmin = value === "administrador";
   
-      const doctorDocRef = doc(db, "users", user.uid);
+      // Criar usuário com email e senha aleatória
+      const randomPassword = Math.random().toString(36).slice(-8); // Senha gerada aleatoriamente
+      const userCredential = await auth().createUserWithEmailAndPassword(emailMedico, randomPassword);
+      const user = userCredential.user; // `user.uid` é gerado automaticamente
   
-      await setDoc(doctorDocRef, {
-        name: nomeMedico,
-        email: emailMedico,
-        isAdmin: isAdmin,
-        createdAt: Timestamp.now(),
-      });
-
-      alert("Médico cadastrado com sucesso!");
+      const isAdmin = value === 'administrador'; // Determinar se o usuário é administrador
+  
+      // Adicionar o médico ao Firestore
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .set({
+          name: nomeMedico,
+          email: emailMedico,
+          isAdmin: isAdmin,
+          createdAt: firestore.Timestamp.now(),
+        });
+  
+      alert('Médico cadastrado com sucesso!');
       resetModal();
     } catch (error) {
-      alert("Por favor, digite um E-mail válido.");
+      console.error('Erro ao cadastrar médico:', error);
+      alert('Por favor, digite um e-mail válido.');
     }
   };
 

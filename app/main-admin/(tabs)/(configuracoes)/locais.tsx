@@ -5,7 +5,7 @@ import { Portal } from 'react-native-portalize';
 import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import firestore, { collection, doc, getDocs, getFirestore, orderBy, query, setDoc, Timestamp, where } from '@react-native-firebase/firestore';
+import firestore  from '@react-native-firebase/firestore';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
@@ -19,7 +19,6 @@ export default function LocaisScreen() {
     plantaoIdsH?: string[];
   };
 
-  const db = getFirestore();
   const [hospitais, setHospitais] = useState<Hospital[]>([]);
   const [filteredHospitais, setFilteredHospitais] = useState<Hospital[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,29 +105,32 @@ export default function LocaisScreen() {
   const sheetRef = useRef<BottomSheetMethods>(null);
 
   // Buscar Hospitais no FireStore
-    const fetchHospitals = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          query(collection(db, "hospitais"), orderBy("createdAt", "desc"))
-        );
-        const hospitaisList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data.name,
-            address: data.address,
-            plantaoIdsH: data.plantaoIdsH || []
-          };
-        });
-        setHospitais(hospitaisList);
-        setFilteredHospitais(hospitaisList);
-      } catch (error) {
-        console.error("Erro ao buscar hospitais:", error);
-        setRefreshing(false);
-      } finally {
-        setRefreshing(false);
-      }
-    };
+  const fetchHospitals = async () => {
+    try {
+      const querySnapshot = await firestore()
+        .collection('hospitais')
+        .orderBy('createdAt', 'desc')
+        .get();
+  
+      const hospitaisList = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          address: data.address,
+          plantaoIdsH: data.plantaoIdsH || [],
+        };
+      });
+  
+      setHospitais(hospitaisList);
+      setFilteredHospitais(hospitaisList);
+    } catch (error) {
+      console.error('Erro ao buscar hospitais:', error);
+      setRefreshing(false);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
@@ -167,27 +169,31 @@ export default function LocaisScreen() {
     address: string,
   ) => {
     try {
-
-      const usersCollection = collection(db, "hospitais");
-      const querySnapshot = await getDocs(query(usersCollection, where("name", "==", nomeHospital.toLowerCase())));
-
+      // Verificar se o hospital já está cadastrado
+      const querySnapshot = await firestore()
+        .collection('hospitais')
+        .where('name', '==', nomeHospital.toLowerCase()) // Usar `toLowerCase()` para padronizar a busca
+        .get();
+  
       if (!querySnapshot.empty) {
-        alert("Hospital já cadastrado.");
+        alert('Hospital já cadastrado.');
         return;
       }
   
-      const hospitalDocRef = doc(collection(db, "hospitais"));
-  
-      await setDoc(hospitalDocRef, {
+      // Criar documento de hospital
+      const hospitalDocRef = firestore().collection('hospitais').doc(); // Gerar referência de documento com id auto gerado
+    
+      await hospitalDocRef.set({
         name: nomeHospital,
         address: enderecoHospital,
-        createdAt: Timestamp.now(),
+        createdAt: firestore.Timestamp.now(), // Usando Timestamp.now() para a data de criação
       });
-
-      alert("Hospital cadastrado com sucesso!");
+  
+      alert('Hospital cadastrado com sucesso!');
       resetModal();
     } catch (error) {
-      alert("Por favor, tente novamente.");
+      console.error('Erro ao cadastrar hospital:', error);
+      alert('Por favor, tente novamente.');
     }
   };
 
