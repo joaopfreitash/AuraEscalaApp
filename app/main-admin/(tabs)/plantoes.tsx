@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import { Portal } from 'react-native-portalize';
@@ -8,7 +7,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, addDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import firestore, { arrayUnion, collection, doc, getDocs, getFirestore, orderBy, query, setDoc, Timestamp, updateDoc, where } from '@react-native-firebase/firestore';
 import { useFocusEffect } from 'expo-router';
 
 export default function PlantoesScreen() {
@@ -568,13 +567,6 @@ const handleFocusFuncao = () => {
                 </TouchableOpacity>
               </View>
 
-              <DateTimePickerModal
-                isVisible={showDatePicker}
-                mode="date"
-                onConfirm={handleDateConfirm}
-                onCancel={() => setShowDatePicker(false)}
-              />
-
               <View style={styles.betweenInput}>
               <FontAwesome name="level-down" size={30} color="black" />
               </View>
@@ -609,13 +601,6 @@ const handleFocusFuncao = () => {
                   <FontAwesome6 name="edit" size={20} color="black" style={styles.iconEdit}/>
                 </TouchableOpacity>
             </View>
-
-              <DateTimePickerModal
-                isVisible={showTimePicker}
-                mode="time"
-                onConfirm={handleTimeConfirm}
-                onCancel={() => setShowTimePicker(false)}
-              />
                     <TouchableOpacity
                         style={[styles.confirmarPlantaoButton, !isButtonEnabled && styles.buttonDisabled]}
                         disabled={!isButtonEnabled}

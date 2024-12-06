@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import {CalendarList, InnerDayProps, toLocaleDateString} from "@fowusu/calendar-kit";
 import dayjs from 'dayjs';
-import { collection, getDocs, getFirestore, orderBy, query } from 'firebase/firestore';
+import firestore, { collection, getDocs, getFirestore, orderBy, query } from '@react-native-firebase/firestore';
 import { useFocusEffect } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';

@@ -5,7 +5,7 @@ import { Portal } from 'react-native-portalize';
 import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, where, Timestamp } from "firebase/firestore";
+import firestore, { collection, doc, getDocs, getFirestore, orderBy, query, setDoc, Timestamp, where } from '@react-native-firebase/firestore';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
