@@ -1,11 +1,9 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Host } from 'react-native-portalize';
 import { Dimensions, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 
 export default function TabLayout() {
   return (
-    <Host>
     <Tabs
       screenOptions={{
         tabBarStyle: {
@@ -97,6 +95,5 @@ export default function TabLayout() {
       />
 
     </Tabs>
-    </Host>
   );
 }

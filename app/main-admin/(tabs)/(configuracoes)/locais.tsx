@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { Portal } from 'react-native-portalize';
-import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, where, Timestamp } from "firebase/firestore";
@@ -103,7 +101,6 @@ export default function LocaisScreen() {
     ],
   };
 
-  const sheetRef = useRef<BottomSheetMethods>(null);
 
   // Buscar Hospitais no FireStore
     const fetchHospitals = async () => {
@@ -223,7 +220,7 @@ export default function LocaisScreen() {
   };
 
   const resetModal = () => {
-    sheetRef.current?.close();
+    //sheetRef.current?.close();
     setIsBottomSheetVisible(false);
     handleBlur(labelNomeAnimation, nomeHospital, setIsNomeFocused);
     handleBlur(labelEnderecoAnimation, enderecoHospital, setIsEnderecoFocused);
@@ -346,7 +343,7 @@ export default function LocaisScreen() {
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
-          sheetRef.current?.open(); 
+          //sheetRef.current?.open(); 
           setIsBottomSheetVisible(true);
         }}
       >
@@ -354,14 +351,6 @@ export default function LocaisScreen() {
       </TouchableOpacity>
 
       {/* Modal */}
-      <Portal>
-        <BottomSheet ref={sheetRef} style={styles.bottomSheetContainer}
-          containerHeight = '88.95%'
-          animationType = 'fade'
-          disableBodyPanning = {true}
-          closeOnDragDown = {false}
-          hideDragHandle ={true}
-        >
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Cadastrar novo hospital</Text>
@@ -463,9 +452,7 @@ export default function LocaisScreen() {
                         >
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
-          </View>
-          </BottomSheet>
-          </Portal>    
+          </View>  
     </View>
   );
 }
@@ -565,11 +552,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%'
   },
-  bottomSheetContainer: {
+ /*  bottomSheetContainer: {
     color: '#012E40', // Cor de fundo personalizada
     backgroundColor: '#012E40',
     flex: 1
-  },
+  }, */
   headerContainer: {
     display: 'flex',
     flexDirection: 'row',

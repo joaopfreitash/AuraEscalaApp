@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { Portal } from 'react-native-portalize';
 import DropDownPicker from 'react-native-dropdown-picker';
-import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
@@ -102,7 +100,6 @@ export default function MedicosScreen() {
     { label: "Administrador", value: "administrador"},
   ]);
 
-  const sheetRef = useRef<BottomSheetMethods>(null);
 
   // Buscar médicos no FireStore
     const fetchMedicos = async () => {
@@ -269,7 +266,7 @@ const handleBlurRole = () => {
 };
 
   const resetModal = () => {
-    sheetRef.current?.close();
+    //sheetRef.current?.close();
     handleBlur(labelNomeAnimation, nomeMedico, setIsNomeFocused);
     handleBlur(labelEmailAnimation, emailMedico, setIsEmailFocused);
     setValue(null);
@@ -404,21 +401,13 @@ const handleBlurRole = () => {
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
-          sheetRef.current?.open(); 
+          //sheetRef.current?.open(); 
         }}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       {/* Modal */}
-      <Portal>
-        <BottomSheet ref={sheetRef} style={styles.bottomSheetContainer}
-          containerHeight = '88.55%'
-          animationType = 'fade'
-          disableBodyPanning = {true}
-          closeOnDragDown = {false}
-          hideDragHandle ={true}
-        >
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Cadastrar médico no APP</Text>
@@ -562,9 +551,7 @@ const handleBlurRole = () => {
                         >
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
-          </View>
-          </BottomSheet>
-          </Portal>    
+          </View> 
     </View>
   );
 }
@@ -671,11 +658,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%'
   },
-  bottomSheetContainer: {
+  /* bottomSheetContainer: {
     color: '#012E40', // Cor de fundo personalizada
     backgroundColor: '#012E40',
     flex: 1
-  },
+  }, */
   headerContainer: {
     display: 'flex',
     flexDirection: 'row',

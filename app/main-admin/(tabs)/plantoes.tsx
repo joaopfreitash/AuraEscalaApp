@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import BottomSheet, { BottomSheetMethods } from '@devvie/bottom-sheet';
-import { Portal } from 'react-native-portalize';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -57,7 +54,6 @@ export default function PlantoesScreen() {
   ]);
 
   const db = getFirestore();
-  const sheetRef = useRef<BottomSheetMethods>(null);
 
    //Calcular rotação
    const rotate = rotationRefresh.interpolate({
@@ -318,7 +314,6 @@ const handleFocusFuncao = () => {
 
 
   const resetModal = () => {
-    sheetRef.current?.close();
     setSelectedDate('');
     setSelectedHora('');
     setValueMedico(null);
@@ -381,26 +376,18 @@ const handleFocusFuncao = () => {
       {/* Botão para abrir o modal */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => sheetRef.current?.open()}
+        //onPress={() => sheetRef.current?.open()}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       {/* Modal */}
-      <Portal>
-        <BottomSheet ref={sheetRef} style={styles.bottomSheetContainer}
-          containerHeight = '88.55%'
-          animationType = 'fade'
-          disableBodyPanning = {true}
-          closeOnDragDown = {false}
-          hideDragHandle ={true}
-        >
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Designar Plantão</Text>
                     <TouchableOpacity
                       onPress={() => {
-                        sheetRef.current?.close();
+                        //sheetRef.current?.close();
                         resetModal();
                       }}>
                         <Ionicons name="close-circle" size={33} color={'#bf3d3d'}/>
@@ -568,12 +555,12 @@ const handleFocusFuncao = () => {
                 </TouchableOpacity>
               </View>
 
-              <DateTimePickerModal
+              {/* <DateTimePickerModal
                 isVisible={showDatePicker}
                 mode="date"
                 onConfirm={handleDateConfirm}
                 onCancel={() => setShowDatePicker(false)}
-              />
+              /> */}
 
               <View style={styles.betweenInput}>
               <FontAwesome name="level-down" size={30} color="black" />
@@ -610,12 +597,12 @@ const handleFocusFuncao = () => {
                 </TouchableOpacity>
             </View>
 
-              <DateTimePickerModal
+              {/* <DateTimePickerModal
                 isVisible={showTimePicker}
                 mode="time"
                 onConfirm={handleTimeConfirm}
                 onCancel={() => setShowTimePicker(false)}
-              />
+              /> */}
                     <TouchableOpacity
                         style={[styles.confirmarPlantaoButton, !isButtonEnabled && styles.buttonDisabled]}
                         disabled={!isButtonEnabled}
@@ -630,8 +617,6 @@ const handleFocusFuncao = () => {
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
           </View>
-        </BottomSheet>
-        </Portal>
     </View>
   );
 }
@@ -753,11 +738,6 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     height: '100%'
-  },
-  bottomSheetContainer: {
-    color: '#012E40', // Cor de fundo personalizada
-    backgroundColor: '#012E40',
-    flex: 1
   },
   headerContainer: {
     display: 'flex',
