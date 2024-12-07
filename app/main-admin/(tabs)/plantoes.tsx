@@ -114,6 +114,10 @@ useEffect(() => {
   fetchPlantoes();
 }, []);
 
+useFocusEffect(() => {
+  fetchPlantoes();
+},);
+
   // Buscar médicos no firestore para o Dropdown em Add plantão
   const fetchMedicos = async () => {
     try {
@@ -254,7 +258,7 @@ const handleFocusFuncao = () => {
 
 const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
   if (date) {
-    const formattedDate = date.toLocaleDateString('pt-BR');
+    const formattedDate = dayjs(date).format('YYYY-MM-DD');
     setSelectedDate(formattedDate);
     setDate(dayjs(date));
   }

@@ -9,9 +9,10 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function HomeScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
+  const [markedDays, setMarkedDays] = useState<MarkedDays>({});
   const db = getFirestore();
 
   type Plantao = {
@@ -21,6 +22,17 @@ export default function HomeScreen() {
     horario: string;
     local: string;
     funcao: string;
+  };
+
+  type MarkedDays = {
+    [date: string]: {
+      dots?: { color: string; selectedColor: string }[];
+      selectedColor?: string;
+      textStyle?: { color: string; fontWeight?: string };
+      theme?: {
+        dayContainerStyle?: { backgroundColor: string };
+      };
+    };
   };
 
   // Buscar Plantões no FireStore
@@ -40,50 +52,43 @@ export default function HomeScreen() {
           funcao: data.funcao,
         };
       });
+
+      const updatedMarkedDays: MarkedDays = {};
+
+      plantoesList.forEach((plantao) => {
+        updatedMarkedDays[plantao.data] = {
+          dots: [
+            {
+              color: 'red',
+              selectedColor: 'green',
+            },
+          ],
+        };
+      });
+
       setPlantoes(plantoesList);
+      setMarkedDays(updatedMarkedDays);
+
     } catch (error) {
       console.error("Erro ao buscar plantoes:", error);
     }
   };
 
-  type MarkedDays = {
-    [date: string]: {
-      dots?: { color: string; selectedColor: string }[];
-      selectedColor?: string;
-      textStyle?: { color: string; fontWeight?: string };
-      theme?: {
-        dayContainerStyle?: { backgroundColor: string };
-      };
-    };
-  };
-  
-
-  const markedDays: MarkedDays = {
-    plantao: {
-      dots: [
-        {
-          color: 'red',
-          selectedColor: 'green',
-        },
-      ],
-    },
-  };
-  console.log(markedDays);
-  
-
   useEffect(() => {
     fetchPlantoes();
-  }, []);
+  },[]);
 
   useFocusEffect(
     useCallback(() => {
       fetchPlantoes();
+      setSelectedDate(new Date());
     }, [])
   );
 
+
   useEffect(() => {
     if (selectedDate) {
-      const formattedSelectedDate = dayjs(selectedDate).format('DD/MM/YYYY');
+      const formattedSelectedDate = dayjs(selectedDate).format('YYYY-MM-DD');
       const filtered = plantoes.filter((plantao) => plantao.data === formattedSelectedDate);
       setFilteredPlantao(filtered);
     }
@@ -129,6 +134,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.containerPapai}>
         <View style={styles.containerPai}>
+        {Object.keys(markedDays).length > 0 ? (
         <Calendar
             locale={'br'}
             markedDays={markedDays}
@@ -184,6 +190,9 @@ export default function HomeScreen() {
               nonTouchableLastMonthDayTextStyle: {},
             }}
           />
+        ) : (
+          <Text></Text>// Exibe uma mensagem enquanto os dados não estão prontos
+        )}
         </View>
 
           <View style={styles.container}>
