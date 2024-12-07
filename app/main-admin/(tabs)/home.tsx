@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
-import {CalendarList, InnerDayProps, toLocaleDateString} from "@fowusu/calendar-kit";
+import { Calendar } from 'react-native-calendario';
 import dayjs from 'dayjs';
 import { collection, getDocs, getFirestore, orderBy, query } from 'firebase/firestore';
 import { useFocusEffect } from 'expo-router';
@@ -8,15 +8,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const today = new Date();
-const todayDateString = toLocaleDateString(today);
-
 export default function HomeScreen() {
-  const [selectedDate, setSelectedDate] = useState<string>(todayDateString);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
-  const [plantaoDates, setPlantaoDates] = useState<string[]>([]);
-  const months = Array.from({ length: 12 }, (_, i) => dayjs().add(i, 'month'));
   const db = getFirestore();
 
   type Plantao = {
@@ -27,7 +22,6 @@ export default function HomeScreen() {
     local: string;
     funcao: string;
   };
-
 
   // Buscar Plantões no FireStore
   const fetchPlantoes = async () => {
@@ -43,7 +37,7 @@ export default function HomeScreen() {
           data: data.data,
           horario: data.horario,
           local: data.local,
-          funcao: data.funcao
+          funcao: data.funcao,
         };
       });
       setPlantoes(plantoesList);
@@ -51,6 +45,31 @@ export default function HomeScreen() {
       console.error("Erro ao buscar plantoes:", error);
     }
   };
+
+  type MarkedDays = {
+    [date: string]: {
+      dots?: { color: string; selectedColor: string }[];
+      selectedColor?: string;
+      textStyle?: { color: string; fontWeight?: string };
+      theme?: {
+        dayContainerStyle?: { backgroundColor: string };
+      };
+    };
+  };
+  
+
+  const markedDays: MarkedDays = {
+    plantao: {
+      dots: [
+        {
+          color: 'red',
+          selectedColor: 'green',
+        },
+      ],
+    },
+  };
+  console.log(markedDays);
+  
 
   useEffect(() => {
     fetchPlantoes();
@@ -101,79 +120,69 @@ export default function HomeScreen() {
         </View>
   );
 
-  const onDayPress = useCallback((dateString: string) => {
-    setSelectedDate(dateString);
-}, []);
-
-// Arrumar string do Mês no calendário
-interface CustomMonthNameProps {
-  month: Date;
-  locale?: string;
-}
-
-const CustomMonthName: React.FC<CustomMonthNameProps> = ({ month, locale = 'pt-BR' }) => {
-  const monthYear = month.toLocaleString(locale, { month: 'long', year: 'numeric' });
-  return (
-      <Text style={styles.textMonthCalendar}>
-        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
-      </Text>
-  );
-};
-
-// Customizar o Calendário (Dias)
-interface CustomDayComponentProps {
-  isSelected?: boolean;
-}
-
-const CustomDayComponent: React.FC<
-  InnerDayProps<CustomDayComponentProps>
-> = ({ day, locale = "pt-BR", state, isToday, isSelected }) => {
-  const dayStyle = useMemo(() => {
-    if (state !== "inactive") {
-      if (isSelected) {
-        return {
-          textStyle: styles.selectedText,
-          containerStyle: styles.selectedContainer,
-        };
-      }
+  const onDayPress = (date: Date) => {
+    if (date) {
+      setSelectedDate(date); // Armazena o objeto Date
     }
-    if (isToday) {
-      return {
-        textStyle: styles.todayText,
-        containerStyle: styles.todayContainer,
-      };
-    }
-    return {};
-  }, [state, isSelected, isToday]);
-  
-
-  return (
-    <View style={[styles.defaultContainer, dayStyle.containerStyle]}>
-      <Text style={[styles.defaultText, styles[state], dayStyle.textStyle]}>
-        {day.toLocaleDateString(locale, { day: "numeric" })}
-      </Text>
-    </View>
-  );
-};
+  };
 
   return (
     <View style={styles.containerPapai}>
         <View style={styles.containerPai}>
-            <CalendarList
-            locale= 'pt-BR'
-            MonthNameComponent={CustomMonthName}
-            weekdaysFormat={'narrow'}
-            showExtraDays={true}
-            currentDate={todayDateString}
-            estimatedCalendarSize={{
-                fiveWeekCalendarSize: 100
+        <Calendar
+            locale={'br'}
+            markedDays={markedDays}
+            onPress={onDayPress}
+            startDate={selectedDate || undefined}
+            theme={{
+              activeDayColor: 'red',
+              monthTitleTextStyle: {
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: 25,
+              },
+              emptyMonthContainerStyle: {},
+              emptyMonthTextStyle: {
+                fontWeight: '200',
+              },
+              weekColumnsContainerStyle: {},
+              weekColumnStyle: {
+                paddingVertical: 10,
+              },
+              weekColumnTextStyle: {
+                color: '#b6c1cd',
+                fontSize: 13,
+              },
+              nonTouchableDayContainerStyle: {},
+              nonTouchableDayTextStyle: {
+                color: '#2d4150'
+              },
+              startDateContainerStyle: {},
+              endDateContainerStyle: {},
+              dayContainerStyle: {
+                backgroundColor: '#012E40',
+              },
+              dayTextStyle: {
+                color: 'white',
+                fontSize: 15,
+              },
+              dayOutOfRangeContainerStyle: {},
+              dayOutOfRangeTextStyle: {},
+              todayContainerStyle: {},
+              todayTextStyle: {
+                color: '#6d95da',
+                fontWeight: 'bold'
+              },
+              activeDayContainerStyle: {
+                backgroundColor: '#1A4D5C',
+                borderRadius: 30,
+              },
+              activeDayTextStyle: {
+                color: 'white',
+                fontWeight: 'bold',
+              },
+              nonTouchableLastMonthDayTextStyle: {},
             }}
-            markedDates={[selectedDate]}
-            futureMonthsCount={6}
-            pastMonthsCount={1}
-            onDayPress={onDayPress}
-            horizontal={true}
-            DayComponent={CustomDayComponent}
           />
         </View>
 

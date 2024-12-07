@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Modal } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, addDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion } from "firebase/firestore";
 import { useFocusEffect } from 'expo-router';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import dayjs from 'dayjs';
 
 export default function PlantoesScreen() {
 
@@ -19,13 +21,14 @@ export default function PlantoesScreen() {
     funcao: string;
   };
 
+
+  const [modalVisible, setModalVisible] = useState(false);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [selectedDate, setSelectedDate] = useState('');
+  const [date, setDate] = useState(dayjs().subtract(1, 'day'));
   const [selectedHora, setSelectedHora] = useState('');
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [time, setTime] = useState(dayjs());
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const [isFuncaoFocused, setFuncaoFocused] = useState(false)
 
   const labelDataAnimation = useRef(new Animated.Value(0)).current;
   const labelFuncaoAnimation = useRef(new Animated.Value(0)).current;
@@ -249,17 +252,21 @@ const handleFocusFuncao = () => {
       }).start();
 };
 
-  const handleDateConfirm = (date: Date) => {
+const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
+  if (date) {
     const formattedDate = date.toLocaleDateString('pt-BR');
     setSelectedDate(formattedDate);
-    setShowDatePicker(false);
-  };
+    setDate(dayjs(date));
+  }
+};
 
-  const handleTimeConfirm = (time: Date) => {
+const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
+  if (time) {
     const formattedTime = time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     setSelectedHora(formattedTime);
-    setShowTimePicker(false);
-  };
+    setTime(dayjs(time));
+  }
+};
 
   const handleRegisterShift = async (
     plantonista: string,
@@ -312,10 +319,10 @@ const handleFocusFuncao = () => {
     }
   };  
 
-
   const resetModal = () => {
-    setSelectedDate('');
-    setSelectedHora('');
+    setModalVisible(false);
+    setDate(dayjs().subtract(1, 'day'));
+    setTime(dayjs());
     setValueMedico(null);
     setOpenMedico(false);
     setValueLocal(null);
@@ -376,23 +383,44 @@ const handleFocusFuncao = () => {
       {/* Botão para abrir o modal */}
       <TouchableOpacity
         style={styles.addButton}
-        //onPress={() => sheetRef.current?.open()}
+        onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       {/* Modal */}
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Designar Plantão</Text>
                     <TouchableOpacity
                       onPress={() => {
-                        //sheetRef.current?.close();
                         resetModal();
                       }}>
                         <Ionicons name="close-circle" size={33} color={'#bf3d3d'}/>
                     </TouchableOpacity>
               </View>
+
+              {/* Seletor de Data */}
+              <View style={styles.containerDataHora}>
+                <DateTimePicker
+                  value={date.toDate()}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateConfirm}
+                />
+                <DateTimePicker
+                  value={time.toDate()}
+                  mode="time"
+                  display="default"
+                  onChange={handleTimeConfirm}
+                />
+              </View>
+
+              <View style={styles.betweenInput}>
+                <FontAwesome name="level-down" size={30} color="black" />
+              </View>
+
             {/* Seletor de Médico */}
             <View style={styles.containerMedico}>
             <Animated.Text
@@ -519,90 +547,6 @@ const handleFocusFuncao = () => {
                     dropDownContainerStyle={styles.dropDownListContainerLocal} // Estilo da lista suspensa
                 />
               </View>
-
-              <View style={styles.betweenInput}>
-              <FontAwesome name="level-down" size={30} color="black" />
-              </View>
-
-            {/* Seletor de Data */}
-              <View style={styles.containerData}>
-                        <Animated.Text
-                          style={[
-                            styles.inputLabel,
-                            {
-                              top: labelDataAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [18, -20], // Move o rótulo para cima
-                              }),
-                              fontSize: labelDataAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [16, 12], // Diminui o tamanho do rótulo
-                              }),
-                              fontWeight: labelDataAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: ['400', '600'], // Tornar o rótulo em negrito
-                              }),
-                            },
-                          ]}
-                        >
-                        Data
-                         </Animated.Text>
-                <TouchableOpacity onPress={() => {setShowDatePicker(true); handleFocusDate();}} style={styles.inputBox} >
-                  <Text style={[ styles.inputText, selectedDate ? styles.filledText : styles.placeholderText]}>
-                    {selectedDate || 'Selecione uma data'}
-                  </Text>
-                  <FontAwesome6 name="edit" size={20} color="black" style={styles.iconEdit}/>
-                </TouchableOpacity>
-              </View>
-
-              {/* <DateTimePickerModal
-                isVisible={showDatePicker}
-                mode="date"
-                onConfirm={handleDateConfirm}
-                onCancel={() => setShowDatePicker(false)}
-              /> */}
-
-              <View style={styles.betweenInput}>
-              <FontAwesome name="level-down" size={30} color="black" />
-              </View>
-
-            {/* Seletor de Horário */}
-            <View style={styles.containerHora}>
-                        <Animated.Text
-                          style={[
-                            styles.inputLabel,
-                            {
-                              top: labelHoraAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [18, -20], // Move o rótulo para cima
-                              }),
-                              fontSize: labelHoraAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [16, 12], // Diminui o tamanho do rótulo
-                              }),
-                              fontWeight: labelHoraAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: ['400', '600'], // Tornar o rótulo em negrito
-                              }),
-                            },
-                          ]}
-                        >
-                        Horário
-                         </Animated.Text>
-                <TouchableOpacity onPress={() => {setShowTimePicker(true); handleFocusHora();}} style={styles.inputBox} >
-                  <Text style={[ styles.inputText, selectedHora ? styles.filledText : styles.placeholderText]}>
-                    {selectedHora || 'Selecione o horário de início'}
-                  </Text>
-                  <FontAwesome6 name="edit" size={20} color="black" style={styles.iconEdit}/>
-                </TouchableOpacity>
-            </View>
-
-              {/* <DateTimePickerModal
-                isVisible={showTimePicker}
-                mode="time"
-                onConfirm={handleTimeConfirm}
-                onCancel={() => setShowTimePicker(false)}
-              /> */}
                     <TouchableOpacity
                         style={[styles.confirmarPlantaoButton, !isButtonEnabled && styles.buttonDisabled]}
                         disabled={!isButtonEnabled}
@@ -616,7 +560,8 @@ const handleFocusFuncao = () => {
                       >
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
-          </View>
+            </View>
+          </Modal>
     </View>
   );
 }
@@ -737,7 +682,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#012E40',
     padding: 20,
     alignItems: 'center',
-    height: '100%'
+    height: '88.55%',
+    position: 'absolute',
+    bottom: 0
   },
   headerContainer: {
     display: 'flex',
@@ -752,20 +699,22 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   dropDownListContainerMedico: {
-    maxHeight: 500
+    maxHeight: 355
   },
   dropDownListContainerFuncao: {
     height: 210,
-    maxHeight: 300
+    maxHeight: 210
   },
   dropDownListContainerLocal: {
-    height: 300,
-    maxHeight: 300
+    height: 250,
+    maxHeight: 240
   },
-  containerData: {
+  containerDataHora: {
     display: 'flex',
     flexDirection: 'row',
+    justifyContent: 'center',
     width: '100%',
+    paddingRight: 30
   },
   inputBox: {
     width: '100%',

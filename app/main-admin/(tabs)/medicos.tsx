@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard, Modal } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -26,6 +26,7 @@ export default function MedicosScreen() {
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [filteredMedicos, setFilteredMedicos] = useState<Medico[]>([]);
 
+  const [modalVisible, setModalVisible] = useState(false);
   const [nomeMedico, setNomeMedico] = useState('');
   const [emailMedico, setEmailMedico] = useState('');
   const [isNomeFocused, setIsNomeFocused] = useState(false);
@@ -266,7 +267,7 @@ const handleBlurRole = () => {
 };
 
   const resetModal = () => {
-    //sheetRef.current?.close();
+    setModalVisible(false);
     handleBlur(labelNomeAnimation, nomeMedico, setIsNomeFocused);
     handleBlur(labelEmailAnimation, emailMedico, setIsEmailFocused);
     setValue(null);
@@ -400,14 +401,13 @@ const handleBlurRole = () => {
       {/* Botão para abrir o modal */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => {
-          //sheetRef.current?.open(); 
-        }}
+        onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       {/* Modal */}
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Cadastrar médico no APP</Text>
@@ -551,7 +551,8 @@ const handleBlurRole = () => {
                         >
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
-          </View> 
+            </View> 
+          </Modal>
     </View>
   );
 }
@@ -656,13 +657,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#012E40',
     padding: 20,
     alignItems: 'center',
-    height: '100%'
+    height: '88.55%',
+    position: 'absolute',
+    bottom: 0
   },
-  /* bottomSheetContainer: {
-    color: '#012E40', // Cor de fundo personalizada
-    backgroundColor: '#012E40',
-    flex: 1
-  }, */
   headerContainer: {
     display: 'flex',
     flexDirection: 'row',

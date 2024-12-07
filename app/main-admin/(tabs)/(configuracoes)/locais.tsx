@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard, Modal, SafeAreaView, Dimensions } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -18,6 +18,7 @@ export default function LocaisScreen() {
   };
 
   const db = getFirestore();
+  const [modalVisible, setModalVisible] = useState(false);
   const [hospitais, setHospitais] = useState<Hospital[]>([]);
   const [filteredHospitais, setFilteredHospitais] = useState<Hospital[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,8 +35,6 @@ export default function LocaisScreen() {
   const labelNomeAnimation = useRef(new Animated.Value(0)).current;
   const labelEnderecoAnimation = useRef(new Animated.Value(0)).current;
   const rotationRefresh = useState(new Animated.Value(0))[0];
-
-  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
 
   const navigation = useNavigation();
 
@@ -76,16 +75,25 @@ export default function LocaisScreen() {
   };
 
   useEffect(() => {
-    if (isBottomSheetVisible) {
+    if (modalVisible) {
       navigation.setOptions({
-        headerTintColor: '#081e27',
+        headerTintColor: '#012E40',
+        headerStyle: {
+          backgroundColor: '#012E40',
+        },
       });
     } else {
       navigation.setOptions({
-      headerTintColor: '#fff',
+        headerShown: true,
+        title: '',
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: '#081e27',
+        },
+        headerTintColor: '#fff',
     });
     }
-  }, [isBottomSheetVisible, navigation]);
+  }, [modalVisible, navigation]);
 
   //Calcular rotação
   const rotate = rotationRefresh.interpolate({
@@ -220,8 +228,7 @@ export default function LocaisScreen() {
   };
 
   const resetModal = () => {
-    //sheetRef.current?.close();
-    setIsBottomSheetVisible(false);
+    setModalVisible(false);
     handleBlur(labelNomeAnimation, nomeHospital, setIsNomeFocused);
     handleBlur(labelEnderecoAnimation, enderecoHospital, setIsEnderecoFocused);
     setIsButtonEnabled(false)
@@ -342,15 +349,13 @@ export default function LocaisScreen() {
       {/* Botão para abrir o modal */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => {
-          //sheetRef.current?.open(); 
-          setIsBottomSheetVisible(true);
-        }}
+        onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       {/* Modal */}
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
               <Text style={styles.modalTitle}>Cadastrar novo hospital</Text>
@@ -452,7 +457,8 @@ export default function LocaisScreen() {
                         >
                       <Text style={[styles.confirmarPlantaoText, !isButtonEnabled && styles.buttonTextDisabled]}>Confirmar</Text>
                     </TouchableOpacity>
-          </View>  
+            </View>  
+          </Modal>
     </View>
   );
 }
@@ -550,13 +556,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#012E40',
     padding: 20,
     alignItems: 'center',
-    height: '100%'
+    height: '88.55%',
+    position: 'absolute',
+    bottom: 0
   },
- /*  bottomSheetContainer: {
-    color: '#012E40', // Cor de fundo personalizada
-    backgroundColor: '#012E40',
-    flex: 1
-  }, */
   headerContainer: {
     display: 'flex',
     flexDirection: 'row',
