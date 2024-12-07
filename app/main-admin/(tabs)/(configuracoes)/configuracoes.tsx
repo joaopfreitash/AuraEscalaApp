@@ -3,7 +3,7 @@ import { router, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 
-export default function PlantoesScreen() {
+export default function ConfiguracoesScreen() {
   const [profileImage, setProfileImage] = useState(null); // Estado para armazenar a imagem mockada
   const mockUserName = "Edd Stark"; // Nome do usuário mockado
 
