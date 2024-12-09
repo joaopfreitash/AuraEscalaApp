@@ -21,4 +21,11 @@ export type Medico = {
     avatar: any;
     plantaoIds?: string[];
 }
+
+export type Hospital = {
+  id: string;
+  name: string;
+  address: string;
+  plantaoIdsH?: string[];
+};
   

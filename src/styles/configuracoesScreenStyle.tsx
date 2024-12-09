@@ -1,0 +1,57 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#012E40',
+        paddingHorizontal: 20,
+      },
+      profileContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 20
+      },
+      userName: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#fff',
+      },
+      role: {
+        fontSize: 10,
+        color: '#fff',
+        marginBottom: 25,
+      },
+      imagePicker: {
+        alignItems: 'center',
+      },
+      profileImageContainer: {
+        width: 100, // Largura do círculo
+        height: 100, // Altura do círculo
+        borderRadius: 60, // Define a imagem como circular
+        borderColor: '#fff',
+        marginBottom: 10,
+      },
+      profileImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 60,
+      },
+      changePhotoText: {
+        color: '#00BFFF',
+        fontSize: 14,
+      },
+      settingItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        backgroundColor: '#01354A',
+        marginVertical: 5,
+        borderRadius: 25,
+        width: '100%',
+      },
+      settingText: {
+        color: '#fff',
+        fontSize: 16,
+      },
+});

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FlatList, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendario';
 import { useFocusEffect } from 'expo-router';
@@ -6,7 +6,7 @@ import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 import homeHooks from '@/src/hooks/homeHooks';
 import PlantaoItem from '@/src/components/plantaoItem';
-import styles from '@/src/styles/homeScreenStyles';
+import styles from '@/src/styles/homeScreenStyle';
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -22,7 +22,7 @@ export default function HomeScreen() {
 
   const onDayPress = (date: Date) => setSelectedDate(date);
   const handleToggleExpand = () => setIsExpanded(!isExpanded);
-
+  
   return (
     <View style={styles.container}>
       {!isExpanded && (

@@ -255,10 +255,6 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
                         style={[styles.confirmarPlantaoButton, !isButtonEnabled && styles.buttonDisabled]}
                         disabled={!isButtonEnabled}
                         onPress={() => {
-                          if (!valueMedico || !valueLocal || !selectedDate || !selectedHora || !valueFuncao) {
-                            //alert("Por favor, preencha todos os campos.");
-                            return;
-                          }
                           handleRegisterShift(valueMedico, valueLocal, selectedDate, selectedHora, valueFuncao);
                         }}
                       >

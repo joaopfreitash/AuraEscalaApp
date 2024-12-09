@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Animated, TextInput, Keyboard, Modal } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -7,6 +7,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Foundation from '@expo/vector-icons/Foundation';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FlashMessage from "react-native-flash-message";
 
 import styles from '@/src/styles/medicosScreenStyle';
 import MedicoItem from '@/src/components/medicoItem';
@@ -307,6 +308,7 @@ export default function MedicosScreen() {
                     </TouchableOpacity>
             </View> 
           </Modal>
+          <FlashMessage/>
     </View>
   );
 }

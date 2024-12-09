@@ -20,14 +20,14 @@ const plantoesHooks = () => {
   const [itemsMedico, setItemsMedico] = useState<{value: string }[]>([]);
   const [itemsLocal, setItemsLocal] = useState<{value: string }[]>([]);
   const [openMedico, setOpenMedico] = useState(false);
-  const [valueMedico, setValueMedico] = useState<string | null>(null);
+  const [valueMedico, setValueMedico] = useState<string>('');
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(dayjs().subtract(1, 'day'));
   const [time, setTime] = useState(dayjs());
   const [openLocal, setOpenLocal] = useState(false);
-  const [valueLocal, setValueLocal] = useState<string | null>(null);
+  const [valueLocal, setValueLocal] = useState<string>('');
   const [openFuncao, setOpenFuncao] = useState(false);
-  const [valueFuncao, setValueFuncao] = useState(null);
+  const [valueFuncao, setValueFuncao] = useState<string>('');
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [itemsFuncao, setItemsFuncao] = useState([
     { label: "Cirurgião", value: "Cirurgião"},
@@ -41,11 +41,11 @@ const plantoesHooks = () => {
     setModalVisible(false);
     setDate(dayjs().subtract(1, 'day'));
     setTime(dayjs());
-    setValueMedico(null);
+    setValueMedico('');
     setOpenMedico(false);
-    setValueLocal(null);
+    setValueLocal('');
     setOpenLocal(false);
-    setValueFuncao(null);
+    setValueFuncao('');
     setOpenFuncao(false);
     setIsButtonEnabled(false)
     handleBlurMedico();
@@ -119,7 +119,7 @@ const plantoesHooks = () => {
     funcao: string
   ) => {
     try {
-      // Buscar médico pelo nome
+      setIsButtonEnabled(false);
       const usersCollection = collection(db, "users");
       const querySnapshot = await getDocs(query(usersCollection, where("name", "==", valueMedico)));
       const medicoDoc = querySnapshot.docs[0];

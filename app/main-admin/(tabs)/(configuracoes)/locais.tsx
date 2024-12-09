@@ -1,65 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Image, TextInput, Keyboard, Modal, SafeAreaView, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Animated, TextInput, Keyboard, Modal } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, where, Timestamp } from "firebase/firestore";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
+import FlashMessage from "react-native-flash-message";
+
+import styles from '@/src/styles/locaisScreenStyle';
+import LocalItem from '@/src/components/localItem';
+import locaisHooks from '@/src/hooks/locaisHooks';
+import searchBar from '@/src/utils/searchBar';
 
 export default function LocaisScreen() {
-
-  type Hospital = {
-    id: string;
-    name: string;
-    address: string;
-    plantaoIdsH?: string[];
-  };
-
-  const db = getFirestore();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [hospitais, setHospitais] = useState<Hospital[]>([]);
-  const [filteredHospitais, setFilteredHospitais] = useState<Hospital[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const [nomeHospital, setNomeHospital] = useState('');
-  const [enderecoHospital, setEnderecoHospital] = useState('');
-  const [isNomeFocused, setIsNomeFocused] = useState(false);
-  const [isEnderecoFocused, setIsEnderecoFocused] = useState(false);
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const labelNomeAnimation = useRef(new Animated.Value(0)).current;
-  const labelEnderecoAnimation = useRef(new Animated.Value(0)).current;
-
   const navigation = useNavigation();
 
-  // Animação da largura da barra de pesquisa
-  const searchBarWidth = useRef(new Animated.Value(100)).current;
+  const { handleFocusSearchBar, handleBlurSearchbar, searchBarWidth,
+    isSearchFocused, searchQuery, setSearchQuery, setIsSearchFocused  } = searchBar();
 
-  // Função chamada quando a barra de pesquisa recebe foco
-  const handleFocusSearchBar = () => {
-    setIsSearchFocused(true);
-    Animated.timing(searchBarWidth, {
-      toValue: 80, // Diminui a largura para 80%
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const handleBlurSearchbar = () => {
-    if (!searchQuery) {
-      Animated.timing(searchBarWidth, {
-        toValue: 100,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-      setIsSearchFocused(false);
-    }
-  };
+  const {filteredHospitais, setFilteredHospitais, enderecoHospital, setIsButtonEnabled,
+    nomeHospital, hospitais, setModalVisible, modalVisible, handleRegisterHospital,
+    resetModal, fetchHospitals, handleFocus, setEnderecoHospital,
+    isNomeFocused, setNomeHospital, nomeInputRef,
+    setIsNomeFocused, enderecoInputRef,
+    isEnderecoFocused, setIsEnderecoFocused, isButtonEnabled,
+    labelNomeAnimation, labelEnderecoAnimation}  = locaisHooks();
 
   const handleCancel = () => {
     setIsSearchFocused(false);
@@ -94,31 +59,6 @@ export default function LocaisScreen() {
     }
   }, [modalVisible, navigation]);
 
-  // Buscar Hospitais no FireStore
-    const fetchHospitals = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          query(collection(db, "hospitais"), orderBy("createdAt", "desc"))
-        );
-        const hospitaisList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data.name,
-            address: data.address,
-            plantaoIdsH: data.plantaoIdsH || []
-          };
-        });
-        setHospitais(hospitaisList);
-        setFilteredHospitais(hospitaisList);
-      } catch (error) {
-        console.error("Erro ao buscar hospitais:", error);
-        setRefreshing(false);
-      } finally {
-        setRefreshing(false);
-      }
-    };
-
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
     fetchHospitals();
@@ -130,43 +70,10 @@ export default function LocaisScreen() {
     const filtered = hospitais.filter((hospital) =>
       hospital.name.toLowerCase().includes(text.toLowerCase())
     );
-  
     if (filtered.length === 0) {
       setFilteredHospitais([]); // Define a lista filtrada como vazia
     } else {
       setFilteredHospitais(filtered); // Atualiza os médicos filtrados
-      setErrorMessage(""); // Remove a mensagem de erro
-    }
-  };
-
-  // Handler pra cadastrar o Hospital
-  const handleRegisterHospital = async (
-    name: string,
-    address: string,
-  ) => {
-    try {
-
-      const usersCollection = collection(db, "hospitais");
-      const querySnapshot = await getDocs(query(usersCollection, where("name", "==", nomeHospital.toLowerCase())));
-
-      if (!querySnapshot.empty) {
-        alert("Hospital já cadastrado.");
-        return;
-      }
-  
-      const hospitalDocRef = doc(collection(db, "hospitais"));
-  
-      await setDoc(hospitalDocRef, {
-        name: nomeHospital,
-        address: enderecoHospital,
-        createdAt: Timestamp.now(),
-      });
-
-      alert("Hospital cadastrado com sucesso!");
-      resetModal();
-      fetchHospitals();
-    } catch (error) {
-      alert("Por favor, tente novamente.");
     }
   };
 
@@ -182,76 +89,8 @@ export default function LocaisScreen() {
   useEffect(() => {
     checkFields();
   }, [nomeHospital, enderecoHospital]);
-  
-  const handleFocus = (animatedValue: Animated.Value, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-    Animated.timing(animatedValue, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setIsFocused(true);
-  };
-
-  const handleBlur = (animatedValue: Animated.Value, text: string, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-      Animated.timing(animatedValue, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    setIsFocused(false);
-  };
-
-  const resetModal = () => {
-    setModalVisible(false);
-    handleBlur(labelNomeAnimation, nomeHospital, setIsNomeFocused);
-    handleBlur(labelEnderecoAnimation, enderecoHospital, setIsEnderecoFocused);
-    setIsButtonEnabled(false)
-    setNomeHospital('')
-    setEnderecoHospital('')
-    clearInputNome();
-    clearInputEndereco();
-  };
-
-
-  //JEITINHO BRASILEIRO PRA LIMPAR INPUT
-  const nomeInputRef = useRef<TextInput>(null);
-  const enderecoInputRef = useRef<TextInput>(null);
-
-  const clearInputNome = () => {
-    if (nomeInputRef.current) {
-      nomeInputRef.current.clear();
-    }
-  };
-
-  const clearInputEndereco = () => {
-    if (enderecoInputRef.current) {
-      enderecoInputRef.current.clear();
-    }
-  };
-
-  const renderHospitalItem = ({ item }: { item: Hospital }) => (
-    <View style={styles.hospitalItem}>
-      <View style={styles.nomeEnderecoContainer}>
-        <Text style={styles.hospitalNome}>{item.name}</Text>
-        <Text style={styles.hospitalEndereco}>{item.address}</Text>
-      </View>
-      <View style={styles.quantosPlantoes}>
-        <Entypo name="chevron-right" size={20} color="#012E40" />
-        <Text style={styles.permissaoMedico}>
-        {
-          Array.isArray(item.plantaoIdsH)
-            ? item.plantaoIdsH.length === 1
-              ? "1 Plantão"
-              : `${item.plantaoIdsH.length} Plantões`
-            : "Nenhum plantão cadastrado"
-        }
-        </Text>
-      </View>
-    </View>
-  );
 
   return (
-    
     <View style={styles.containerPai}>
       
       <View style={styles.medicosContainer}>
@@ -293,10 +132,9 @@ export default function LocaisScreen() {
                 <FlatList
                   style={styles.flatListContainer}
                   data={filteredHospitais}
-                  renderItem={renderHospitalItem}
+                  renderItem={({ item }) => <LocalItem hospital={item} />}
                   keyExtractor={(item) => item.id}
                   numColumns={1}
-                  refreshing={refreshing}
                 />
                   ) : searchQuery.trim() ? ( 
                     <Text style={styles.errorMessage}>Nenhum hospital encontrado com esse nome</Text>
@@ -304,10 +142,9 @@ export default function LocaisScreen() {
                 <FlatList
                   style={styles.flatListContainer}
                   data={hospitais}
-                  renderItem={renderHospitalItem}
+                  renderItem={({ item }) => <LocalItem hospital={item} />}
                   keyExtractor={(item) => item.id}
                   numColumns={1}
-                  refreshing={refreshing}
                 />
               )}
         </View>
@@ -426,228 +263,8 @@ export default function LocaisScreen() {
                     </TouchableOpacity>
             </View>  
           </Modal>
+          <FlashMessage/>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  containerPai: {
-    flex: 1,
-    backgroundColor: '#012E40',
-  },
-  medicosContainer: {
-    marginTop: 20,
-    flex: 1
-  },
-  flatListContainer: {
-    width: '100%',
-    paddingHorizontal: 10,
-  },
-  medicosTitle: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  header: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    paddingHorizontal: 10
-  },
-  errorMessage: {
-    color: "#bf3d3d",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
-  },
-  searchContainerPai:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start'
-  },
-  searchBarContainer: {
-    display: 'flex',
-    paddingHorizontal: 10,
-  },
-  searchBar: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 30,
-    paddingHorizontal: 40,
-    marginBottom: 10,
-    color: 'white'
-  },
-  cancelarContainer: {
-    marginBottom: 11,
-  },
-  cancelButton: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  iconSearch: {
-    position: 'absolute',
-    left: 25,
-    top: 11
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#59994e',
-    width: 50,
-    height: 50,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5, // Sombra no Android
-    shadowColor: '#000', // Sombra no iOS
-    shadowOffset: { width: 7, height: 7 },
-    shadowOpacity: 0.7,
-    shadowRadius: 5,
-  },
-  addButtonText: {
-    fontSize: 25,
-    color: '#030302',
-    fontWeight: 'bold',
-    paddingBottom: 5
-  },
-  modalContent: {
-    backgroundColor: '#012E40',
-    padding: 20,
-    alignItems: 'center',
-    height: '88.55%',
-    position: 'absolute',
-    bottom: 0
-  },
-  headerContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    marginBottom: 35,
-    width: '100%',
-    justifyContent: 'space-between',
-  },
-  modalTitle: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  containerNome: {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-  },
-  inputBox: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    backgroundColor: '#d1d8e3',
-  },
-  textStyle: {
-    fontSize: 17,
-  },
-  placeholderStyleNome: {
-    color: '#191a1c',
-    fontSize: 13,
-  },
-  placeholderStyleEndereco: {
-    color: '#191a1c',
-    fontSize: 13,
-  },
-  inputLabel: {
-    position: 'absolute',
-    left: 10,
-    color: '#ccc',
-  },
-  iconEdit: {
-    position: 'absolute',
-    right: 10,
-    top: '25%',
-  },
-  containerEndereço: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    alignItems: 'center',
-  },
-  confirmarPlantaoButton: {
-    backgroundColor: '#111827',
-    display: 'flex',
-    width: '100%',
-    borderWidth: 1,
-    borderColor: 'transparent',
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ddd',
-    opacity: 0.2
-  },
-  buttonTextDisabled: {
-    color: 'black',
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 24,
-  },
-  confirmarPlantaoText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 24,
-  },
-  hospitalItem: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 5,
-    backgroundColor: '#1A4D5C',
-    padding: 10,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  nomeEnderecoContainer: {
-    display: 'flex',
-    alignItems: 'flex-start', 
-    justifyContent: 'flex-start',
-    flex: 1.5,
-  },
-  hospitalNome: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  hospitalEndereco: {
-    fontSize: 12,
-    color: '#bfb9a6',
-  },
-  permissaoMedico: {
-    fontSize: 12,
-    color: '#bfb9a6',
-  },
-  quantosPlantoes: {
-    flex: 0.5,
-    display: 'flex',
-    flexDirection: 'row',
-    fontSize: 12,
-    color: '#bfb9a6',
-    alignItems: 'center',
-  },
-  betweenInput: {
-    marginTop: 15,
-    marginBottom: 15,
-  },
-});
 

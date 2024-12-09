@@ -1,14 +1,15 @@
 import Entypo from '@expo/vector-icons/Entypo';
-import { router, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Image, Text, TouchableOpacity } from 'react-native';
+import styles from '@/src/styles/configuracoesScreenStyle';
 
 export default function ConfiguracoesScreen() {
-  const [profileImage, setProfileImage] = useState(null); // Estado para armazenar a imagem mockada
-  const mockUserName = "Edd Stark"; // Nome do usuário mockado
+  const [profileImage, setProfileImage] = useState(null);
+  const mockUserName = "Edd Stark";
 
   const handleSelectImage = () => {
-    // Lógica para selecionar imagem, por exemplo, usando um seletor de arquivos
+    // Lógica para selecionar imagem usando um seletor de arquivos
   };
 
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function ConfiguracoesScreen() {
               source={
                 profileImage
                   ? { uri: profileImage }
-                  : require("@/assets/images/hipocrates.png") // Imagem padrão se nenhuma for selecionada
+                  : require("@/assets/images/hipocrates.png")
               }
               style={styles.profileImage}
             />
@@ -50,59 +51,3 @@ export default function ConfiguracoesScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#012E40',
-    paddingHorizontal: 20,
-  },
-  profileContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20
-  },
-  userName: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  role: {
-    fontSize: 10,
-    color: '#fff',
-    marginBottom: 25,
-  },
-  imagePicker: {
-    alignItems: 'center',
-  },
-  profileImageContainer: {
-    width: 100, // Largura do círculo
-    height: 100, // Altura do círculo
-    borderRadius: 60, // Define a imagem como circular
-    borderColor: '#fff',
-    marginBottom: 10,
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-  },
-  changePhotoText: {
-    color: '#00BFFF',
-    fontSize: 14,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#01354A',
-    marginVertical: 5,
-    borderRadius: 25,
-    width: '100%',
-  },
-  settingText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-});

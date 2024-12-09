@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { Medico } from '../types';
+import { showMessage } from 'react-native-flash-message';
 import { Animated, TextInput } from 'react-native';
+import { Medico } from '../types';
 
 const medicosHooks = () => {
     const auth = getAuth();
@@ -73,15 +74,7 @@ const medicosHooks = () => {
     name: string,
   ) => {
     try {
-
-      const usersCollection = collection(db, "users");
-      const querySnapshot = await getDocs(query(usersCollection, where("email", "==", emailMedico)));
-
-      if (!querySnapshot.empty) {
-        alert("Este e-mail já está cadastrado. Por favor, use outro e-mail.");
-        return;
-      }
-
+      setIsButtonEnabled(false);
       const randomPassword = Math.random().toString(36).slice(-8);
       const userCredential = await createUserWithEmailAndPassword(auth, emailMedico, randomPassword);
       const user = userCredential.user; //`user.uid` é gerado automaticamente
@@ -96,11 +89,26 @@ const medicosHooks = () => {
         createdAt: Timestamp.now(),
       });
 
-      alert("Médico cadastrado com sucesso!");
       resetModal();
       fetchMedicos();
+      showMessage({
+        message: "Médico cadastrado com sucesso!",
+        type: "success",
+        floating: true,
+        duration: 4000,
+        statusBarHeight: -50,
+        style: {alignItems: 'center'}
+      });
     } catch (error) {
-      alert("Por favor, digite um E-mail válido.");
+      resetModal();
+      showMessage({
+        message: "Ocorreu um erro, tente novamente.",
+        type: "danger",
+        floating: true,
+        duration: 4000,
+        statusBarHeight: -50,
+        style: {alignItems: 'center'}
+      });
     }
   };
 
