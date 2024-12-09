@@ -53,6 +53,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 30,
+    alignItems: 'center'
   },
   plantaoMedico: {
     fontSize: 18,
