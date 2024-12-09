@@ -85,7 +85,6 @@ export default function HomeScreen() {
     }, [])
   );
 
-
   useEffect(() => {
     if (selectedDate) {
       const formattedSelectedDate = dayjs(selectedDate).format('YYYY-MM-DD');
@@ -105,7 +104,7 @@ export default function HomeScreen() {
           <MaterialIcons name="location-on" size={15.5} color="white"/>
         </View>
         <View style={styles.containerInfos}>
-          <Text style={styles.plantaoDate}> {item.data}</Text>
+          <Text style={styles.plantaoDate}> {dayjs(item.data).format('DD/MM/YYYY')}</Text>
           <Text style={styles.plantaoTurno}> {item.horario}</Text>
           <Text style={styles.plantaoLocal}> {item.local}</Text>
         </View>
@@ -117,14 +116,6 @@ export default function HomeScreen() {
     </View>
   );
 
-   // Renderizar texto e ícone quando nenhuma data está selecionada
-   const renderEmptyState = () => (
-        <View style={styles.noPlantaoContainer}>
-          <MaterialIcons name="error" size={40} color="white" />
-          <Text style={styles.noPlantaoText}>Selecione uma data!</Text>
-        </View>
-  );
-
   const onDayPress = (date: Date) => {
     if (date) {
       setSelectedDate(date); // Armazena o objeto Date
@@ -134,9 +125,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.containerPapai}>
         <View style={styles.containerPai}>
-        {Object.keys(markedDays).length > 0 ? (
         <Calendar
             locale={'br'}
+            key={JSON.stringify(markedDays)}
             markedDays={markedDays}
             onPress={onDayPress}
             startDate={selectedDate || undefined}
@@ -190,9 +181,6 @@ export default function HomeScreen() {
               nonTouchableLastMonthDayTextStyle: {},
             }}
           />
-        ) : (
-          <Text></Text>// Exibe uma mensagem enquanto os dados não estão prontos
-        )}
         </View>
 
           <View style={styles.container}>
@@ -201,15 +189,7 @@ export default function HomeScreen() {
             </View>
         
             {/* Condicional: nenhuma data, estado vazio ou plantões */}
-            {selectedDate === null ? (
-              <View style={styles.noPlantaoContainer}>
-                <View style={styles.noPlantaoContainerItems}>
-                  <MaterialIcons name="error" size={40} color="white" />
-                  <Text style={styles.noPlantaoText}>Selecione uma data!</Text>
-                </View>
-              </View>
-
-            ) : filteredPlantao.length === 0 ? (
+           {filteredPlantao.length === 0 ? (
               <View style={styles.noPlantaoContainer}>
                 <View style={styles.noPlantaoContainerItems}>
                   <MaterialIcons name="error" size={40} color="white" />
@@ -237,22 +217,15 @@ const styles = StyleSheet.create({
   containerPapai: {
     flex: 1,
     backgroundColor: '#012E40',
-    paddingTop: 30
   },
   containerPai: {
-    flex: 1.5,
+    marginTop: 15,
+    flex: 2.5,
     backgroundColor: '#012E40',
   },
   container: {
     backgroundColor: '#012E40',
     flex: 1
-  },
-  textMonthCalendar: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    alignSelf: 'center',
-    marginBottom: 15
   },
   plantaoContainer: {
     flexDirection: 'row',

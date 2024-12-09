@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Modal } from 'react-native';
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, Animated, Modal, useColorScheme } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -30,13 +30,9 @@ export default function PlantoesScreen() {
   const [time, setTime] = useState(dayjs());
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
-  const labelDataAnimation = useRef(new Animated.Value(0)).current;
   const labelFuncaoAnimation = useRef(new Animated.Value(0)).current;
-  const labelHoraAnimation = useRef(new Animated.Value(0)).current;
   const labelMedicoAnimation = useRef(new Animated.Value(0)).current;
   const labelLocalAnimation = useRef(new Animated.Value(0)).current;
-  const [refreshing, setRefreshing] = useState(false);
-  const rotationRefresh = useState(new Animated.Value(0))[0];
 
   const [openMedico, setOpenMedico] = useState(false);
   const [valueMedico, setValueMedico] = useState<string | null>(null);
@@ -58,31 +54,6 @@ export default function PlantoesScreen() {
 
   const db = getFirestore();
 
-   //Calcular rotação
-   const rotate = rotationRefresh.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  //Ajustar rotação
-  const animatedStyle = {
-    transform: [
-      { rotate },
-      { translateY: -5 },
-    ],
-  };
-
-  const onRefresh = async () => {
-    rotationRefresh.setValue(0);
-    setRefreshing(true);
-    Animated.timing(rotationRefresh, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-    await fetchPlantoes();
-  };
-
   // Buscar Plantões no FireStore
   const fetchPlantoes = async () => {
     try {
@@ -91,10 +62,11 @@ export default function PlantoesScreen() {
       );
       const plantoesList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
+        const formattedData = dayjs(data.data).format('DD/MM/YYYY');
         return {
           id: doc.id,
           plantonista: data.plantonista,
-          data: data.data,
+          data: formattedData,
           horario: data.horario,
           local: data.local,
           funcao: data.funcao
@@ -103,9 +75,6 @@ export default function PlantoesScreen() {
       setPlantoes(plantoesList);
     } catch (error) {
       console.error("Erro ao buscar hospitais:", error);
-      setRefreshing(false);
-    } finally {
-      setRefreshing(false);
     }
   };
 
@@ -176,22 +145,6 @@ useFocusEffect(() => {
     checkFields();
   }, [valueMedico, selectedDate, selectedHora, valueLocal, valueFuncao]);
 
-  const handleFocusDate = () => {
-      Animated.timing(labelDataAnimation, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-};
-
-  const handleFocusHora = () => {
-      Animated.timing(labelHoraAnimation, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-};
-
   const handleFocusMedico = () => {
     Animated.timing(labelMedicoAnimation, {
       toValue: 1,
@@ -206,22 +159,6 @@ const handleFocusLocal = () => {
     duration: 200,
     useNativeDriver: false,
   }).start();
-};
-
-  const handleBlurDate = () => {
-      Animated.timing(labelDataAnimation, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-};
-
-  const handleBlurHora = () => {
-    Animated.timing(labelHoraAnimation, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
 };
 
 const handleBlurMedico = () => {
@@ -334,8 +271,6 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
     setValueFuncao(null);
     setOpenFuncao(false);
     setIsButtonEnabled(false)
-    handleBlurDate();
-    handleBlurHora();
     handleBlurMedico();
     handleBlurLocal();
     handleBlurFuncao();
@@ -366,13 +301,6 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
     <View style={styles.containerPai}>
         <View style={styles.header}>
           <Text style={styles.plantaoTitle}>Plantões</Text>
-          <TouchableOpacity 
-              onPress={onRefresh}
-              disabled={refreshing}>
-            <Animated.View style={animatedStyle}>
-              <FontAwesome name="refresh" size={22} style={styles.refreshIcon} />
-            </Animated.View>
-          </TouchableOpacity>
         </View>
       <View style={styles.plantaoContainer}>
         <FlatList
@@ -596,10 +524,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
-  refreshIcon: {
-    paddingTop: 10,
-    color: '#458fa3'
-  },
   plantaoItem: {
     display: 'flex',
     flexDirection: 'row',
@@ -716,18 +640,6 @@ const styles = StyleSheet.create({
   containerDataHora: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    paddingRight: 30
-  },
-  inputBox: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    backgroundColor: '#d1d8e3',
     justifyContent: 'center',
   },
   inputBoxPickerMedico: {
