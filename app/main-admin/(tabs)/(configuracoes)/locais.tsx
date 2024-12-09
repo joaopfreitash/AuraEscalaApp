@@ -34,7 +34,6 @@ export default function LocaisScreen() {
 
   const labelNomeAnimation = useRef(new Animated.Value(0)).current;
   const labelEnderecoAnimation = useRef(new Animated.Value(0)).current;
-  const rotationRefresh = useState(new Animated.Value(0))[0];
 
   const navigation = useNavigation();
 
@@ -95,21 +94,6 @@ export default function LocaisScreen() {
     }
   }, [modalVisible, navigation]);
 
-  //Calcular rotação
-  const rotate = rotationRefresh.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  //Ajustar rotação
-  const animatedStyle = {
-    transform: [
-      { rotate },
-      { translateY: -5 },
-    ],
-  };
-
-
   // Buscar Hospitais no FireStore
     const fetchHospitals = async () => {
       try {
@@ -139,17 +123,6 @@ export default function LocaisScreen() {
   useEffect(() => {
     fetchHospitals();
   }, []);
-
-  const onRefresh = async () => {
-    rotationRefresh.setValue(0);
-    setRefreshing(true);
-    Animated.timing(rotationRefresh, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-    await fetchHospitals();
-  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text); // Atualiza a query de pesquisa
@@ -191,6 +164,7 @@ export default function LocaisScreen() {
 
       alert("Hospital cadastrado com sucesso!");
       resetModal();
+      fetchHospitals();
     } catch (error) {
       alert("Por favor, tente novamente.");
     }
@@ -283,13 +257,6 @@ export default function LocaisScreen() {
       <View style={styles.medicosContainer}>
         <View style={styles.header}>
           <Text style={styles.medicosTitle}>Hospitais</Text>
-          <TouchableOpacity 
-              onPress={onRefresh}
-              disabled={refreshing}>
-            <Animated.View style={animatedStyle}>
-              <FontAwesome name="refresh" size={22} style={styles.refreshIcon} />
-            </Animated.View>
-          </TouchableOpacity>
         </View>
 
         {/* Campo de pesquisa */}
@@ -482,10 +449,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: 10,
     paddingHorizontal: 10,
-  },
-  refreshIcon: {
-    paddingTop: 10,
-    color: '#458fa3'
   },
   header: {
     width: '100%',

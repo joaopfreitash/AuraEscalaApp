@@ -83,10 +83,6 @@ useEffect(() => {
   fetchPlantoes();
 }, []);
 
-useFocusEffect(() => {
-  fetchPlantoes();
-},);
-
   // Buscar médicos no firestore para o Dropdown em Add plantão
   const fetchMedicos = async () => {
     try {
@@ -254,6 +250,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
       });
   
       resetModal();
+      fetchPlantoes();
       alert("Plantão cadastrado com sucesso!");
     } catch (error) {
       alert("Ocorreu um erro ao tentar cadastrar o plantão. Tente novamente.");
@@ -306,6 +303,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
         <FlatList
           style={styles.flatListContainer}
           data={plantoes}
+          key={JSON.stringify(plantoes)}
           renderItem={renderPlantaoItem}
           keyExtractor={(item) => item.id}
           numColumns={1}

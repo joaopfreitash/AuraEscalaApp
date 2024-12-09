@@ -42,7 +42,6 @@ export default function MedicosScreen() {
   const labelNomeAnimation = useRef(new Animated.Value(0)).current;
   const labelEmailAnimation = useRef(new Animated.Value(0)).current;
   const labelRoleAnimation = useRef(new Animated.Value(0)).current;
-  const rotationRefresh = useState(new Animated.Value(0))[0];
   
     // Animação da largura da barra de pesquisa
     const searchBarWidth = useRef(new Animated.Value(100)).current;
@@ -79,20 +78,6 @@ export default function MedicosScreen() {
         useNativeDriver: false,
       }).start();
     };
-
-  //Calcular rotação
-  const rotate = rotationRefresh.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  //Ajustar rotação
-  const animatedStyle = {
-    transform: [
-      { rotate },
-      { translateY: -5 },
-    ],
-  };
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
@@ -132,17 +117,6 @@ export default function MedicosScreen() {
   useEffect(() => {
     fetchMedicos();
   }, []);
-
-  const onRefresh = async () => {
-    rotationRefresh.setValue(0);
-    setRefreshing(true); // Ativa o estado de carregamento
-    Animated.timing(rotationRefresh, {
-      toValue: 1,
-      duration: 500,  // Rotação completa a cada 800ms
-      useNativeDriver: true,
-    }).start();
-    await fetchMedicos(); // Chama a função que pega os dados atualizados do Firestore
-  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text); // Atualiza a query de pesquisa
@@ -212,6 +186,7 @@ const toggleFilter = () => {
 
       alert("Médico cadastrado com sucesso!");
       resetModal();
+      fetchMedicos();
     } catch (error) {
       alert("Por favor, digite um E-mail válido.");
     }
@@ -327,13 +302,6 @@ const handleBlurRole = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.medicosTitle}>Médicos</Text>
-            <TouchableOpacity 
-                onPress={onRefresh}
-                disabled={refreshing}>
-              <Animated.View style={animatedStyle}>
-                <FontAwesome name="refresh" size={22} style={styles.refreshIcon} />
-              </Animated.View>
-            </TouchableOpacity>
           </View>
           <View style={styles.containerPaiFiltros}>
               <TouchableOpacity onPress={toggleFilter}>
@@ -575,10 +543,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: 10,
     paddingHorizontal: 10,
-  },
-  refreshIcon: {
-    paddingTop: 10,
-    color: '#458fa3'
   },
   header: {
     width: '100%',

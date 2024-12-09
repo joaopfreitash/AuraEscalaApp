@@ -7,12 +7,14 @@ import { useFocusEffect } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Entypo } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [markedDays, setMarkedDays] = useState<MarkedDays>({});
+  const [isExpanded, setIsExpanded] = useState(false);
   const db = getFirestore();
 
   type Plantao = {
@@ -122,8 +124,13 @@ export default function HomeScreen() {
     }
   };
 
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded); // Alternar entre expandido e retraído
+  };
+
   return (
     <View style={styles.containerPapai}>
+      {!isExpanded && (
         <View style={styles.containerPai}>
         <Calendar
             locale={'br'}
@@ -182,31 +189,41 @@ export default function HomeScreen() {
             }}
           />
         </View>
+      )}
 
           <View style={styles.container}>
-            <View style={styles.header}>
-              <Text style={styles.plantaoTitle}>Plantões nesse dia</Text>
-            </View>
-        
-            {/* Condicional: nenhuma data, estado vazio ou plantões */}
-           {filteredPlantao.length === 0 ? (
-              <View style={styles.noPlantaoContainer}>
-                <View style={styles.noPlantaoContainerItems}>
-                  <MaterialIcons name="error" size={40} color="white" />
-                  <Text style={styles.noPlantaoText}>Nada por aqui!</Text>
-                </View>
-              </View>
-
-            ) : (
-              <View style={styles.plantaoContainer}>
-                <FlatList
-                  style={styles.flatlistContainer}
-                  data={filteredPlantao}
-                  renderItem={renderPlantaoItem}
-                  keyExtractor={(item) => item.id}
+            <TouchableOpacity onPress={handleToggleExpand}>
+              <View style={styles.header}>
+                  <Text style={styles.plantaoTitle}>Plantões nesse dia</Text>
+                  <Entypo
+                  name={isExpanded ? 'chevron-down' : 'chevron-up'}
+                  size={24}
+                  color="white"
+                  marginTop={5}
+                  marginLeft={10}
                 />
               </View>
-            )}
+            </TouchableOpacity>
+        
+            {/* Condicional: nenhuma data, estado vazio ou plantões */}
+              {filteredPlantao.length === 0 ? (
+                  <View style={styles.noPlantaoContainer}>
+                    <View style={styles.noPlantaoContainerItems}>
+                      <MaterialIcons name="error" size={40} color="white" />
+                      <Text style={styles.noPlantaoText}>Nada por aqui!</Text>
+                    </View>
+                  </View>
+
+                ) : (
+                  <View style={styles.plantaoContainer}>
+                    <FlatList
+                      style={styles.flatlistContainer}
+                      data={filteredPlantao}
+                      renderItem={renderPlantaoItem}
+                      keyExtractor={(item) => item.id}
+                    />
+                  </View>
+                )}
         </View>
       </View>
   );
@@ -236,15 +253,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   header: {
-    paddingHorizontal: 10
+    width: '100%',
+    flexDirection: 'row',
+    paddingLeft: 10
   },
   plantaoTitle: {
     fontSize: 25,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 10,
-    width: '100%',
-    paddingHorizontal: 10
+    paddingLeft: 10
   },
   plantaoItem: {
     display: 'flex',
