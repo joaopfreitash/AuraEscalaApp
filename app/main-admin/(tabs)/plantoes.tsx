@@ -9,6 +9,7 @@ import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, order
 import { useFocusEffect } from 'expo-router';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 export default function PlantoesScreen() {
 
@@ -20,7 +21,6 @@ export default function PlantoesScreen() {
     local: string;
     funcao: string;
   };
-
 
   const [modalVisible, setModalVisible] = useState(false);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
@@ -251,9 +251,24 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
   
       resetModal();
       fetchPlantoes();
-      alert("Plantão cadastrado com sucesso!");
+      showMessage({
+        message: "Plantão cadastrado com sucesso!",
+        type: "success",
+        floating: true,
+        duration: 4000,
+        statusBarHeight: -50,
+        style: {alignItems: 'center'}
+      });
     } catch (error) {
-      alert("Ocorreu um erro ao tentar cadastrar o plantão. Tente novamente.");
+      resetModal();
+      showMessage({
+        message: "Ocorreu um erro, tente novamente.",
+        type: "danger",
+        floating: true,
+        duration: 4000,
+        statusBarHeight: -50,
+        style: {alignItems: 'center'}
+      });
     }
   };  
 
@@ -482,7 +497,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
                         disabled={!isButtonEnabled}
                         onPress={() => {
                           if (!valueMedico || !valueLocal || !selectedDate || !selectedHora || !valueFuncao) {
-                            alert("Por favor, preencha todos os campos.");
+                            //alert("Por favor, preencha todos os campos.");
                             return;
                           }
                           handleRegisterShift(valueMedico, valueLocal, selectedDate, selectedHora, valueFuncao);
@@ -492,6 +507,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
                     </TouchableOpacity>
             </View>
           </Modal>
+          <FlashMessage/>
     </View>
   );
 }
