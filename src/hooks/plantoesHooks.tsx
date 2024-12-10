@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion } from "firebase/firestore";
 import dayjs from 'dayjs';
-import { showMessage } from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { Plantao } from '../types';
 import { Animated } from 'react-native';
 
 const plantoesHooks = () => {
   const db = getFirestore();
+
+  const alertPlantao = useRef<FlashMessage | null>(null);
 
   const [isFuncaoFocused, setFuncaoFocused] = useState(false)
   const [isMedicoFocused, setMedicoFocused] = useState(false)
@@ -157,7 +159,8 @@ const plantoesHooks = () => {
   
       resetModal();
       fetchPlantoes();
-      showMessage({
+      if (alertPlantao.current) {
+      alertPlantao.current.showMessage({
         message: "Plantão cadastrado com sucesso!",
         type: "success",
         floating: true,
@@ -165,9 +168,11 @@ const plantoesHooks = () => {
         statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
+    }
     } catch (error) {
       resetModal();
-      showMessage({
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
         message: "Ocorreu um erro, tente novamente.",
         type: "danger",
         floating: true,
@@ -175,6 +180,7 @@ const plantoesHooks = () => {
         statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
+      }
     }
   };
   
@@ -237,7 +243,7 @@ const handleFocusFuncao = () => {
     setDate, setTime, setModalVisible, modalVisible, date, time,
     openMedico, itemsMedico, setOpenMedico, setValueMedico, setItemsMedico,
     openFuncao, itemsFuncao, setOpenFuncao, setValueFuncao,
-    setItemsFuncao, openLocal, itemsLocal, setOpenLocal,
+    setItemsFuncao, openLocal, itemsLocal, setOpenLocal, alertPlantao,
     setValueLocal, setItemsLocal, isButtonEnabled, handleRegisterShift,
     labelFuncaoAnimation, labelMedicoAnimation, labelLocalAnimation,
     handleFocusLocal, handleFocusFuncao, handleFocusMedico };

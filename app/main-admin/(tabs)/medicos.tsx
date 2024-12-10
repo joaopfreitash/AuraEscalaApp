@@ -22,7 +22,7 @@ export default function MedicosScreen() {
   const { resetModal, fetchMedicos, medicos,
     filteredMedicos, setFilteredMedicos, filterType, nomeMedico, setIsButtonEnabled,
     emailMedico, value, setModalVisible, modalVisible, toggleFilter, labelRoleAnimation,
-    isNomeFocused, setNomeMedico, nomeInputRef, handleRegisterDoctor,
+    isNomeFocused, setNomeMedico, nomeInputRef, handleRegisterDoctor, alertMedico,
     setIsNomeFocused, emailInputRef, setEmailMedico, open, items, setOpen,
     isEmailFocused, setIsEmailFocused, isButtonEnabled, handleFocusRole, handleFocus,
     setValue, setItems, labelNomeAnimation, labelEmailAnimation} = medicosHooks();
@@ -308,7 +308,7 @@ export default function MedicosScreen() {
                     </TouchableOpacity>
             </View> 
           </Modal>
-          <FlashMessage/>
+          <FlashMessage ref={alertMedico}/>
     </View>
   );
 }

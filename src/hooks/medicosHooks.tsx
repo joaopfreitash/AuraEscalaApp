@@ -1,13 +1,15 @@
 import { useRef, useState } from 'react';
 import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { showMessage } from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { Animated, TextInput } from 'react-native';
 import { Medico } from '../types';
 
 const medicosHooks = () => {
     const auth = getAuth();
     const db = getFirestore();
+
+    const alertMedico = useRef<FlashMessage | null>(null);
 
     const labelNomeAnimation = useRef(new Animated.Value(0)).current;
     const labelEmailAnimation = useRef(new Animated.Value(0)).current;
@@ -91,17 +93,20 @@ const medicosHooks = () => {
 
       resetModal();
       fetchMedicos();
-      showMessage({
-        message: "Médico cadastrado com sucesso!",
-        type: "success",
-        floating: true,
-        duration: 4000,
-        statusBarHeight: -50,
-        style: {alignItems: 'center'}
-      });
+      if (alertMedico.current) {
+        alertMedico.current.showMessage({
+          message: "Médico cadastrado com sucesso!",
+          type: "success",
+          floating: true,
+          duration: 4000,
+          statusBarHeight: -50,
+          style: {alignItems: 'center'}
+        });
+      }
     } catch (error) {
       resetModal();
-      showMessage({
+      if (alertMedico.current) {
+        alertMedico.current.showMessage({
         message: "Ocorreu um erro, tente novamente.",
         type: "danger",
         floating: true,
@@ -109,6 +114,7 @@ const medicosHooks = () => {
         statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
+      }
     }
   };
 
@@ -176,7 +182,7 @@ setRoleFocused(false);
 };
 
   return { filteredMedicos, setFilteredMedicos, filterType, nomeMedico, setIsButtonEnabled,
-    emailMedico, value, setModalVisible, modalVisible, toggleFilter,
+    emailMedico, value, setModalVisible, modalVisible, toggleFilter, alertMedico,
     resetModal, fetchMedicos, medicos, handleFocus, handleFocusRole,
     isNomeFocused, setNomeMedico, nomeInputRef, handleRegisterDoctor,
     setIsNomeFocused, emailInputRef, setEmailMedico, open, items, setOpen,

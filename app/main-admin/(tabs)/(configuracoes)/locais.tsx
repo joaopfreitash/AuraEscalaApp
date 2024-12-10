@@ -22,7 +22,7 @@ export default function LocaisScreen() {
     nomeHospital, hospitais, setModalVisible, modalVisible, handleRegisterHospital,
     resetModal, fetchHospitals, handleFocus, setEnderecoHospital,
     isNomeFocused, setNomeHospital, nomeInputRef,
-    setIsNomeFocused, enderecoInputRef,
+    setIsNomeFocused, enderecoInputRef, alertLocal,
     isEnderecoFocused, setIsEnderecoFocused, isButtonEnabled,
     labelNomeAnimation, labelEnderecoAnimation}  = locaisHooks();
 
@@ -263,7 +263,7 @@ export default function LocaisScreen() {
                     </TouchableOpacity>
             </View>  
           </Modal>
-          <FlashMessage/>
+          <FlashMessage ref={alertLocal}/>
     </View>
   );
 }

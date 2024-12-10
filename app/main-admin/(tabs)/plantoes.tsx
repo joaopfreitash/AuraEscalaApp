@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Animated, Modal } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -19,7 +19,7 @@ export default function PlantoesScreen() {
     setDate, setTime, setModalVisible, modalVisible, date, time,
     openMedico, itemsMedico, setOpenMedico, setValueMedico, setItemsMedico, 
     openFuncao, itemsFuncao, setOpenFuncao, setValueFuncao,
-    setItemsFuncao, openLocal, itemsLocal, setOpenLocal,
+    setItemsFuncao, openLocal, itemsLocal, setOpenLocal, alertPlantao,
     setValueLocal, setItemsLocal, isButtonEnabled, handleRegisterShift,
     labelFuncaoAnimation, labelMedicoAnimation, labelLocalAnimation,
     handleFocusMedico, handleFocusFuncao, handleFocusLocal } = plantoesHooks();
@@ -262,7 +262,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
                     </TouchableOpacity>
             </View>
           </Modal>
-          <FlashMessage/>
+          <FlashMessage ref={alertPlantao}/>
     </View>
   );
 }

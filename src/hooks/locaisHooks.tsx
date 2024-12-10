@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy } from "firebase/firestore";
-import { showMessage } from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { Animated, TextInput } from 'react-native';
 import { Hospital } from '../types';
 
 const locaisHooks = () => {
     const db = getFirestore();
+
+    const alertLocal = useRef<FlashMessage | null>(null);
 
     const [hospitais, setHospitais] = useState<Hospital[]>([]);
     const [filteredHospitais, setFilteredHospitais] = useState<Hospital[]>([]);
@@ -70,7 +72,8 @@ const locaisHooks = () => {
 
       resetModal();
       fetchHospitals();
-      showMessage({
+      if (alertLocal.current) {
+      alertLocal.current.showMessage({
         message: "Hospital cadastrado com sucesso!",
         type: "success",
         floating: true,
@@ -78,9 +81,11 @@ const locaisHooks = () => {
         statusBarHeight: -5,
         style: {alignItems: 'center'}
       });
+      }
     } catch (error) {
       resetModal();
-      showMessage({
+      if (alertLocal.current) {
+        alertLocal.current.showMessage({
         message: "Ocorreu um erro, tente novamente.",
         type: "danger",
         floating: true,
@@ -88,6 +93,7 @@ const locaisHooks = () => {
         statusBarHeight: -5,
         style: {alignItems: 'center'}
       });
+      }
     }
   };
 
@@ -130,7 +136,7 @@ const locaisHooks = () => {
     nomeHospital, hospitais, setModalVisible, modalVisible, handleRegisterHospital,
     resetModal, fetchHospitals, handleFocus, setEnderecoHospital,
     isNomeFocused, setNomeHospital, nomeInputRef,
-    setIsNomeFocused, enderecoInputRef,
+    setIsNomeFocused, enderecoInputRef, alertLocal,
     isEnderecoFocused, setIsEnderecoFocused, isButtonEnabled,
     labelNomeAnimation, labelEnderecoAnimation};
 };
