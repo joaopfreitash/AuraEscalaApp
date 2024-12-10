@@ -1,17 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, View, Text, TouchableOpacity, Modal } from 'react-native';
+import { FlatList, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendario';
 import { useFocusEffect } from 'expo-router';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
-import homeHooks from '@/src/hooks/homeHooks';
+import homeUserHooks from '@/src/hooks/homeUserHooks';
 import PlantaoItem from '@/src/components/plantaoItem';
 import styles from '@/src/styles/homeScreenStyle';
 
-export default function HomeScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+export default function HomeUserScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { markedDays, filteredPlantao, fetchPlantoes } = homeHooks(selectedDate);
+  const { markedDays, filteredPlantao, fetchPlantoes, setSelectedDate, selectedDate } = homeUserHooks();
 
   useFocusEffect(
     useCallback(() => {

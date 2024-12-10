@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack } from 'expo-router';
 import { Dimensions, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 
-export default function LayoutConfiguracoes() {
+export default function LayoutConfiguracoesUser() {
   return (
     <Stack>
       <Stack.Screen name="configuracoes"
@@ -34,17 +34,6 @@ export default function LayoutConfiguracoes() {
             </TouchableOpacity>
           </SafeAreaView>
         ),
-      }}
-      />
-      <Stack.Screen name="locais"
-      options={{
-        headerShown: true,
-        title: '',
-        headerShadowVisible: false,
-        headerStyle: {
-          backgroundColor: '#081e27',
-        },
-        headerTintColor: '#fff',
       }}
       />
     </Stack>

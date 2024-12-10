@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion } from "firebase/firestore";
 import dayjs from 'dayjs';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
+import FlashMessage from 'react-native-flash-message';
 import { Plantao } from '../types';
 import { Animated } from 'react-native';
 

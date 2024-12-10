@@ -25,7 +25,41 @@ export default function LoginScreen() {
         } = loginHooks();
 
         const handleLogin = async () => {
+          try {
+            // Realiza o login com as credenciais fornecidas
+            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+            const user = userCredential.user;
+        
+            // Busca as informações adicionais do usuário no Firestore
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+        
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+        
+              // Cria um objeto combinado com os dados do Firebase Auth + Firestore
+              const combinedUserData = {
+                uid: user.uid,
+                email: user.email,
+                name: userData.name,
+              };
+        
+              // Armazena o objeto combinado no AsyncStorage
+              await AsyncStorage.setItem("@user", JSON.stringify(combinedUserData));
+        
+              // Navega para a tela apropriada com base no tipo de usuário
+              if (userData.isAdmin) {
                 router.replace("../main-admin");
+              } else {
+                router.replace("../main-user/(tabs)/home");
+              }
+            } else {
+              alert("Usuário não encontrado no sistema.");
+            }
+          } catch (error) {
+            console.error("Erro no login:", error);
+            alert("Falha no login: Verifique suas credenciais.");
+          }
         };
 
   return (
