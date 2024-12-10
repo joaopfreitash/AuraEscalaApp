@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, View, Text, TouchableOpacity } from 'react-native';
+import { FlatList, View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Calendar } from 'react-native-calendario';
 import { useFocusEffect } from 'expo-router';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
@@ -85,7 +85,6 @@ export default function HomeScreen() {
           />
         </View>
       )}
-
       <View style={styles.listContainer}>
         <TouchableOpacity onPress={handleToggleExpand} style={styles.header}>
           <Text style={styles.plantaoTitle}>Plantões nesse dia</Text>

@@ -31,7 +31,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         margin: 5,
-        backgroundColor: '#1A4D5C',
+        backgroundColor: '#103d4a',
         padding: 10,
         borderRadius: 8,
         shadowColor: '#000',
