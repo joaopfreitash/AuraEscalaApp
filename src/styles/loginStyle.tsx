@@ -1,0 +1,124 @@
+import { Dimensions, StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    contentContainer:{
+        display: 'flex',
+        flexGrow: 1,
+        marginTop: 70,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        justifyContent: 'space-between',
+      },
+      container: {
+        display: 'flex',
+        width: '100%',
+        maxHeight: '100%',
+        alignItems: 'center',
+      },
+      image: {
+        display: 'flex',
+        marginBottom: 8,
+        width: Dimensions.get('window').width * 0.5,
+        height: (Dimensions.get('window').width * 0.5) * 0.5,
+      },
+      inputContainerIndex: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems:'center', 
+        marginBottom: 25,
+        marginTop: 50
+      },
+      inputContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems:'center', 
+        marginBottom: 25,
+      },
+      inputLabel: {
+        position: 'absolute',
+        left: 10,
+        color: '#ccc',
+      },
+      input: {
+        width: '100%',
+        height: 50,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 15,
+        paddingHorizontal: 10,
+        backgroundColor: '#d1d8e3',
+      },
+      iconEmail: {
+        position: 'absolute',
+        right: 10,
+        top: '25%',
+      },
+      iconPass: {
+        position: 'absolute',
+        right: 15,
+        top: '25%',
+      },
+      button: {
+        backgroundColor: '#111827',
+        display: 'flex',
+        width: '100%',
+        borderWidth: 1,
+        borderColor: 'transparent',
+        borderRadius: 30,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      buttonText: {
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '600',
+        lineHeight: 24,
+      },
+      linkEsqueci: {
+        alignSelf: 'flex-end',
+        fontSize: 14,
+        color: '#FFFFFF',
+        marginTop: 8,
+      },
+      textEsqueci: {
+        fontSize: 14,
+        color: '#FFFFFF',
+      },
+      footerLink: {
+        fontSize: 14,
+        color: '#FFFFFF',
+      },
+      footerContainer: {
+        alignItems: 'center',
+        display: 'flex',
+        marginBottom: 100,
+      },
+      footerText: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginBottom: 10,
+        color: '#ffffff',
+      },
+      titleText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#ffffff',
+        marginTop: 50
+      },
+      inputContainerEsqueci: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems:'center', 
+        marginBottom: 25,
+        marginTop: 35
+      },
+      inputContainerCadastro: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems:'center', 
+        marginBottom: 25,
+        marginTop: 35
+      },
+});
