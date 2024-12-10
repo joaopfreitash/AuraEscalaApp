@@ -4,28 +4,29 @@ import { View, Text, TextInput, TouchableOpacity, Image, Animated, ScrollView, }
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-//import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-//import { getFirestore, doc, getDoc } from "firebase/firestore";
-/* import AsyncStorage from "@react-native-async-storage/async-storage"; */
+import { browserLocalPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import "@/firebaseConfig";
 
 import styles from '@/src/styles/loginStyle';
 import loginHooks from '@/src/hooks/loginHooks';
 
+
+
 export default function LoginScreen() {
   const router = useRouter();
-  //const auth = getAuth();
-  //const db = getFirestore();
+  const auth = getAuth();
+  const db = getFirestore();
 
   const { emailLabelAnimated, isEmailFocused, email, setEmail, handleFocus,
           setIsEmailFocused, handleBlur, senhaLabelAnimated, isSenhaFocused,
           senha, setSenha, setIsSenhaFocused, 
         } = loginHooks();
 
-
-  const handleLogin = async () => {
-          router.replace("../main-admin/(tabs)/home");
-  };
+        const handleLogin = async () => {
+                router.replace("../main-admin");
+        };
 
   return (
     <ScrollView scrollEnabled={false} contentContainerStyle={styles.contentContainer}>
