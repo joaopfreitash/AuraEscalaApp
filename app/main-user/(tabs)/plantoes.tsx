@@ -1,21 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal,
   TextInput, Keyboard, TouchableWithoutFeedback, 
   SafeAreaView, Image,
   Dimensions} from 'react-native';
 
 import styles from '@/src/styles/plantoesUserScreenStyle';
+import stylesModal from '@/src/styles/notificationModalStyle';
 import PlantaoItem from '@/src/components/plantaoItem';
 import plantoesUserHooks from '@/src/hooks/plantoesUserHooks';
-import { Entypo, Ionicons } from '@expo/vector-icons';
+import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import FlashMessage from 'react-native-flash-message';
+import homeUserHooks from '@/src/hooks/homeUserHooks';
 
 export default function PlantoesUserScreen() {
   const { plantoes, resetModal, handleSelectPlantao,
     selectedPlantao, selectedPlantaoId, setModalVisible, modalVisible,
     text, setText, handleConcluirPlantao, alertPlantao } = plantoesUserHooks();
-  
+    const { hasNewNotification, isTherePlantaoNovo, updatePlantaoIdsArray, checkNewPlantao } = homeUserHooks();
 
+    const [modalNotifVisible, setModalNotifVisible] = useState(false);
+
+    const handleNotificationPress = () => {
+      setModalNotifVisible(true);
+    };
+
+    const handleCloseModal = () => {
+      setModalNotifVisible(false);
+      updatePlantaoIdsArray();
+    }
+
+    useEffect(() => {
+      checkNewPlantao();
+    }, []);
+  
   return (
     <View style={styles.containerPai}>
       <View style={styles.wrapperHeader}>
@@ -28,8 +45,12 @@ export default function PlantoesUserScreen() {
               }}
             />
             <SafeAreaView>
-              <TouchableOpacity>
-                <Ionicons name="notifications" size={24} color="white" />
+            <TouchableOpacity onPress={() => handleNotificationPress()}>
+              {hasNewNotification ? (
+                <MaterialIcons name="notification-important" size={24} color="red" />
+              ) : (
+                <MaterialIcons name="notifications" size={24} color="white" />
+              )}
             </TouchableOpacity>
             </SafeAreaView>
       </SafeAreaView>
@@ -124,6 +145,26 @@ export default function PlantoesUserScreen() {
           </View>
           </TouchableWithoutFeedback>
       </Modal>
+      <Modal
+      visible={modalNotifVisible}
+      transparent
+      animationType="fade"
+      >
+      <View style={stylesModal.overlay}>
+        <View style={stylesModal.modalContent}>
+          <Text style={stylesModal.title}>Notificações</Text>
+          <Text style={stylesModal.message}>
+            {isTherePlantaoNovo
+              ? <Text style={stylesModal.simNotificacao}>Você tem novos plantões cadastrados. Verifique a aba Plantões.</Text>
+              : "Nenhuma notificação no momento"
+            }
+          </Text>
+          <TouchableOpacity onPress={() => handleCloseModal()} style={stylesModal.closeButton}>
+            <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
       <FlashMessage ref={alertPlantao}/>
     </View>
   );

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import dayjs from 'dayjs';
 import FlashMessage from 'react-native-flash-message';
 import { Plantao } from '../types';
@@ -148,9 +148,18 @@ const plantoesHooks = () => {
       });
   
       const medicoRef = doc(db, "users", medicoUid);
+      const medicoDocSnapshot = await getDoc(medicoRef);
+      const medicoData = medicoDocSnapshot.data();
+      const plantaoIdsNovos = medicoData?.plantaoIdsNovos || [];
+      const plantaoIdsAntigos = medicoData?.plantaoIdsAntigos || [];
+
+      const updatedPlantaoIdsAntigos = [...plantaoIdsAntigos, ...plantaoIdsNovos];
+      const updatedPlantaoIdsNovos = [shiftId];
+
       await updateDoc(medicoRef, {
-        plantaoIds: arrayUnion(shiftId),
-      });
+      plantaoIdsNovos: updatedPlantaoIdsNovos,
+      plantaoIdsAntigos: updatedPlantaoIdsAntigos,
+    });
 
       const localRef = doc(db, "hospitais", localUid);
       await updateDoc(localRef, {

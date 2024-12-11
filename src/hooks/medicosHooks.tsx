@@ -55,12 +55,16 @@ const medicosHooks = () => {
           );
           const medicosList = querySnapshot.docs.map((doc) => {
             const data = doc.data();
+            const plantaoIds = [
+              ...(data.plantaoIdsAntigos || []),
+              ...(data.plantaoIdsNovos || [])
+            ];
             return {
               id: doc.id,
               nome: data.name,
               isAdmin: data.isAdmin,
               avatar: require("@/assets/images/hipocrates.png"),
-              plantaoIds: data.plantaoIds || []
+              plantaoIds: plantaoIds || []
             };
           });
           setMedicos(medicosList);

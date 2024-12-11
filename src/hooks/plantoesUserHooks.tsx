@@ -32,7 +32,10 @@ const homeUserHooks = () => {
       }
 
       const userData = userDoc.data();
-      const plantaoIds = userData.plantaoIds || []; 
+      const plantaoIds = [
+        ...(userData.plantaoIdsAntigos || []),
+        ...(userData.plantaoIdsNovos || [])
+      ];
 
       if (plantaoIds.length === 0) {
         setPlantoes([]);
@@ -96,11 +99,25 @@ const homeUserHooks = () => {
 
     const userDocRef = doc(db, "users", userUid);
     const userDoc = await getDoc(userDocRef);
+    const userData = userDoc.data();
+    const plantaoIdsNovos = userData?.plantaoIdsNovos || [];
+    const plantaoIdsAntigos = userData?.plantaoIdsAntigos || [];
+    const isInNovos = plantaoIdsNovos.includes(selectedPlantaoId);
+    const isInAntigos = plantaoIdsAntigos.includes(selectedPlantaoId);
 
-    if (userDoc.exists()) {
-      await updateDoc(userDocRef, {
-        plantaoIds: arrayRemove(selectedPlantaoId)
-      });
+    if (isInNovos || isInAntigos) {
+      if (isInNovos) {
+        await updateDoc(userDocRef, {
+          plantaoIdsNovos: arrayRemove(selectedPlantaoId),
+        });
+      }
+      if (isInAntigos) {
+        await updateDoc(userDocRef, {
+          plantaoIdsAntigos: arrayRemove(selectedPlantaoId),
+        });
+      }
+    } else {
+      console.log("O plantão selecionado não está em nenhum dos arrays.");
     }
 
     // 5. Atualizar a coleção 'hospitais' para remover o plantão de plantaoIdsH

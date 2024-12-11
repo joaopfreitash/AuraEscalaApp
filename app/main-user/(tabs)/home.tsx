@@ -8,39 +8,15 @@ import homeUserHooks from '@/src/hooks/homeUserHooks';
 import PlantaoItem from '@/src/components/plantaoItem';
 import styles from '@/src/styles/homeScreenStyle';
 import stylesModal from '@/src/styles/notificationModalStyle';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
 
 export default function HomeUserScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { markedDays, filteredPlantao, fetchPlantoes, setSelectedDate, selectedDate } = homeUserHooks();
+  const { markedDays, filteredPlantao, fetchPlantoes, setSelectedDate,
+     selectedDate, checkNewPlantao, hasNewNotification, isTherePlantaoNovo,
+     updatePlantaoIdsArray } = homeUserHooks();
   const [modalVisible, setModalVisible] = useState(false);
-  const [hasNewNotification, setHasNewNotification] = useState(false);
-  const db = getFirestore();
 
   useEffect(() => {
-    const checkNewPlantao = async () => {
-      const storedUser = await AsyncStorage.getItem('@user');
-      if (!storedUser) {
-        console.error("Usuário não encontrado no AsyncStorage");
-        return;
-      }
-      const user = JSON.parse(storedUser);
-      const userUid = user.uid;
-      const userDocRef = doc(db, "users", userUid);
-      const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const data = docSnapshot.data();
-          if (data?.plantaoIds) {
-            // Verifica se há novos valores no array plantaoIds
-            const newPlantoes = data.plantaoIds.length > 0;
-            setHasNewNotification(newPlantoes);
-          }
-        }
-      });
-      return () => unsubscribe();
-    };
-
     checkNewPlantao();
   }, []);
 
@@ -56,8 +32,12 @@ export default function HomeUserScreen() {
 
   const handleNotificationPress = () => {
     setModalVisible(true);
-    setHasNewNotification(false);
   };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    updatePlantaoIdsArray();
+  }
   
   return (
     <View style={styles.container}>
@@ -174,9 +154,14 @@ export default function HomeUserScreen() {
       <View style={stylesModal.overlay}>
         <View style={stylesModal.modalContent}>
           <Text style={stylesModal.title}>Notificações</Text>
-          <Text style={stylesModal.message}>Você não possui novas notificações.</Text>
-          <TouchableOpacity onPress={() => setModalVisible(false)} style={stylesModal.closeButton}>
-            <Text style={stylesModal.closeButtonText}>Fechar</Text>
+          <Text style={stylesModal.message}>
+            {isTherePlantaoNovo
+              ? <Text style={stylesModal.simNotificacao}>Você tem novos plantões cadastrados. Verifique a aba Plantões.</Text>
+              : "Nenhuma notificação no momento"
+            }
+          </Text>
+          <TouchableOpacity onPress={() => handleCloseModal()} style={stylesModal.closeButton}>
+            <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
           </TouchableOpacity>
         </View>
       </View>

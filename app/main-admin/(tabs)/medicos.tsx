@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Animated,
    TextInput, Keyboard, Modal, SafeAreaView, Image, 
    Dimensions} from 'react-native';
@@ -15,6 +15,7 @@ import styles from '@/src/styles/medicosScreenStyle';
 import MedicoItem from '@/src/components/medicoItem';
 import medicosHooks from '@/src/hooks/medicosHooks';
 import searchBar from '@/src/utils/searchBar';
+import { useFocusEffect } from 'expo-router';
 
 export default function MedicosScreen() {
 
@@ -33,6 +34,12 @@ export default function MedicosScreen() {
   useEffect(() => {
     fetchMedicos();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMedicos();
+    }, [])
+  );
 
   // Filtra a lista com base no tipo selecionado
   useEffect(() => {
