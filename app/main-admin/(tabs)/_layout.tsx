@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Dimensions, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 
 export default function TabLayout() {
   return (
@@ -15,32 +14,7 @@ export default function TabLayout() {
         tabBarIconStyle: {
           fontSize: 24,
         },
-        headerShown: true,
-          headerStyle: {
-            backgroundColor: '#012E40',
-            shadowOpacity: 0,
-            elevation: 0,
-          },
-          headerTitle: '',
-          headerLeft: () => (
-            <Image
-            source={require('@/assets/images/iconHeaderAura.png')}
-              style={{
-                width: Dimensions.get('window').width * 0.15,
-                height: (Dimensions.get('window').width * 0.15) * 0.5,
-                marginHorizontal: 20,
-              }}
-            />
-          ),
-          headerRight: () => (
-            <SafeAreaView style={{ marginRight: 20 }}>
-              <TouchableOpacity
-                style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
-              >
-                <Ionicons name="notifications" size={24} color="white" />
-              </TouchableOpacity>
-            </SafeAreaView>
-          ),
+        headerShown: false,
       }}
     >
       <Tabs.Screen

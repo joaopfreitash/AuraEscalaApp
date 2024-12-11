@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Animated, TextInput, Keyboard, Modal } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Animated,
+   TextInput, Keyboard, Modal, SafeAreaView, Image, 
+   Dimensions} from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -83,9 +85,24 @@ export default function MedicosScreen() {
     checkFields();
   }, [value, nomeMedico, emailMedico]);
   
-
   return (
     <View style={styles.containerPai}>
+      <View style={styles.wrapperHeader}>
+      <SafeAreaView style={styles.headerMain}>
+          <Image
+            source={require('@/assets/images/iconHeaderAura.png')}
+              style={{
+                width: Dimensions.get('window').width * 0.15,
+                height: (Dimensions.get('window').width * 0.15) * 0.5,
+              }}
+            />
+            <SafeAreaView>
+              <TouchableOpacity>
+                <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
+            </SafeAreaView>
+        </SafeAreaView>
+        </View>
       <View style={styles.medicosContainer}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>

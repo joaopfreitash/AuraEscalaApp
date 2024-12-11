@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Animated, Modal } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Animated, Modal, SafeAreaView, Image, Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -71,6 +71,22 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
 
   return (
     <View style={styles.containerPai}>
+      <View style={styles.wrapperHeader}>
+      <SafeAreaView style={styles.headerMain}>
+          <Image
+            source={require('@/assets/images/iconHeaderAura.png')}
+              style={{
+                width: Dimensions.get('window').width * 0.15,
+                height: (Dimensions.get('window').width * 0.15) * 0.5,
+              }}
+            />
+            <SafeAreaView>
+              <TouchableOpacity>
+                <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
+            </SafeAreaView>
+      </SafeAreaView>
+      </View>
         <View style={styles.header}>
           <Text style={styles.plantaoTitle}>Plantões</Text>
         </View>

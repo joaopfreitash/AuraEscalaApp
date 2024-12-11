@@ -1,8 +1,9 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Image, Text, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
 import styles from '@/src/styles/configuracoesScreenStyle';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ConfiguracoesScreen() {
   const [profileImage, setProfileImage] = useState(null);
@@ -16,6 +17,22 @@ export default function ConfiguracoesScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.wrapperHeader}>
+      <SafeAreaView style={styles.headerMain}>
+          <Image
+            source={require('@/assets/images/iconHeaderAura.png')}
+              style={{
+                width: Dimensions.get('window').width * 0.15,
+                height: (Dimensions.get('window').width * 0.15) * 0.5,
+              }}
+            />
+            <SafeAreaView>
+              <TouchableOpacity>
+                <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
+            </SafeAreaView>
+        </SafeAreaView>
+        </View>
       <View style={styles.profileContainer}>
         <Text style={styles.userName}>{mockUserName}</Text>
         <Text style={styles.role}>Administrador</Text>
@@ -35,18 +52,20 @@ export default function ConfiguracoesScreen() {
       </View>
 
        {/* Botões para navegação */}
-       <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../locais')}>
-            <Text style={styles.settingText}>Hospitais cadastrados</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Configuração 2</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Configuração 3</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
+       <View style={styles.settingsContainer}>
+        <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../locais')}>
+          <Text style={styles.settingText}>Hospitais cadastrados</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Configuração 2</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Configuração 3</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+        </View>
 
     </View>
   );

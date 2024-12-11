@@ -4,7 +4,13 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#012E40',
+      },
+      wrapperHeader: {
         paddingHorizontal: 20,
+      },
+      headerMain: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
       },
       profileContainer: {
         alignItems: 'center',
@@ -39,6 +45,9 @@ export default StyleSheet.create({
       changePhotoText: {
         color: '#00BFFF',
         fontSize: 14,
+      },
+      settingsContainer: {
+        paddingHorizontal: 20
       },
       settingItem: {
         flexDirection: 'row',

@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, View, Text, TouchableOpacity, Modal } from 'react-native';
+import { FlatList, View, Text, TouchableOpacity, SafeAreaView, Image, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendario';
 import { useFocusEffect } from 'expo-router';
-import { Entypo, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 import homeHooks from '@/src/hooks/homeHooks';
 import PlantaoItem from '@/src/components/plantaoItem';
@@ -25,6 +25,22 @@ export default function HomeScreen() {
   
   return (
     <View style={styles.container}>
+      <View style={styles.wrapperHeader}>
+      <SafeAreaView style={styles.headerMain}>
+          <Image
+            source={require('@/assets/images/iconHeaderAura.png')}
+              style={{
+                width: Dimensions.get('window').width * 0.15,
+                height: (Dimensions.get('window').width * 0.15) * 0.5,
+              }}
+            />
+            <SafeAreaView>
+              <TouchableOpacity>
+                <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
+            </SafeAreaView>
+        </SafeAreaView>
+        </View>
       {!isExpanded && (
         <View style={styles.calendarContainer}>
           <Calendar

@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal,
+  TextInput, Keyboard, TouchableWithoutFeedback, 
+  SafeAreaView, Image,
+  Dimensions} from 'react-native';
 
 import styles from '@/src/styles/plantoesUserScreenStyle';
 import PlantaoItem from '@/src/components/plantaoItem';
@@ -15,6 +18,22 @@ export default function PlantoesUserScreen() {
 
   return (
     <View style={styles.containerPai}>
+      <View style={styles.wrapperHeader}>
+      <SafeAreaView style={styles.headerMain}>
+          <Image
+            source={require('@/assets/images/iconHeaderAura.png')}
+              style={{
+                width: Dimensions.get('window').width * 0.15,
+                height: (Dimensions.get('window').width * 0.15) * 0.5,
+              }}
+            />
+            <SafeAreaView>
+              <TouchableOpacity>
+                <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
+            </SafeAreaView>
+      </SafeAreaView>
+      </View>
       <View style={styles.header}>
         <Text style={styles.plantaoTitle}>Meus plantões</Text>
       </View>
