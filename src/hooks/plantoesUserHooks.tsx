@@ -35,7 +35,6 @@ const homeUserHooks = () => {
       const plantaoIds = userData.plantaoIds || []; 
 
       if (plantaoIds.length === 0) {
-        console.log("Nenhum plantão encontrado para este usuário.");
         setPlantoes([]);
         return;
       }

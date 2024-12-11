@@ -5,6 +5,13 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#012E40',
   },
+  wrapperHeader: {
+    paddingHorizontal: 20,
+  },
+  headerMain: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   flatlistContainer:{
     width: '100%',
     paddingHorizontal: 10,
