@@ -1,14 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
-import { arrayRemove, collection, deleteDoc, doc, getDoc, getFirestore, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import FlashMessage from 'react-native-flash-message';
-import { Plantao } from '../types';
+import { useEffect, useRef, useState } from "react";
+import {
+  arrayRemove,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import FlashMessage from "react-native-flash-message";
+import { Plantao } from "../types";
 
 const homeUserHooks = () => {
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
-  const [selectedPlantaoId, setSelectedPlantaoId] = useState<string | null>(null);
+  const [selectedPlantaoId, setSelectedPlantaoId] = useState<string | null>(
+    null
+  );
   const [modalVisible, setModalVisible] = useState(false);
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const db = getFirestore();
   const alertPlantao = useRef<FlashMessage | null>(null);
 
@@ -34,7 +46,7 @@ const homeUserHooks = () => {
       const userData = userDoc.data();
       const plantaoIds = [
         ...(userData.plantaoIdsAntigos || []),
-        ...(userData.plantaoIdsNovos || [])
+        ...(userData.plantaoIdsNovos || []),
       ];
 
       if (plantaoIds.length === 0) {
@@ -58,26 +70,26 @@ const homeUserHooks = () => {
 
       setPlantoes(plantoesList);
     } catch (error) {
-      console.error('Erro ao buscar plantões:', error);
+      console.error("Erro ao buscar plantões:", error);
     }
   };
 
   const handleConcluirPlantao = async () => {
     if (!selectedPlantaoId) {
-        console.error("Nenhum plantão selecionado.");
-        return;
-      }
+      console.error("Nenhum plantão selecionado.");
+      return;
+    }
     try {
       const plantaoDocRef = doc(db, "plantoes", selectedPlantaoId);
       const plantaoDoc = await getDoc(plantaoDocRef);
-  
+
       if (!plantaoDoc.exists()) {
         console.error("Plantão não encontrado.");
         return;
       }
-  
+
       const plantaoData = plantaoDoc.data();
-  
+
       const plantaoConcluidoDocRef = doc(collection(db, "plantoesConcluidos"));
       await setDoc(plantaoConcluidoDocRef, {
         ...plantaoData,
@@ -85,50 +97,50 @@ const homeUserHooks = () => {
         concluidoEm: Timestamp.now(),
         observacoes: text,
       });
-  
+
       await deleteDoc(plantaoDocRef);
 
-    // 4. Atualizar a coleção 'users' para remover o plantão de plantaoIds
-    const storedUser = await AsyncStorage.getItem("@user");
-    if (!storedUser) {
-      console.error("Usuário não encontrado no AsyncStorage");
-      return;
-    }
-    const user = JSON.parse(storedUser);
-    const userUid = user.uid;
+      // 4. Atualizar a coleção 'users' para remover o plantão de plantaoIds
+      const storedUser = await AsyncStorage.getItem("@user");
+      if (!storedUser) {
+        console.error("Usuário não encontrado no AsyncStorage");
+        return;
+      }
+      const user = JSON.parse(storedUser);
+      const userUid = user.uid;
 
-    const userDocRef = doc(db, "users", userUid);
-    const userDoc = await getDoc(userDocRef);
-    const userData = userDoc.data();
-    const plantaoIdsNovos = userData?.plantaoIdsNovos || [];
-    const plantaoIdsAntigos = userData?.plantaoIdsAntigos || [];
-    const isInNovos = plantaoIdsNovos.includes(selectedPlantaoId);
-    const isInAntigos = plantaoIdsAntigos.includes(selectedPlantaoId);
+      const userDocRef = doc(db, "users", userUid);
+      const userDoc = await getDoc(userDocRef);
+      const userData = userDoc.data();
+      const plantaoIdsNovos = userData?.plantaoIdsNovos || [];
+      const plantaoIdsAntigos = userData?.plantaoIdsAntigos || [];
+      const isInNovos = plantaoIdsNovos.includes(selectedPlantaoId);
+      const isInAntigos = plantaoIdsAntigos.includes(selectedPlantaoId);
 
-    if (isInNovos || isInAntigos) {
-      if (isInNovos) {
-        await updateDoc(userDocRef, {
-          plantaoIdsNovos: arrayRemove(selectedPlantaoId),
+      if (isInNovos || isInAntigos) {
+        if (isInNovos) {
+          await updateDoc(userDocRef, {
+            plantaoIdsNovos: arrayRemove(selectedPlantaoId),
+          });
+        }
+        if (isInAntigos) {
+          await updateDoc(userDocRef, {
+            plantaoIdsAntigos: arrayRemove(selectedPlantaoId),
+          });
+        }
+      } else {
+        console.log("O plantão selecionado não está em nenhum dos arrays.");
+      }
+
+      // 5. Atualizar a coleção 'hospitais' para remover o plantão de plantaoIdsH
+      const hospitalDocRef = doc(db, "hospitais", plantaoData.localUid);
+      const hospitalDoc = await getDoc(hospitalDocRef);
+
+      if (hospitalDoc.exists()) {
+        await updateDoc(hospitalDocRef, {
+          plantaoIdsH: arrayRemove(selectedPlantaoId),
         });
       }
-      if (isInAntigos) {
-        await updateDoc(userDocRef, {
-          plantaoIdsAntigos: arrayRemove(selectedPlantaoId),
-        });
-      }
-    } else {
-      console.log("O plantão selecionado não está em nenhum dos arrays.");
-    }
-
-    // 5. Atualizar a coleção 'hospitais' para remover o plantão de plantaoIdsH
-    const hospitalDocRef = doc(db, "hospitais", plantaoData.localUid);
-    const hospitalDoc = await getDoc(hospitalDocRef);
-
-    if (hospitalDoc.exists()) {
-      await updateDoc(hospitalDocRef, {
-        plantaoIdsH: arrayRemove(selectedPlantaoId)
-      });
-    }
       resetModal();
       fetchPlantoes();
       setSelectedPlantaoId(null);
@@ -137,25 +149,25 @@ const homeUserHooks = () => {
           message: "Plantão concluído com sucesso!",
           type: "success",
           duration: 4000,
-          style: {alignItems: 'center'}
+          style: { alignItems: "center" },
         });
       }
     } catch (error) {
       resetModal();
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-        message: "Ocorreu um erro, tente novamente.",
-        type: "danger",
-        duration: 4000,
-        style: {alignItems: 'center'}
-      });
+          message: "Ocorreu um erro, tente novamente.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
       }
     }
   };
 
   const resetModal = () => {
     setModalVisible(false);
-    setText('');
+    setText("");
   };
 
   useEffect(() => {
@@ -170,11 +182,24 @@ const homeUserHooks = () => {
     }
   };
 
-  const selectedPlantao = plantoes.find((plantao) => plantao.id === selectedPlantaoId);
+  const selectedPlantao = plantoes.find(
+    (plantao) => plantao.id === selectedPlantaoId
+  );
 
-  return { plantoes, fetchPlantoes, resetModal, handleSelectPlantao,
-            selectedPlantao, selectedPlantaoId, setModalVisible, modalVisible,
-            text, setText, handleConcluirPlantao, alertPlantao };
+  return {
+    plantoes,
+    fetchPlantoes,
+    resetModal,
+    handleSelectPlantao,
+    selectedPlantao,
+    selectedPlantaoId,
+    setModalVisible,
+    modalVisible,
+    text,
+    setText,
+    handleConcluirPlantao,
+    alertPlantao,
+  };
 };
 
 export default homeUserHooks;

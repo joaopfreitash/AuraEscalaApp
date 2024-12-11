@@ -1,12 +1,12 @@
-import { Animated } from 'react-native';
-import { useRef, useState } from 'react';
+import { Animated } from "react-native";
+import { useRef, useState } from "react";
 
 const searchBar = () => {
-    const searchBarWidth = useRef(new Animated.Value(100)).current;
-    const [isSearchFocused, setIsSearchFocused] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+  const searchBarWidth = useRef(new Animated.Value(100)).current;
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-const handleFocusSearchBar = () => {
+  const handleFocusSearchBar = () => {
     setIsSearchFocused(true);
     Animated.timing(searchBarWidth, {
       toValue: 80, // Diminui a largura para 80%
@@ -26,10 +26,15 @@ const handleFocusSearchBar = () => {
     }
   };
 
- 
-
-  return { handleFocusSearchBar, handleBlurSearchbar,
-            searchBarWidth, isSearchFocused, setIsSearchFocused, searchQuery, setSearchQuery };
+  return {
+    handleFocusSearchBar,
+    handleBlurSearchbar,
+    searchBarWidth,
+    isSearchFocused,
+    setIsSearchFocused,
+    searchQuery,
+    setSearchQuery,
+  };
 };
 
 export default searchBar;

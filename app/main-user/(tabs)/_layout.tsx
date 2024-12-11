@@ -1,17 +1,16 @@
-import { Tabs } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Dimensions, Image, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Tabs } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function TabLayoutUser() {
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#081e27',
+          backgroundColor: "#081e27",
           borderTopWidth: 0,
         },
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#aaaaaa',
+        tabBarActiveTintColor: "#ffffff",
+        tabBarInactiveTintColor: "#aaaaaa",
         tabBarIconStyle: {
           fontSize: 24,
         },
@@ -21,7 +20,7 @@ export default function TabLayoutUser() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Início',
+          title: "Início",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
@@ -31,7 +30,7 @@ export default function TabLayoutUser() {
       <Tabs.Screen
         name="plantoes"
         options={{
-          title: 'Plantões',
+          title: "Plantões",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="briefcase" size={size} color={color} />
           ),
@@ -42,13 +41,12 @@ export default function TabLayoutUser() {
         name="(configuracoes)"
         options={{
           headerShown: false,
-          title: 'Ajustes',
+          title: "Ajustes",
           tabBarIcon: ({ color }) => (
             <Ionicons name="cog" size={30} color={color} />
           ),
         }}
       />
-
     </Tabs>
   );
 }

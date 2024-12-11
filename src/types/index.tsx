@@ -1,12 +1,12 @@
 export type Plantao = {
-    id: string;
-    plantonista: string;
-    data: string;
-    horario: string;
-    local: string;
-    funcao: string;
-  };
-  
+  id: string;
+  plantonista: string;
+  data: string;
+  horario: string;
+  local: string;
+  funcao: string;
+};
+
 export type MarkedDays = {
   [date: string]: {
     dots?: { color: string; selectedColor: string }[];
@@ -15,12 +15,12 @@ export type MarkedDays = {
 };
 
 export type Medico = {
-    id: string;
-    nome: string;
-    isAdmin: boolean;
-    avatar: any;
-    plantaoIds?: string[];
-}
+  id: string;
+  nome: string;
+  isAdmin: boolean;
+  avatar: any;
+  plantaoIds?: string[];
+};
 
 export type Hospital = {
   id: string;
@@ -28,4 +28,3 @@ export type Hospital = {
   address: string;
   plantaoIdsH?: string[];
 };
-  

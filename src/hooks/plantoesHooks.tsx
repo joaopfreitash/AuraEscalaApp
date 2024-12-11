@@ -1,55 +1,68 @@
-import { useRef, useState } from 'react';
-import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy, where, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
-import dayjs from 'dayjs';
-import FlashMessage from 'react-native-flash-message';
-import { Plantao } from '../types';
-import { Animated } from 'react-native';
+import { useRef, useState } from "react";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDocs,
+  collection,
+  Timestamp,
+  query,
+  orderBy,
+  where,
+  updateDoc,
+  arrayUnion,
+  getDoc,
+} from "firebase/firestore";
+import dayjs from "dayjs";
+import FlashMessage from "react-native-flash-message";
+import { Plantao } from "../types";
+import { Animated } from "react-native";
 
 const plantoesHooks = () => {
   const db = getFirestore();
 
   const alertPlantao = useRef<FlashMessage | null>(null);
 
-  const [isFuncaoFocused, setFuncaoFocused] = useState(false)
-  const [isMedicoFocused, setMedicoFocused] = useState(false)
-  const [isLocalFocused, setLocalFocused] = useState(false)
-    
+  const [isFuncaoFocused, setFuncaoFocused] = useState(false);
+  const [isMedicoFocused, setMedicoFocused] = useState(false);
+  const [isLocalFocused, setLocalFocused] = useState(false);
+
   const labelFuncaoAnimation = useRef(new Animated.Value(0)).current;
   const labelMedicoAnimation = useRef(new Animated.Value(0)).current;
   const labelLocalAnimation = useRef(new Animated.Value(0)).current;
 
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
-  const [itemsMedico, setItemsMedico] = useState<{value: string }[]>([]);
-  const [itemsLocal, setItemsLocal] = useState<{value: string }[]>([]);
+  const [itemsMedico, setItemsMedico] = useState<{ value: string }[]>([]);
+  const [itemsLocal, setItemsLocal] = useState<{ value: string }[]>([]);
   const [openMedico, setOpenMedico] = useState(false);
-  const [valueMedico, setValueMedico] = useState<string>('');
+  const [valueMedico, setValueMedico] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [date, setDate] = useState(dayjs().subtract(1, 'day'));
+  const [date, setDate] = useState(dayjs().subtract(1, "day"));
   const [time, setTime] = useState(dayjs());
   const [openLocal, setOpenLocal] = useState(false);
-  const [valueLocal, setValueLocal] = useState<string>('');
+  const [valueLocal, setValueLocal] = useState<string>("");
   const [openFuncao, setOpenFuncao] = useState(false);
-  const [valueFuncao, setValueFuncao] = useState<string>('');
+  const [valueFuncao, setValueFuncao] = useState<string>("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [itemsFuncao, setItemsFuncao] = useState([
-    { label: "Cirurgião", value: "Cirurgião"},
-    { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico"},
-    { label: "Anestesista", value: "Anestesista"},
-    { label: "Auxílio Anestesia", value: "Auxílio Anestesia"},
-    { label: "Ambulatório", value: "Ambulatório"},
+    { label: "Cirurgião", value: "Cirurgião" },
+    { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
+    { label: "Anestesista", value: "Anestesista" },
+    { label: "Auxílio Anestesia", value: "Auxílio Anestesia" },
+    { label: "Ambulatório", value: "Ambulatório" },
   ]);
 
   const resetModal = () => {
     setModalVisible(false);
-    setDate(dayjs().subtract(1, 'day'));
+    setDate(dayjs().subtract(1, "day"));
     setTime(dayjs());
-    setValueMedico('');
+    setValueMedico("");
     setOpenMedico(false);
-    setValueLocal('');
+    setValueLocal("");
     setOpenLocal(false);
-    setValueFuncao('');
+    setValueFuncao("");
     setOpenFuncao(false);
-    setIsButtonEnabled(false)
+    setIsButtonEnabled(false);
     handleBlurMedico();
     handleBlurLocal();
     handleBlurFuncao();
@@ -68,7 +81,7 @@ const plantoesHooks = () => {
           data: data.data,
           horario: data.horario,
           local: data.local,
-          funcao: data.funcao
+          funcao: data.funcao,
         };
       });
       setPlantoes(plantoesList);
@@ -96,9 +109,7 @@ const plantoesHooks = () => {
 
   const fetchHospitals = async () => {
     try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "hospitais"))
-      );
+      const querySnapshot = await getDocs(query(collection(db, "hospitais")));
 
       const hospitaisList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -123,19 +134,23 @@ const plantoesHooks = () => {
     try {
       setIsButtonEnabled(false);
       const usersCollection = collection(db, "users");
-      const querySnapshot = await getDocs(query(usersCollection, where("name", "==", valueMedico)));
+      const querySnapshot = await getDocs(
+        query(usersCollection, where("name", "==", valueMedico))
+      );
       const medicoDoc = querySnapshot.docs[0];
       const medicoUid = medicoDoc.id;
-  
+
       const localCollection = collection(db, "hospitais");
-      const querySnapshotLocal = await getDocs(query(localCollection, where("name", "==", valueLocal)));
+      const querySnapshotLocal = await getDocs(
+        query(localCollection, where("name", "==", valueLocal))
+      );
       const localDoc = querySnapshotLocal.docs[0];
       const localUid = localDoc.id;
-  
+
       // Criar documento de plantão
       const shiftsDocRef = doc(collection(db, "plantoes"));
       const shiftId = shiftsDocRef.id;
-  
+
       await setDoc(shiftsDocRef, {
         plantonista: plantonista,
         local: local,
@@ -146,49 +161,52 @@ const plantoesHooks = () => {
         medicoUid: medicoUid,
         localUid: localUid,
       });
-  
+
       const medicoRef = doc(db, "users", medicoUid);
       const medicoDocSnapshot = await getDoc(medicoRef);
       const medicoData = medicoDocSnapshot.data();
       const plantaoIdsNovos = medicoData?.plantaoIdsNovos || [];
       const plantaoIdsAntigos = medicoData?.plantaoIdsAntigos || [];
 
-      const updatedPlantaoIdsAntigos = [...plantaoIdsAntigos, ...plantaoIdsNovos];
+      const updatedPlantaoIdsAntigos = [
+        ...plantaoIdsAntigos,
+        ...plantaoIdsNovos,
+      ];
       const updatedPlantaoIdsNovos = [shiftId];
 
       await updateDoc(medicoRef, {
-      plantaoIdsNovos: updatedPlantaoIdsNovos,
-      plantaoIdsAntigos: updatedPlantaoIdsAntigos,
-    });
+        plantaoIdsNovos: updatedPlantaoIdsNovos,
+        plantaoIdsAntigos: updatedPlantaoIdsAntigos,
+      });
 
       const localRef = doc(db, "hospitais", localUid);
       await updateDoc(localRef, {
         plantaoIdsH: arrayUnion(shiftId),
       });
-  
+
       resetModal();
       fetchPlantoes();
       if (alertPlantao.current) {
-      alertPlantao.current.showMessage({
-        message: "Plantão cadastrado com sucesso!",
-        type: "success",
-        duration: 4000,
-        style: {alignItems: 'center'}
-      });
-    }
+        alertPlantao.current.showMessage({
+          message: "Plantão cadastrado com sucesso!",
+          type: "success",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
     } catch (error) {
       resetModal();
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-        message: "Ocorreu um erro, tente novamente.",
-        type: "danger",
-        duration: 4000,
-        style: {alignItems: 'center'}
-      });
+          message: "Ocorreu um erro, tente novamente.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
       }
     }
   };
-  
+
   const handleFocusMedico = () => {
     Animated.timing(labelMedicoAnimation, {
       toValue: 1,
@@ -196,62 +214,94 @@ const plantoesHooks = () => {
       useNativeDriver: false,
     }).start();
     setMedicoFocused(true);
-};
+  };
 
-const handleBlurMedico = () => {
-  Animated.timing(labelMedicoAnimation, {
-    toValue: 0,
-    duration: 200,
-    useNativeDriver: false,
-  }).start();
-  setMedicoFocused(false);
-};
+  const handleBlurMedico = () => {
+    Animated.timing(labelMedicoAnimation, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    setMedicoFocused(false);
+  };
 
-const handleFocusLocal = () => {
-  Animated.timing(labelLocalAnimation, {
-    toValue: 1,
-    duration: 200,
-    useNativeDriver: false,
-  }).start();
-  setLocalFocused(true);
-};
+  const handleFocusLocal = () => {
+    Animated.timing(labelLocalAnimation, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    setLocalFocused(true);
+  };
 
-const handleBlurLocal = () => {
-  Animated.timing(labelLocalAnimation, {
-    toValue: 0,
-    duration: 200,
-    useNativeDriver: false,
-  }).start();
-  setLocalFocused(false);
-};
+  const handleBlurLocal = () => {
+    Animated.timing(labelLocalAnimation, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    setLocalFocused(false);
+  };
 
-const handleFocusFuncao = () => {
-  Animated.timing(labelFuncaoAnimation, {
-    toValue: 1,
-    duration: 200,
-    useNativeDriver: false,
-  }).start();
-  setFuncaoFocused(true);
-};
+  const handleFocusFuncao = () => {
+    Animated.timing(labelFuncaoAnimation, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    setFuncaoFocused(true);
+  };
 
   const handleBlurFuncao = () => {
-      Animated.timing(labelFuncaoAnimation, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-      setFuncaoFocused(false);
-};
+    Animated.timing(labelFuncaoAnimation, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    setFuncaoFocused(false);
+  };
 
-  return { resetModal, fetchPlantoes, fetchMedicos, fetchHospitals,
-    plantoes, valueMedico, valueLocal, valueFuncao, setIsButtonEnabled,
-    setDate, setTime, setModalVisible, modalVisible, date, time,
-    openMedico, itemsMedico, setOpenMedico, setValueMedico, setItemsMedico,
-    openFuncao, itemsFuncao, setOpenFuncao, setValueFuncao,
-    setItemsFuncao, openLocal, itemsLocal, setOpenLocal, alertPlantao,
-    setValueLocal, setItemsLocal, isButtonEnabled, handleRegisterShift,
-    labelFuncaoAnimation, labelMedicoAnimation, labelLocalAnimation,
-    handleFocusLocal, handleFocusFuncao, handleFocusMedico };
+  return {
+    resetModal,
+    fetchPlantoes,
+    fetchMedicos,
+    fetchHospitals,
+    plantoes,
+    valueMedico,
+    valueLocal,
+    valueFuncao,
+    setIsButtonEnabled,
+    setDate,
+    setTime,
+    setModalVisible,
+    modalVisible,
+    date,
+    time,
+    openMedico,
+    itemsMedico,
+    setOpenMedico,
+    setValueMedico,
+    setItemsMedico,
+    openFuncao,
+    itemsFuncao,
+    setOpenFuncao,
+    setValueFuncao,
+    setItemsFuncao,
+    openLocal,
+    itemsLocal,
+    setOpenLocal,
+    alertPlantao,
+    setValueLocal,
+    setItemsLocal,
+    isButtonEnabled,
+    handleRegisterShift,
+    labelFuncaoAnimation,
+    labelMedicoAnimation,
+    labelLocalAnimation,
+    handleFocusLocal,
+    handleFocusFuncao,
+    handleFocusMedico,
+  };
 };
 
 export default plantoesHooks;

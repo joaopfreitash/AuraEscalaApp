@@ -1,8 +1,16 @@
-import { useState, useEffect } from 'react';
-import { collection, deleteField, doc, getDoc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import dayjs from 'dayjs';
-import { Plantao, MarkedDays } from '../types';
+import { useState, useEffect } from "react";
+import {
+  collection,
+  deleteField,
+  doc,
+  getDoc,
+  getFirestore,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import dayjs from "dayjs";
+import { Plantao, MarkedDays } from "../types";
 
 const homeUserHooks = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -36,7 +44,7 @@ const homeUserHooks = () => {
       const userData = userDoc.data();
       const plantaoIds = [
         ...(userData.plantaoIdsAntigos || []),
-        ...(userData.plantaoIdsNovos || [])
+        ...(userData.plantaoIdsNovos || []),
       ];
 
       if (plantaoIds.length === 0) {
@@ -63,19 +71,19 @@ const homeUserHooks = () => {
 
       plantoesList.forEach((plantao) => {
         updatedMarkedDays[plantao.data] = {
-          dots: [{ color: 'red', selectedColor: 'green' }],
+          dots: [{ color: "red", selectedColor: "green" }],
         };
       });
 
       setPlantoes(plantoesList);
       setMarkedDays(updatedMarkedDays);
     } catch (error) {
-      console.error('Erro ao buscar plantões:', error);
+      console.error("Erro ao buscar plantões:", error);
     }
   };
 
   const checkNewPlantao = async () => {
-    const storedUser = await AsyncStorage.getItem('@user');
+    const storedUser = await AsyncStorage.getItem("@user");
     if (!storedUser) {
       console.error("Usuário não encontrado no AsyncStorage");
       return;
@@ -100,7 +108,7 @@ const homeUserHooks = () => {
   };
 
   const updatePlantaoIdsArray = async () => {
-    const storedUser = await AsyncStorage.getItem('@user');
+    const storedUser = await AsyncStorage.getItem("@user");
     if (!storedUser) {
       console.error("Usuário não encontrado no AsyncStorage");
       return;
@@ -117,20 +125,30 @@ const homeUserHooks = () => {
       plantaoIdsNovos: deleteField(),
       plantaoIdsAntigos: updatedPlantaoIdsAntigos,
     });
-  }
-  
+  };
 
   useEffect(() => {
     if (selectedDate) {
-      const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
-      const filtered = plantoes.filter((plantao) => plantao.data === formattedDate);
+      const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+      const filtered = plantoes.filter(
+        (plantao) => plantao.data === formattedDate
+      );
       setFilteredPlantao(filtered);
     }
   }, [selectedDate, plantoes]);
 
-  return { plantoes, markedDays, filteredPlantao, fetchPlantoes,
-    setSelectedDate, selectedDate, checkNewPlantao, hasNewNotification,
-    isTherePlantaoNovo, updatePlantaoIdsArray };
+  return {
+    plantoes,
+    markedDays,
+    filteredPlantao,
+    fetchPlantoes,
+    setSelectedDate,
+    selectedDate,
+    checkNewPlantao,
+    hasNewNotification,
+    isTherePlantaoNovo,
+    updatePlantaoIdsArray,
+  };
 };
 
 export default homeUserHooks;
