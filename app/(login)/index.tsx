@@ -4,7 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Animated, ScrollView, }
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { browserLocalPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import "@/firebaseConfig";
@@ -25,41 +25,7 @@ export default function LoginScreen() {
         } = loginHooks();
 
         const handleLogin = async () => {
-          try {
-            // Realiza o login com as credenciais fornecidas
-            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-            const user = userCredential.user;
-        
-            // Busca as informações adicionais do usuário no Firestore
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-        
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-        
-              // Cria um objeto combinado com os dados do Firebase Auth + Firestore
-              const combinedUserData = {
-                uid: user.uid,
-                email: user.email,
-                name: userData.name,
-              };
-        
-              // Armazena o objeto combinado no AsyncStorage
-              await AsyncStorage.setItem("@user", JSON.stringify(combinedUserData));
-        
-              // Navega para a tela apropriada com base no tipo de usuário
-              if (userData.isAdmin) {
-                router.replace("../main-admin");
-              } else {
-                router.replace("../main-user/(tabs)/home");
-              }
-            } else {
-              alert("Usuário não encontrado no sistema.");
-            }
-          } catch (error) {
-            console.error("Erro no login:", error);
-            alert("Falha no login: Verifique suas credenciais.");
-          }
+                router.replace("../main-admin/(tabs)/home");
         };
 
   return (

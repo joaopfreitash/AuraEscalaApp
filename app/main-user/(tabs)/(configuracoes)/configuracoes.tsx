@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Image, Text, TouchableOpacity } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
-import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '@/src/styles/configuracoesScreenStyle';
 
 export default function ConfiguracoesUserScreen() {
   const [profileImage, setProfileImage] = useState(null);
   const [userName, setUserName] = useState("Carregando...");
-  const router = useRouter();
-
-  const handleSelectImage = () => {
-    // Lógica para selecionar imagem usando um seletor de arquivos
-  };
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -26,7 +20,6 @@ export default function ConfiguracoesUserScreen() {
         console.error("Erro ao buscar o nome do usuário:", error);
       }
     };
-
     fetchUserName();
   }, []);
 
@@ -35,7 +28,7 @@ export default function ConfiguracoesUserScreen() {
       <View style={styles.profileContainer}>
         <Text style={styles.userName}>{userName}</Text>
         <Text style={styles.role}>Médico</Text>
-        <TouchableOpacity onPress={handleSelectImage} style={styles.imagePicker}>
+        <TouchableOpacity style={styles.imagePicker}>
           <View style={styles.profileImageContainer}>
             <Image
               source={
