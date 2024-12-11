@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Animated, TextInput, Keyboard, Modal } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Animated, TextInput, Keyboard, Modal, SafeAreaView } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -91,8 +91,7 @@ export default function LocaisScreen() {
   }, [nomeHospital, enderecoHospital]);
 
   return (
-    <View style={styles.containerPai}>
-      
+    <SafeAreaView style={styles.containerPai}>
       <View style={styles.medicosContainer}>
         <View style={styles.header}>
           <Text style={styles.medicosTitle}>Hospitais</Text>
@@ -264,7 +263,7 @@ export default function LocaisScreen() {
             </View>  
           </Modal>
           <FlashMessage ref={alertLocal}/>
-    </View>
+    </SafeAreaView>
   );
 }
 

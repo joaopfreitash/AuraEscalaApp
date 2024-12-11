@@ -70,9 +70,9 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
 };
 
   return (
-    <View style={styles.containerPai}>
+    <SafeAreaView style={styles.containerPai}>
       <View style={styles.wrapperHeader}>
-      <SafeAreaView style={styles.headerMain}>
+      <View style={styles.headerMain}>
           <Image
             source={require('@/assets/images/iconHeaderAura.png')}
               style={{
@@ -80,12 +80,12 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
                 height: (Dimensions.get('window').width * 0.15) * 0.5,
               }}
             />
-            <SafeAreaView>
+            <View>
               <TouchableOpacity>
                 <Ionicons name="notifications" size={24} color="white" />
             </TouchableOpacity>
-            </SafeAreaView>
-      </SafeAreaView>
+            </View>
+      </View>
       </View>
         <View style={styles.header}>
           <Text style={styles.plantaoTitle}>Plantões</Text>
@@ -279,7 +279,7 @@ const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
             </View>
           </Modal>
           <FlashMessage ref={alertPlantao}/>
-    </View>
+    </SafeAreaView>
   );
 }
 

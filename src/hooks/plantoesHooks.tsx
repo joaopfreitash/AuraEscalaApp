@@ -163,9 +163,7 @@ const plantoesHooks = () => {
       alertPlantao.current.showMessage({
         message: "Plantão cadastrado com sucesso!",
         type: "success",
-        floating: true,
         duration: 4000,
-        statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
     }
@@ -175,9 +173,7 @@ const plantoesHooks = () => {
         alertPlantao.current.showMessage({
         message: "Ocorreu um erro, tente novamente.",
         type: "danger",
-        floating: true,
         duration: 4000,
-        statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
       }

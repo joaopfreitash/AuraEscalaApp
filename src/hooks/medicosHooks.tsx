@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { getFirestore, doc, setDoc, getDocs, collection, Timestamp, query, orderBy } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
+import FlashMessage from 'react-native-flash-message';
 import { Animated, TextInput } from 'react-native';
 import { Medico } from '../types';
 
@@ -97,9 +97,7 @@ const medicosHooks = () => {
         alertMedico.current.showMessage({
           message: "Médico cadastrado com sucesso!",
           type: "success",
-          floating: true,
           duration: 4000,
-          statusBarHeight: -50,
           style: {alignItems: 'center'}
         });
       }
@@ -111,7 +109,6 @@ const medicosHooks = () => {
         type: "danger",
         floating: true,
         duration: 4000,
-        statusBarHeight: -50,
         style: {alignItems: 'center'}
       });
       }

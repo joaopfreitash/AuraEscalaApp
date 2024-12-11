@@ -1,16 +1,48 @@
-import React, { useState, useCallback } from 'react';
-import { FlatList, View, Text, TouchableOpacity, Image, Dimensions, SafeAreaView } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { FlatList, View, Text, TouchableOpacity, Image, Dimensions, SafeAreaView, Modal } from 'react-native';
 import { Calendar } from 'react-native-calendario';
 import { useFocusEffect } from 'expo-router';
-import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 import homeUserHooks from '@/src/hooks/homeUserHooks';
 import PlantaoItem from '@/src/components/plantaoItem';
 import styles from '@/src/styles/homeScreenStyle';
+import stylesModal from '@/src/styles/notificationModalStyle';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
 
 export default function HomeUserScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { markedDays, filteredPlantao, fetchPlantoes, setSelectedDate, selectedDate } = homeUserHooks();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const db = getFirestore();
+
+  useEffect(() => {
+    const checkNewPlantao = async () => {
+      const storedUser = await AsyncStorage.getItem('@user');
+      if (!storedUser) {
+        console.error("Usuário não encontrado no AsyncStorage");
+        return;
+      }
+      const user = JSON.parse(storedUser);
+      const userUid = user.uid;
+      const userDocRef = doc(db, "users", userUid);
+      const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          if (data?.plantaoIds) {
+            // Verifica se há novos valores no array plantaoIds
+            const newPlantoes = data.plantaoIds.length > 0;
+            setHasNewNotification(newPlantoes);
+          }
+        }
+      });
+      return () => unsubscribe();
+    };
+
+    checkNewPlantao();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -21,6 +53,11 @@ export default function HomeUserScreen() {
 
   const onDayPress = (date: Date) => setSelectedDate(date);
   const handleToggleExpand = () => setIsExpanded(!isExpanded);
+
+  const handleNotificationPress = () => {
+    setModalVisible(true);
+    setHasNewNotification(false);
+  };
   
   return (
     <View style={styles.container}>
@@ -34,8 +71,12 @@ export default function HomeUserScreen() {
               }}
             />
             <SafeAreaView>
-              <TouchableOpacity>
-                <Ionicons name="notifications" size={24} color="white" />
+            <TouchableOpacity onPress={() => handleNotificationPress()}>
+              {hasNewNotification ? (
+                <MaterialIcons name="notification-important" size={24} color="red" />
+              ) : (
+                <MaterialIcons name="notifications" size={24} color="white" />
+              )}
             </TouchableOpacity>
             </SafeAreaView>
         </SafeAreaView>
@@ -125,6 +166,21 @@ export default function HomeUserScreen() {
           />
         )}
       </View>
+      <Modal
+      visible={modalVisible}
+      transparent
+      animationType="fade"
+      >
+      <View style={stylesModal.overlay}>
+        <View style={stylesModal.modalContent}>
+          <Text style={stylesModal.title}>Notificações</Text>
+          <Text style={stylesModal.message}>Você não possui novas notificações.</Text>
+          <TouchableOpacity onPress={() => setModalVisible(false)} style={stylesModal.closeButton}>
+            <Text style={stylesModal.closeButtonText}>Fechar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
     </View>
   );
 }

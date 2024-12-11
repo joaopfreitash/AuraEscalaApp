@@ -86,9 +86,9 @@ export default function MedicosScreen() {
   }, [value, nomeMedico, emailMedico]);
   
   return (
-    <View style={styles.containerPai}>
+    <SafeAreaView style={styles.containerPai}>
       <View style={styles.wrapperHeader}>
-      <SafeAreaView style={styles.headerMain}>
+      <View style={styles.headerMain}>
           <Image
             source={require('@/assets/images/iconHeaderAura.png')}
               style={{
@@ -96,12 +96,12 @@ export default function MedicosScreen() {
                 height: (Dimensions.get('window').width * 0.15) * 0.5,
               }}
             />
-            <SafeAreaView>
+            <View>
               <TouchableOpacity>
                 <Ionicons name="notifications" size={24} color="white" />
             </TouchableOpacity>
-            </SafeAreaView>
-        </SafeAreaView>
+            </View>
+        </View>
         </View>
       <View style={styles.medicosContainer}>
         <View style={styles.header}>
@@ -326,7 +326,7 @@ export default function MedicosScreen() {
             </View> 
           </Modal>
           <FlashMessage ref={alertMedico}/>
-    </View>
+    </SafeAreaView>
   );
 }
 

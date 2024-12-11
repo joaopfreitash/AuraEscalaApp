@@ -24,9 +24,9 @@ export default function HomeScreen() {
   const handleToggleExpand = () => setIsExpanded(!isExpanded);
   
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.wrapperHeader}>
-      <SafeAreaView style={styles.headerMain}>
+      <View style={styles.headerMain}>
           <Image
             source={require('@/assets/images/iconHeaderAura.png')}
               style={{
@@ -34,12 +34,12 @@ export default function HomeScreen() {
                 height: (Dimensions.get('window').width * 0.15) * 0.5,
               }}
             />
-            <SafeAreaView>
+            <View>
               <TouchableOpacity>
                 <Ionicons name="notifications" size={24} color="white" />
             </TouchableOpacity>
-            </SafeAreaView>
-        </SafeAreaView>
+            </View>
+        </View>
         </View>
       {!isExpanded && (
         <View style={styles.calendarContainer}>
@@ -126,6 +126,6 @@ export default function HomeScreen() {
           />
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

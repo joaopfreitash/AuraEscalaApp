@@ -25,7 +25,7 @@ export default function LoginScreen() {
         } = loginHooks();
 
         const handleLogin = async () => {
-                router.replace("../main-admin/(tabs)/home");
+                router.replace("../main-user/(tabs)/home");
         };
 
   return (
