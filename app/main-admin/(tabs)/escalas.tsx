@@ -8,6 +8,7 @@ import {
   Modal,
   Image,
   Dimensions,
+  Button,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -23,6 +24,8 @@ import FlashMessage from "react-native-flash-message";
 import styles from "@/src/styles/plantoesScreenStyle";
 import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesHooks from "@/src/hooks/plantoesHooks";
+import { Plantao } from "@/src/types";
+import stylesModal from "@/src/styles/notificationModalStyle";
 
 export default function PlantoesScreen() {
   const {
@@ -65,6 +68,12 @@ export default function PlantoesScreen() {
     handleFocusMedico,
     handleFocusFuncao,
     handleFocusLocal,
+    handleCheckmarkClick,
+    isConcluido,
+    selectedPlantao,
+    isModalObsVisible,
+    openModalObs,
+    closeModal,
   } = plantoesHooks();
 
   const [selectedDate, setSelectedDate] = useState("");
@@ -72,7 +81,7 @@ export default function PlantoesScreen() {
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
-    fetchPlantoes();
+    fetchPlantoes(isConcluido);
   }, []);
 
   useFocusEffect(
@@ -140,14 +149,36 @@ export default function PlantoesScreen() {
           </View>
         </View>
       </View>
-      <View style={styles.header}>
-        <Text style={styles.plantaoTitle}>Escalas</Text>
+      <View style={styles.headerFilhoContainer}>
+        <View style={styles.headerTitle}>
+          <Text style={styles.plantaoTitle}>
+            {isConcluido ? "Escalas concluídas" : "Escalas"}
+          </Text>
+        </View>
+        <View style={styles.containerConcluidas}>
+          <TouchableOpacity onPress={handleCheckmarkClick}>
+            {isConcluido ? (
+              <Ionicons name="close-circle" size={24} color={"#bf3d3d"} />
+            ) : (
+              <Ionicons name="checkmark-done" size={24} color="white" />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.plantaoContainer}>
         <FlatList
           style={styles.flatListContainer}
           data={plantoes}
-          renderItem={({ item }) => <PlantaoItem plantao={item} />}
+          renderItem={({ item }) => (
+            <PlantaoItem
+              plantao={item}
+              onPress={() => {
+                if (item.concluido) {
+                  openModalObs(item); // Passa a função openModal se o plantão estiver concluído
+                }
+              }}
+            />
+          )}
           keyExtractor={(item) => item.id}
           numColumns={1}
         />
@@ -359,6 +390,24 @@ export default function PlantoesScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+      </Modal>
+      <Modal visible={isModalObsVisible} transparent animationType="fade">
+        {selectedPlantao && (
+          <View style={stylesModal.overlay}>
+            <View style={stylesModal.modalContent}>
+              <Text style={stylesModal.title}>Observações do médico</Text>
+              <Text style={stylesModal.message}>
+                {selectedPlantao.observacoes}
+              </Text>
+              <TouchableOpacity
+                onPress={() => closeModal()}
+                style={stylesModal.closeButton}
+              >
+                <Text style={stylesModal.closeButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </Modal>
       <FlashMessage ref={alertPlantao} />
     </View>

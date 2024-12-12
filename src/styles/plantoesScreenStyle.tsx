@@ -15,11 +15,19 @@ export default StyleSheet.create({
   plantaoContainer: {
     flex: 1,
   },
-  header: {
-    marginTop: 20,
+  headerFilhoContainer: {
     width: "100%",
     display: "flex",
     flexDirection: "row",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  headerTitle: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  containerConcluidas: {
     paddingHorizontal: 10,
   },
   flatListContainer: {
@@ -268,5 +276,10 @@ export default StyleSheet.create({
   betweenInput: {
     marginTop: 15,
     marginBottom: 15,
+  },
+  concluidoText: {
+    color: "green",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });

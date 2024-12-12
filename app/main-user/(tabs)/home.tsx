@@ -162,7 +162,9 @@ export default function HomeUserScreen() {
         ) : (
           <FlatList
             data={filteredPlantao}
-            renderItem={({ item }) => <PlantaoItem plantao={item} />}
+            renderItem={({ item }) => (
+              <PlantaoItem plantao={item} onPress={() => {}} />
+            )}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.flatlistContainer}
           />

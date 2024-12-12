@@ -90,15 +90,11 @@ const homeUserHooks = () => {
 
       const plantaoData = plantaoDoc.data();
 
-      const plantaoConcluidoDocRef = doc(collection(db, "plantoesConcluidos"));
-      await setDoc(plantaoConcluidoDocRef, {
-        ...plantaoData,
-        idOriginal: plantaoDoc.id, // Mantenha o id do plantão
+      await updateDoc(plantaoDocRef, {
+        concluido: true,
         concluidoEm: Timestamp.now(),
         observacoes: text,
       });
-
-      await deleteDoc(plantaoDocRef);
 
       // 4. Atualizar a coleção 'users' para remover o plantão de plantaoIds
       const storedUser = await AsyncStorage.getItem("@user");

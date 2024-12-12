@@ -27,6 +27,18 @@ const plantoesHooks = () => {
   const [isMedicoFocused, setMedicoFocused] = useState(false);
   const [isLocalFocused, setLocalFocused] = useState(false);
 
+  const [selectedPlantao, setSelectedPlantao] = useState<Plantao | null>(null);
+  const [isModalObsVisible, setIsModalObsVisible] = useState(false);
+
+  const openModalObs = (plantao: Plantao) => {
+    setSelectedPlantao(plantao); // Armazena o plantão selecionado
+    setIsModalObsVisible(true); // Abre o modal
+  };
+
+  const closeModal = () => {
+    setIsModalObsVisible(false);
+  };
+
   const labelFuncaoAnimation = useRef(new Animated.Value(0)).current;
   const labelMedicoAnimation = useRef(new Animated.Value(0)).current;
   const labelLocalAnimation = useRef(new Animated.Value(0)).current;
@@ -44,6 +56,7 @@ const plantoesHooks = () => {
   const [openFuncao, setOpenFuncao] = useState(false);
   const [valueFuncao, setValueFuncao] = useState<string>("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const [isConcluido, setIsConcluido] = useState(false);
   const [itemsFuncao, setItemsFuncao] = useState([
     { label: "Cirurgião", value: "Cirurgião" },
     { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
@@ -68,11 +81,22 @@ const plantoesHooks = () => {
     handleBlurFuncao();
   };
 
-  const fetchPlantoes = async () => {
+  const fetchPlantoes = async (isConcluido: boolean) => {
     try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "plantoes"), orderBy("createdAt", "desc"))
-      );
+      const plantoesQuery = isConcluido
+        ? query(
+            collection(db, "plantoes"),
+            where("concluido", "==", true),
+            orderBy("createdAt", "desc")
+          )
+        : query(
+            collection(db, "plantoes"),
+            where("concluido", "==", false),
+            orderBy("createdAt", "desc")
+          );
+
+      const querySnapshot = await getDocs(plantoesQuery);
+
       const plantoesList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -82,12 +106,20 @@ const plantoesHooks = () => {
           horario: data.horario,
           local: data.local,
           funcao: data.funcao,
+          concluido: data.concluido,
+          observacoes: data.observacoes,
         };
       });
+
       setPlantoes(plantoesList);
     } catch (error) {
-      console.error("Erro ao buscar hospitais:", error);
+      console.error("Erro ao buscar plantões:", error);
     }
+  };
+
+  const handleCheckmarkClick = () => {
+    setIsConcluido(!isConcluido);
+    fetchPlantoes(!isConcluido);
   };
 
   const fetchMedicos = async () => {
@@ -160,6 +192,7 @@ const plantoesHooks = () => {
         createdAt: Timestamp.now(),
         medicoUid: medicoUid,
         localUid: localUid,
+        concluido: false,
       });
 
       const medicoRef = doc(db, "users", medicoUid);
@@ -185,10 +218,10 @@ const plantoesHooks = () => {
       });
 
       resetModal();
-      fetchPlantoes();
+      fetchPlantoes(isConcluido);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-          message: "Plantão cadastrado com sucesso!",
+          message: "Escala cadastrado com sucesso!",
           type: "success",
           duration: 4000,
           style: { alignItems: "center" },
@@ -301,6 +334,13 @@ const plantoesHooks = () => {
     handleFocusLocal,
     handleFocusFuncao,
     handleFocusMedico,
+    setIsConcluido,
+    handleCheckmarkClick,
+    isConcluido,
+    selectedPlantao,
+    isModalObsVisible,
+    openModalObs,
+    closeModal,
   };
 };
 

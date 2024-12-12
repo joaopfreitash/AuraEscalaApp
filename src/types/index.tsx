@@ -5,6 +5,8 @@ export type Plantao = {
   horario: string;
   local: string;
   funcao: string;
+  concluido: boolean;
+  observacoes: string;
 };
 
 export type MarkedDays = {
