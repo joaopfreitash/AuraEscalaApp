@@ -26,6 +26,7 @@ import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesHooks from "@/src/hooks/plantoesHooks";
 import { Plantao } from "@/src/types";
 import stylesModal from "@/src/styles/notificationModalStyle";
+import { Fontisto } from "@expo/vector-icons";
 
 export default function PlantoesScreen() {
   const {
@@ -158,7 +159,7 @@ export default function PlantoesScreen() {
         <View style={styles.containerConcluidas}>
           <TouchableOpacity onPress={handleCheckmarkClick}>
             {isConcluido ? (
-              <Ionicons name="close-circle" size={24} color={"#bf3d3d"} />
+              <Fontisto name="arrow-return-left" size={24} color={"white"} />
             ) : (
               <Ionicons name="checkmark-done" size={24} color="white" />
             )}
@@ -397,7 +398,13 @@ export default function PlantoesScreen() {
             <View style={stylesModal.modalContent}>
               <Text style={stylesModal.title}>Observações do médico</Text>
               <Text style={stylesModal.message}>
-                {selectedPlantao.observacoes}
+                {selectedPlantao.observacoes ? (
+                  selectedPlantao.observacoes
+                ) : (
+                  <Text style={{ color: "#bf3d3d" }}>
+                    Médico não fez observações
+                  </Text>
+                )}
               </Text>
               <TouchableOpacity
                 onPress={() => closeModal()}

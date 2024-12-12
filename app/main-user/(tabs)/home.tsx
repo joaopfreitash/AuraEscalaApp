@@ -177,7 +177,7 @@ export default function HomeUserScreen() {
             <Text style={stylesModal.message}>
               {isTherePlantaoNovo ? (
                 <Text style={stylesModal.simNotificacao}>
-                  Você tem novos plantões cadastrados. Verifique a aba Plantões.
+                  Você tem novas escalas cadastradas. Verifique a aba Escalas.
                 </Text>
               ) : (
                 "Nenhuma notificação no momento"

@@ -27,13 +27,10 @@ export default StyleSheet.create({
     color: "#fff",
     marginBottom: 25,
   },
-  imagePicker: {
-    alignItems: "center",
-  },
   profileImageContainer: {
-    width: 100, // Largura do círculo
-    height: 100, // Altura do círculo
-    borderRadius: 60, // Define a imagem como circular
+    width: 100,
+    height: 100,
+    borderRadius: 60,
     borderColor: "#fff",
     marginBottom: 10,
   },
@@ -41,10 +38,6 @@ export default StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 60,
-  },
-  changePhotoText: {
-    color: "#00BFFF",
-    fontSize: 14,
   },
   settingsContainer: {
     paddingHorizontal: 20,
@@ -69,7 +62,7 @@ export default StyleSheet.create({
     justifyContent: "flex-end",
   },
   sairButton: {
-    backgroundColor: "#111827",
+    backgroundColor: "#081e27",
     display: "flex",
     width: "100%",
     borderWidth: 1,

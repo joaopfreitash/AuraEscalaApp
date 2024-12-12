@@ -3,19 +3,14 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Image, Text, TouchableOpacity, Dimensions } from "react-native";
 import styles from "@/src/styles/configuracoesScreenStyle";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import configuracoesHooks from "@/src/hooks/configuracoesHooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ConfiguracoesScreen() {
-  const [profileImage, setProfileImage] = useState(null);
   const [userName, setUserName] = useState("Carregando...");
   const { handleLogout } = configuracoesHooks();
-
-  const handleSelectImage = () => {
-    // Lógica para selecionar imagem usando um seletor de arquivos
-  };
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -55,22 +50,13 @@ export default function ConfiguracoesScreen() {
       <View style={styles.profileContainer}>
         <Text style={styles.userName}>{userName}</Text>
         <Text style={styles.role}>Administrador</Text>
-        <TouchableOpacity
-          onPress={handleSelectImage}
-          style={styles.imagePicker}
-        >
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={
-                profileImage
-                  ? { uri: profileImage }
-                  : require("@/assets/images/hipocrates.png")
-              }
-              style={styles.profileImage}
-            />
-          </View>
-          <Text style={styles.changePhotoText}>Alterar foto</Text>
-        </TouchableOpacity>
+        <View style={styles.profileImageContainer}>
+          <MaterialIcons
+            name="admin-panel-settings"
+            size={100}
+            color="#081e27"
+          />
+        </View>
       </View>
 
       {/* Botões para navegação */}

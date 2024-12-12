@@ -68,7 +68,13 @@ const homeUserHooks = () => {
         }
       }
 
-      setPlantoes(plantoesList);
+      const sortedPlantoes = plantoesList.sort((a, b) => {
+        const dateA = new Date(a.data).getTime(); // Converter para timestamp
+        const dateB = new Date(b.data).getTime();
+        return dateB - dateA; // Ordem decrescente
+      });
+
+      setPlantoes(sortedPlantoes);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
     }
@@ -142,7 +148,7 @@ const homeUserHooks = () => {
       setSelectedPlantaoId(null);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-          message: "Plantão concluído com sucesso!",
+          message: "Escala concluída com sucesso!",
           type: "success",
           duration: 4000,
           style: { alignItems: "center" },

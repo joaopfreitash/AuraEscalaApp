@@ -100,7 +100,7 @@ export default function PlantoesUserScreen() {
                 selectedPlantaoId === item.id && styles.selectedPlantaoItem,
               ]}
             >
-              <PlantaoItem plantao={item} />
+              <PlantaoItem plantao={item} onPress={() => {}} />
               {selectedPlantaoId === item.id && (
                 <View style={styles.checkIconContainer}>
                   <Entypo name="check" size={24} color="green" />
@@ -146,12 +146,14 @@ export default function PlantoesUserScreen() {
                 <FlatList
                   style={styles.flatListContainer}
                   data={[selectedPlantao]} // Passa um array com o plantão selecionado
-                  renderItem={({ item }) => <PlantaoItem plantao={item} />}
+                  renderItem={({ item }) => (
+                    <PlantaoItem plantao={item} onPress={() => {}} />
+                  )}
                   keyExtractor={(item) => item.id}
                   numColumns={1}
                 />
               ) : (
-                <Text>Nenhum plantão selecionado</Text>
+                <Text>Nenhuma escala selecionada</Text>
               )}
             </View>
             <View style={styles.observacoesContainer}>

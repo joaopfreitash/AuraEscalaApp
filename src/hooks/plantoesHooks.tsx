@@ -87,12 +87,12 @@ const plantoesHooks = () => {
         ? query(
             collection(db, "plantoes"),
             where("concluido", "==", true),
-            orderBy("createdAt", "desc")
+            orderBy("data", "desc")
           )
         : query(
             collection(db, "plantoes"),
             where("concluido", "==", false),
-            orderBy("createdAt", "desc")
+            orderBy("data", "desc")
           );
 
       const querySnapshot = await getDocs(plantoesQuery);
@@ -221,7 +221,7 @@ const plantoesHooks = () => {
       fetchPlantoes(isConcluido);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-          message: "Escala cadastrado com sucesso!",
+          message: "Escala cadastrada com sucesso!",
           type: "success",
           duration: 4000,
           style: { alignItems: "center" },

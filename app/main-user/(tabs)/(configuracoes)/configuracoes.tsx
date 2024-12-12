@@ -12,7 +12,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "@/src/styles/configuracoesScreenStyle";
 import stylesModal from "@/src/styles/notificationModalStyle";
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import homeUserHooks from "@/src/hooks/homeUserHooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import configuracoesHooks from "@/src/hooks/configuracoesHooks";
@@ -86,19 +86,9 @@ export default function ConfiguracoesUserScreen() {
       <View style={styles.profileContainer}>
         <Text style={styles.userName}>{userName}</Text>
         <Text style={styles.role}>Médico</Text>
-        <TouchableOpacity style={styles.imagePicker}>
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={
-                profileImage
-                  ? { uri: profileImage }
-                  : require("@/assets/images/hipocrates.png")
-              }
-              style={styles.profileImage}
-            />
-          </View>
-          <Text style={styles.changePhotoText}>Alterar foto</Text>
-        </TouchableOpacity>
+        <View style={styles.profileImageContainer}>
+          <FontAwesome name="user-md" size={120} color="#081e27" />
+        </View>
       </View>
 
       {/* Botões para navegação */}
@@ -128,7 +118,7 @@ export default function ConfiguracoesUserScreen() {
             <Text style={stylesModal.message}>
               {isTherePlantaoNovo ? (
                 <Text style={stylesModal.simNotificacao}>
-                  Você tem novos plantões cadastrados. Verifique a aba Plantões.
+                  Você tem novas escalas cadastrados. Verifique a aba Escalas.
                 </Text>
               ) : (
                 "Nenhuma notificação no momento"
