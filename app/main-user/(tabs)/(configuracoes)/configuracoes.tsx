@@ -14,6 +14,7 @@ import styles from "@/src/styles/configuracoesScreenStyle";
 import stylesModal from "@/src/styles/notificationModalStyle";
 import { MaterialIcons } from "@expo/vector-icons";
 import homeUserHooks from "@/src/hooks/homeUserHooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConfiguracoesUserScreen() {
   const [profileImage, setProfileImage] = useState(null);
@@ -55,9 +56,9 @@ export default function ConfiguracoesUserScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
       <View style={styles.wrapperHeader}>
-        <SafeAreaView style={styles.headerMain}>
+        <View style={styles.headerMain}>
           <Image
             source={require("@/assets/images/iconHeaderAura.png")}
             style={{
@@ -65,7 +66,7 @@ export default function ConfiguracoesUserScreen() {
               height: Dimensions.get("window").width * 0.15 * 0.5,
             }}
           />
-          <SafeAreaView>
+          <View>
             <TouchableOpacity onPress={() => handleNotificationPress()}>
               {hasNewNotification ? (
                 <MaterialIcons
@@ -77,8 +78,8 @@ export default function ConfiguracoesUserScreen() {
                 <MaterialIcons name="notifications" size={24} color="white" />
               )}
             </TouchableOpacity>
-          </SafeAreaView>
-        </SafeAreaView>
+          </View>
+        </View>
       </View>
       <View style={styles.profileContainer}>
         <Text style={styles.userName}>{userName}</Text>

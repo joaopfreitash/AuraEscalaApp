@@ -15,6 +15,7 @@ import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import homeHooks from "@/src/hooks/homeHooks";
 import PlantaoItem from "@/src/components/plantaoItem";
 import styles from "@/src/styles/homeScreenStyle";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -33,7 +34,7 @@ export default function HomeScreen() {
   const handleToggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image
@@ -135,6 +136,6 @@ export default function HomeScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

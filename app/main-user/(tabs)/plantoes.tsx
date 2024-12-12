@@ -20,6 +20,7 @@ import plantoesUserHooks from "@/src/hooks/plantoesUserHooks";
 import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import homeUserHooks from "@/src/hooks/homeUserHooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function PlantoesUserScreen() {
   const {
@@ -58,9 +59,11 @@ export default function PlantoesUserScreen() {
   }, []);
 
   return (
-    <View style={styles.containerPai}>
+    <View
+      style={[styles.containerPai, { paddingTop: useSafeAreaInsets().top }]}
+    >
       <View style={styles.wrapperHeader}>
-        <SafeAreaView style={styles.headerMain}>
+        <View style={styles.headerMain}>
           <Image
             source={require("@/assets/images/iconHeaderAura.png")}
             style={{
@@ -68,7 +71,7 @@ export default function PlantoesUserScreen() {
               height: Dimensions.get("window").width * 0.15 * 0.5,
             }}
           />
-          <SafeAreaView>
+          <View>
             <TouchableOpacity onPress={() => handleNotificationPress()}>
               {hasNewNotification ? (
                 <MaterialIcons
@@ -80,8 +83,8 @@ export default function PlantoesUserScreen() {
                 <MaterialIcons name="notifications" size={24} color="white" />
               )}
             </TouchableOpacity>
-          </SafeAreaView>
-        </SafeAreaView>
+          </View>
+        </View>
       </View>
       <View style={styles.header}>
         <Text style={styles.plantaoTitle}>Meus plantões</Text>

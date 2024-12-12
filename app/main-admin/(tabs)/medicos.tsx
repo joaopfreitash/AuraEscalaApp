@@ -26,6 +26,7 @@ import MedicoItem from "@/src/components/medicoItem";
 import medicosHooks from "@/src/hooks/medicosHooks";
 import searchBar from "@/src/utils/searchBar";
 import { useFocusEffect } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function MedicosScreen() {
   const {
@@ -137,7 +138,9 @@ export default function MedicosScreen() {
   }, [value, nomeMedico, emailMedico]);
 
   return (
-    <SafeAreaView style={styles.containerPai}>
+    <View
+      style={[styles.containerPai, { paddingTop: useSafeAreaInsets().top }]}
+    >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image
@@ -417,6 +420,6 @@ export default function MedicosScreen() {
         </View>
       </Modal>
       <FlashMessage ref={alertMedico} />
-    </SafeAreaView>
+    </View>
   );
 }

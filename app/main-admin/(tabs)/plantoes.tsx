@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   Animated,
   Modal,
-  SafeAreaView,
   Image,
   Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DropDownPicker from "react-native-dropdown-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -121,7 +121,9 @@ export default function PlantoesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.containerPai}>
+    <View
+      style={[styles.containerPai, { paddingTop: useSafeAreaInsets().top }]}
+    >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image
@@ -359,6 +361,6 @@ export default function PlantoesScreen() {
         </View>
       </Modal>
       <FlashMessage ref={alertPlantao} />
-    </SafeAreaView>
+    </View>
   );
 }

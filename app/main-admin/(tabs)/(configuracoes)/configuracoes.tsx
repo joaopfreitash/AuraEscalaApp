@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import styles from "@/src/styles/configuracoesScreenStyle";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConfiguracoesScreen() {
   const [profileImage, setProfileImage] = useState(null);
@@ -23,7 +24,7 @@ export default function ConfiguracoesScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image
@@ -79,6 +80,6 @@ export default function ConfiguracoesScreen() {
           <Entypo name="chevron-right" size={25} color="#081e27" />
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

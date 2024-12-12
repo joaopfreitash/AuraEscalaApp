@@ -17,6 +17,7 @@ import homeUserHooks from "@/src/hooks/homeUserHooks";
 import PlantaoItem from "@/src/components/plantaoItem";
 import styles from "@/src/styles/homeScreenStyle";
 import stylesModal from "@/src/styles/notificationModalStyle";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeUserScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -57,9 +58,9 @@ export default function HomeUserScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
       <View style={styles.wrapperHeader}>
-        <SafeAreaView style={styles.headerMain}>
+        <View style={styles.headerMain}>
           <Image
             source={require("@/assets/images/iconHeaderAura.png")}
             style={{
@@ -67,7 +68,7 @@ export default function HomeUserScreen() {
               height: Dimensions.get("window").width * 0.15 * 0.5,
             }}
           />
-          <SafeAreaView>
+          <View>
             <TouchableOpacity onPress={() => handleNotificationPress()}>
               {hasNewNotification ? (
                 <MaterialIcons
@@ -79,8 +80,8 @@ export default function HomeUserScreen() {
                 <MaterialIcons name="notifications" size={24} color="white" />
               )}
             </TouchableOpacity>
-          </SafeAreaView>
-        </SafeAreaView>
+          </View>
+        </View>
       </View>
       {!isExpanded && (
         <View style={styles.calendarContainer}>
