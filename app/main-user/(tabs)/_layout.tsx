@@ -28,9 +28,9 @@ export default function TabLayoutUser() {
       />
 
       <Tabs.Screen
-        name="plantoes"
+        name="escalas"
         options={{
-          title: "Plantões",
+          title: "Escalas",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="briefcase" size={size} color={color} />
           ),

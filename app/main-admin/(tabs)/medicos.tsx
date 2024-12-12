@@ -250,7 +250,7 @@ export default function MedicosScreen() {
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContent}>
           <View style={styles.headerContainer}>
-            <Text style={styles.modalTitle}>Cadastrar médico no APP</Text>
+            <Text style={styles.modalTitle}>Cadastrar médico</Text>
             <TouchableOpacity
               onPress={() => {
                 resetModal();

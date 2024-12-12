@@ -19,9 +19,9 @@ const LocalItem: React.FC<LocalItemProps> = ({ hospital }) => (
       <Text style={styles.permissaoMedico}>
         {Array.isArray(hospital.plantaoIdsH)
           ? hospital.plantaoIdsH.length === 1
-            ? "1 Plantão"
-            : `${hospital.plantaoIdsH.length} Plantões`
-          : "Nenhum plantão cadastrado"}
+            ? "1 Escala"
+            : `${hospital.plantaoIdsH.length} Escalas`
+          : "Nenhuma escala cadastrada"}
       </Text>
     </View>
   </View>

@@ -22,9 +22,9 @@ const MedicoItem: React.FC<MedicoItemProps> = ({ medico }) => (
       <Text style={styles.permissaoMedico}>
         {Array.isArray(medico.plantaoIds)
           ? medico.plantaoIds.length === 1
-            ? "1 Plantão"
-            : `${medico.plantaoIds.length} Plantões`
-          : "Nenhum plantão cadastrado"}
+            ? "1 Escala"
+            : `${medico.plantaoIds.length} Escalas`
+          : "Nenhuma escala cadastrada"}
       </Text>
     </View>
   </View>

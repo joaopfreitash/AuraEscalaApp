@@ -141,7 +141,7 @@ export default function PlantoesScreen() {
         </View>
       </View>
       <View style={styles.header}>
-        <Text style={styles.plantaoTitle}>Plantões</Text>
+        <Text style={styles.plantaoTitle}>Escalas</Text>
       </View>
       <View style={styles.plantaoContainer}>
         <FlatList
@@ -165,7 +165,7 @@ export default function PlantoesScreen() {
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContent}>
           <View style={styles.headerContainer}>
-            <Text style={styles.modalTitle}>Designar Plantão</Text>
+            <Text style={styles.modalTitle}>Cadastrar</Text>
             <TouchableOpacity
               onPress={() => {
                 resetModal();
@@ -230,7 +230,7 @@ export default function PlantoesScreen() {
               setOpen={setOpenMedico}
               setValue={setValueMedico}
               setItems={setItemsMedico}
-              placeholder={"Selecione o plantonista"}
+              placeholder={"Selecione o médico"}
               placeholderStyle={styles.placeholderText}
               textStyle={styles.inputText}
               multiple={false}
@@ -325,7 +325,7 @@ export default function PlantoesScreen() {
               setOpen={setOpenLocal}
               setValue={setValueLocal}
               setItems={setItemsLocal}
-              placeholder={"Selecione o local do plantão"}
+              placeholder={"Selecione o local da escala"}
               placeholderStyle={styles.placeholderText}
               textStyle={styles.inputText}
               multiple={false}

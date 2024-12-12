@@ -205,7 +205,7 @@ export default function LocaisScreen() {
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContent}>
           <View style={styles.headerContainer}>
-            <Text style={styles.modalTitle}>Cadastrar novo hospital</Text>
+            <Text style={styles.modalTitle}>Cadastrar hospital</Text>
             <TouchableOpacity
               onPress={() => {
                 resetModal();

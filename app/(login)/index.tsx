@@ -134,7 +134,7 @@ export default function LoginScreen() {
     >
       <View style={styles.container}>
         <Image
-          source={require("@/assets/images/auraPlantaoLogo.png")}
+          source={require("@/assets/images/auraescalas.png")}
           style={styles.image}
         />
 

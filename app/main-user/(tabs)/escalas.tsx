@@ -87,7 +87,7 @@ export default function PlantoesUserScreen() {
         </View>
       </View>
       <View style={styles.header}>
-        <Text style={styles.plantaoTitle}>Meus plantões</Text>
+        <Text style={styles.plantaoTitle}>Minhas escalas</Text>
       </View>
       <View style={styles.plantaoContainer}>
         <FlatList
@@ -123,7 +123,7 @@ export default function PlantoesUserScreen() {
           disabled={!selectedPlantaoId}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.plantaoTitle}>Concluir plantão</Text>
+          <Text style={styles.plantaoTitle}>Concluir escala</Text>
         </TouchableOpacity>
       </View>
 
@@ -131,7 +131,7 @@ export default function PlantoesUserScreen() {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.modalContent}>
             <View style={styles.headerContainer}>
-              <Text style={styles.modalTitle}>Concluir plantão</Text>
+              <Text style={styles.modalTitle}>Concluir escala</Text>
               <TouchableOpacity
                 onPress={() => {
                   resetModal();

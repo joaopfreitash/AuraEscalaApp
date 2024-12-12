@@ -145,7 +145,7 @@ export default function HomeUserScreen() {
       )}
       <View style={styles.listContainer}>
         <TouchableOpacity onPress={handleToggleExpand} style={styles.header}>
-          <Text style={styles.plantaoTitle}>Plantões nesse dia</Text>
+          <Text style={styles.plantaoTitle}>Escalas nesse dia</Text>
           <Entypo
             name={isExpanded ? "chevron-down" : "chevron-up"}
             size={24}
