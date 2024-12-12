@@ -63,4 +63,21 @@ export default StyleSheet.create({
     color: "#fff",
     fontSize: 16,
   },
+  sairContainer: {
+    paddingHorizontal: 20,
+    flex: 0.9,
+    justifyContent: "flex-end",
+  },
+  sairButton: {
+    backgroundColor: "#111827",
+    display: "flex",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 20,
+  },
 });

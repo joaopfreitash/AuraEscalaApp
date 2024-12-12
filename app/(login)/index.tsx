@@ -82,6 +82,7 @@ export default function LoginScreen() {
       if (alertLogin.current) {
         alertLogin.current.showMessage({
           message: "Falha no login: Verifique suas credenciais.",
+          floating: true,
           type: "danger",
           duration: 4000,
           style: { alignItems: "center" },

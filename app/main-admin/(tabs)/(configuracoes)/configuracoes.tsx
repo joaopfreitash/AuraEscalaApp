@@ -1,25 +1,36 @@
 import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import {
-  View,
-  Image,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Image, Text, TouchableOpacity, Dimensions } from "react-native";
 import styles from "@/src/styles/configuracoesScreenStyle";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import configuracoesHooks from "@/src/hooks/configuracoesHooks";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ConfiguracoesScreen() {
   const [profileImage, setProfileImage] = useState(null);
-  const mockUserName = "Edd Stark";
+  const [userName, setUserName] = useState("Carregando...");
+  const { handleLogout } = configuracoesHooks();
 
   const handleSelectImage = () => {
     // Lógica para selecionar imagem usando um seletor de arquivos
   };
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const user = await AsyncStorage.getItem("@user");
+        if (user) {
+          const parsedUser = JSON.parse(user);
+          setUserName(parsedUser.name || "Usuário sem nome");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar o nome do usuário:", error);
+      }
+    };
+    fetchUserName();
+  }, []);
 
   const router = useRouter();
 
@@ -42,7 +53,7 @@ export default function ConfiguracoesScreen() {
         </View>
       </View>
       <View style={styles.profileContainer}>
-        <Text style={styles.userName}>{mockUserName}</Text>
+        <Text style={styles.userName}>{userName}</Text>
         <Text style={styles.role}>Administrador</Text>
         <TouchableOpacity
           onPress={handleSelectImage}
@@ -78,6 +89,11 @@ export default function ConfiguracoesScreen() {
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Configuração 3</Text>
           <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sairContainer}>
+        <TouchableOpacity onPress={handleLogout} style={styles.sairButton}>
+          <Text style={styles.settingText}>Sair</Text>
         </TouchableOpacity>
       </View>
     </View>

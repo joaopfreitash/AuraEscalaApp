@@ -15,6 +15,7 @@ import stylesModal from "@/src/styles/notificationModalStyle";
 import { MaterialIcons } from "@expo/vector-icons";
 import homeUserHooks from "@/src/hooks/homeUserHooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import configuracoesHooks from "@/src/hooks/configuracoesHooks";
 
 export default function ConfiguracoesUserScreen() {
   const [profileImage, setProfileImage] = useState(null);
@@ -25,6 +26,7 @@ export default function ConfiguracoesUserScreen() {
     updatePlantaoIdsArray,
     checkNewPlantao,
   } = homeUserHooks();
+  const { handleLogout } = configuracoesHooks();
   const [modalNotifVisible, setModalNotifVisible] = useState(false);
 
   const handleNotificationPress = () => {
@@ -112,6 +114,11 @@ export default function ConfiguracoesUserScreen() {
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Configuração 3</Text>
           <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sairContainer}>
+        <TouchableOpacity onPress={handleLogout} style={styles.sairButton}>
+          <Text style={styles.settingText}>Sair</Text>
         </TouchableOpacity>
       </View>
       <Modal visible={modalNotifVisible} transparent animationType="fade">

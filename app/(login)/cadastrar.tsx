@@ -11,17 +11,63 @@ import {
 
 import styles from "@/src/styles/loginStyle";
 import loginHooks from "@/src/hooks/loginHooks";
+import { useRef, useState } from "react";
+import FlashMessage from "react-native-flash-message";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 export default function CadastrarScreen() {
   const {
     emailLabelAnimated,
     isEmailFocused,
-    email,
-    setEmail,
     handleFocus,
     setIsEmailFocused,
     handleBlur,
   } = loginHooks();
+  const alertEmail = useRef<FlashMessage | null>(null);
+  const auth = getAuth();
+  const [email, setEmail] = useState("");
+
+  // Função que envia o e-mail de redefinição de senha
+  const handleSubmit = async () => {
+    if (!email) {
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message: "Por favor, digite um e-mail.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message:
+            "E-mail de redefinição enviado, verifique sua caixa de spam.",
+          type: "success",
+          duration: 6000,
+          style: { alignItems: "center" },
+        });
+      }
+    } catch (error) {
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message: "Ocorreu um erro, tente novamente.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    }
+  };
 
   return (
     <ScrollView
@@ -30,7 +76,7 @@ export default function CadastrarScreen() {
     >
       <View style={styles.container}>
         <Image
-          source={require("@/assets/images/auraPlantaoLogo.png")}
+          source={require("@/assets/images/auraescalas.png")}
           style={styles.image}
         />
 
@@ -82,10 +128,11 @@ export default function CadastrarScreen() {
             style={styles.iconEmail}
           />
         </View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={handleSubmit} style={styles.button}>
           <Text style={styles.buttonText}>Enviar</Text>
         </TouchableOpacity>
       </View>
+      <FlashMessage ref={alertEmail} />
     </ScrollView>
   );
 }
