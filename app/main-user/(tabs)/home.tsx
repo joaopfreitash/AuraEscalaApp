@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   FlatList,
   View,
@@ -6,21 +6,36 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Modal,
 } from "react-native";
 import { Calendar } from "react-native-calendario";
 import { useFocusEffect } from "expo-router";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons } from "@expo/vector-icons";
 
-import homeHooks from "@/src/hooks/homeHooks";
+import homeUserHooks from "@/src/hooks/homeUserHooks";
 import PlantaoItem from "@/src/components/plantaoItem";
 import styles from "@/src/styles/homeScreenStyle";
+import stylesModal from "@/src/styles/notificationModalStyle";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function HomeScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+export default function HomeUserScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { markedDays, filteredPlantao, fetchPlantoes } =
-    homeHooks(selectedDate);
+  const {
+    markedDays,
+    filteredPlantao,
+    fetchPlantoes,
+    setSelectedDate,
+    selectedDate,
+    checkNewPlantao,
+    hasNewNotification,
+    isTherePlantaoNovo,
+    updatePlantaoIdsArray,
+  } = homeUserHooks();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    checkNewPlantao();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -31,6 +46,15 @@ export default function HomeScreen() {
 
   const onDayPress = (date: Date) => setSelectedDate(date);
   const handleToggleExpand = () => setIsExpanded(!isExpanded);
+
+  const handleNotificationPress = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    updatePlantaoIdsArray();
+  };
 
   return (
     <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
@@ -44,8 +68,16 @@ export default function HomeScreen() {
             }}
           />
           <View>
-            <TouchableOpacity>
-              <Ionicons name="notifications" size={24} color="white" />
+            <TouchableOpacity onPress={() => handleNotificationPress()}>
+              {hasNewNotification ? (
+                <MaterialIcons
+                  name="notification-important"
+                  size={24}
+                  color="red"
+                />
+              ) : (
+                <MaterialIcons name="notifications" size={24} color="white" />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -137,6 +169,28 @@ export default function HomeScreen() {
           />
         )}
       </View>
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={stylesModal.overlay}>
+          <View style={stylesModal.modalContent}>
+            <Text style={stylesModal.title}>Notificações</Text>
+            <Text style={stylesModal.message}>
+              {isTherePlantaoNovo ? (
+                <Text style={stylesModal.simNotificacao}>
+                  Você tem novas escalas cadastradas. Verifique a aba Escalas.
+                </Text>
+              ) : (
+                "Nenhuma notificação no momento"
+              )}
+            </Text>
+            <TouchableOpacity
+              onPress={() => handleCloseModal()}
+              style={stylesModal.closeButton}
+            >
+              <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

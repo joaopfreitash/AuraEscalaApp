@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true
     },
     "android": {

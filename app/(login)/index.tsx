@@ -1,74 +1,169 @@
-import { Link, useRouter } from 'expo-router';
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Animated, ScrollView, Dimensions, } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { Link, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Animated,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import FlashMessage from "react-native-flash-message";
+
+import styles from "@/src/styles/loginStyle";
+import loginHooks from "@/src/hooks/loginHooks";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  
-  const emailLabelAnimated = useRef(new Animated.Value(0)).current;
-  const senhaLabelAnimated = useRef(new Animated.Value(0)).current;
-
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isSenhaFocused, setIsSenhaFocused] = useState(false);
-
   const router = useRouter();
+  const alertLogin = useRef<FlashMessage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const {
+    emailLabelAnimated,
+    isEmailFocused,
+    email,
+    setEmail,
+    handleFocus,
+    setIsEmailFocused,
+    handleBlur,
+    senhaLabelAnimated,
+    isSenhaFocused,
+    senha,
+    setSenha,
+    setIsSenhaFocused,
+  } = loginHooks();
 
   const handleLogin = async () => {
-          router.replace("../main-admin/(tabs)/home");
+    try {
+      const userCredential = await auth().signInWithEmailAndPassword(
+        email,
+        senha
+      );
+      const user = userCredential.user;
+      const userUid = user.uid;
 
-  };
+      const userDocRef = firestore().collection("users").doc(userUid);
+      const userDoc = await userDocRef.get();
 
-  const handleFocus = (animatedValue: Animated.Value, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-    Animated.timing(animatedValue, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setIsFocused(true);
-  };
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData) {
+          const combinedUserData = {
+            uid: user.uid,
+            email: user.email,
+            name: userData.name,
+          };
 
-  const handleBlur = (animatedValue: Animated.Value, text: string, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-    if (!text) {
-      Animated.timing(animatedValue, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
+          await AsyncStorage.setItem("@user", JSON.stringify(combinedUserData));
+
+          if (userData.isAdmin) {
+            router.replace("/main-admin/(tabs)/home");
+          } else {
+            router.replace("/main-user/(tabs)/home");
+          }
+        } else {
+          alert("Dados do usuário não encontrados.");
+        }
+      } else {
+        alert("Usuário não encontrado no sistema.");
+      }
+    } catch (error) {
+      if (alertLogin.current) {
+        alertLogin.current.showMessage({
+          message: "Falha no login: Verifique suas credenciais.",
+          floating: true,
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
     }
-    setIsFocused(false);
   };
+
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDocRef = firestore().collection("users").doc(user.uid);
+        const userDoc = await userDocRef.get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          if (userData) {
+            const combinedUserData = {
+              uid: user.uid,
+              email: user.email,
+              name: userData.name,
+            };
+            await AsyncStorage.setItem(
+              "@user",
+              JSON.stringify(combinedUserData)
+            );
+            if (userData.isAdmin) {
+              router.replace("../main-admin/(tabs)/home");
+            } else {
+              router.replace("../main-user/(tabs)/home");
+            }
+          } else {
+            console.error("Dados do usuário não encontrados.");
+          }
+        }
+      } else {
+        setIsLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }
 
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      scrollEnabled={false}
+      contentContainerStyle={styles.contentContainer}
+    >
       <View style={styles.container}>
+        <Image
+          source={require("@/assets/images/auraescalas.png")}
+          style={styles.image}
+        />
 
-        <Image source={require('@/assets/images/auraPlantaoLogo.png')} style={styles.image} />
-
-        <View style={styles.separator} />
-        
         {/* Campo de Email */}
-        <View style={styles.inputContainer}>
-          <Animated.Text style={[styles.inputLabel, {
-            top: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [18, -20], // Mover o rótulo para cima
-            }),
-            fontSize: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [16, 12], // Diminuir o tamanho do rótulo
-            }),
-            fontWeight: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['400', '600'], // Tornar o rótulo em negrito
-            }),
-          }]} >
+        <View style={styles.inputContainerIndex}>
+          <Animated.Text
+            style={[
+              styles.inputLabel,
+              {
+                top: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [18, -20], // Mover o rótulo para cima
+                }),
+                fontSize: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [16, 12], // Diminuir o tamanho do rótulo
+                }),
+                fontWeight: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["400", "600"], // Tornar o rótulo em negrito
+                }),
+              },
+            ]}
+          >
             E-mail
           </Animated.Text>
-          <TextInput style={styles.input}
+          <TextInput
+            style={styles.input}
             placeholder={!isEmailFocused ? "E-mail" : ""}
             placeholderTextColor="#191a1c"
             keyboardType="email-address"
@@ -76,27 +171,39 @@ export default function LoginScreen() {
             value={email}
             onChangeText={setEmail}
             onFocus={() => handleFocus(emailLabelAnimated, setIsEmailFocused)}
-            onBlur={() => handleBlur(emailLabelAnimated, email, setIsEmailFocused)}
+            onBlur={() =>
+              handleBlur(emailLabelAnimated, email, setIsEmailFocused)
+            }
           />
-          <MaterialIcons name="alternate-email" size={24} color="black" style={styles.iconEmail} />
+          <MaterialIcons
+            name="alternate-email"
+            size={24}
+            color="black"
+            style={styles.iconEmail}
+          />
         </View>
 
         {/* Campo de Senha */}
         <View style={styles.inputContainer}>
-          <Animated.Text style={[styles.inputLabel, {
-            top: senhaLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [18, -20], // Mover o rótulo para cima
-            }),
-            fontSize: senhaLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [16, 12], // Diminuir o tamanho do rótulo
-            }),
-            fontWeight: senhaLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['400', '600'], // Tornar o rótulo em negrito
-            }),
-          }]} >
+          <Animated.Text
+            style={[
+              styles.inputLabel,
+              {
+                top: senhaLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [18, -20], // Mover o rótulo para cima
+                }),
+                fontSize: senhaLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [16, 12], // Diminuir o tamanho do rótulo
+                }),
+                fontWeight: senhaLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["400", "600"], // Tornar o rótulo em negrito
+                }),
+              },
+            ]}
+          >
             Senha
           </Animated.Text>
           <TextInput
@@ -107,9 +214,16 @@ export default function LoginScreen() {
             value={senha}
             onChangeText={setSenha}
             onFocus={() => handleFocus(senhaLabelAnimated, setIsSenhaFocused)}
-            onBlur={() => handleBlur(senhaLabelAnimated, senha, setIsSenhaFocused)}
+            onBlur={() =>
+              handleBlur(senhaLabelAnimated, senha, setIsSenhaFocused)
+            }
           />
-          <FontAwesome name="lock" size={24} color="#29292e" style={styles.iconPass} />
+          <FontAwesome
+            name="lock"
+            size={24}
+            color="#29292e"
+            style={styles.iconPass}
+          />
         </View>
 
         {/* Botão Entrar */}
@@ -125,122 +239,17 @@ export default function LoginScreen() {
         </Link>
       </View>
       <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>
-            Sua primeira vez acessando o App?
-          </Text>
-          <Link href={'/cadastrar'} asChild style={styles.button}>
-            <TouchableOpacity>
-              <Text style={styles.buttonText}><FontAwesome5 name="first-aid" size={15} color="white" />  Clica aqui</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
+        <Text style={styles.footerText}>Sua primeira vez acessando o App?</Text>
+        <Link href={"/cadastrar"} asChild style={styles.button}>
+          <TouchableOpacity>
+            <Text style={styles.buttonText}>
+              <FontAwesome5 name="first-aid" size={15} color="white" /> Clica
+              aqui
+            </Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+      <FlashMessage ref={alertLogin} />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  contentContainer:{
-    display: 'flex',
-    flexGrow: 1,
-    marginTop: 70,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-  },
-  container: {
-    display: 'flex',
-    width: '100%',
-    maxHeight: '100%',
-    alignItems: 'center',
-  },
-  image: {
-    display: 'flex',
-    marginBottom: 8,
-    width: Dimensions.get('window').width * 0.5,
-    height: (Dimensions.get('window').width * 0.5) * 0.5,
-  },
-  separator: {
-    width: '50%',
-    height: 8,
-    marginBottom: 50,
-    backgroundColor: '#081e27',
-    alignSelf: 'center',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30
-  },
-  inputContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems:'center', 
-    marginBottom: 25,
-  },
-  inputLabel: {
-    position: 'absolute',
-    left: 10,
-    color: '#ccc',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    backgroundColor: '#d1d8e3',
-  },
-  iconEmail: {
-    position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-  },
-  iconPass: {
-    position: 'absolute',
-    right: 15,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-  },
-  button: {
-    backgroundColor: '#111827',
-    display: 'flex',
-    width: '100%',
-    borderWidth: 1,
-    borderColor: 'transparent',
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 24,
-  },
-  linkEsqueci: {
-    alignSelf: 'flex-end',
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginTop: 8,
-  },
-  textEsqueci: {
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  footerLink: {
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  footerContainer: {
-    alignItems: 'center',
-    display: 'flex',
-    marginBottom: 100,
-  },
-  footerText: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 10,
-    color: '#ffffff',
-  },
-});

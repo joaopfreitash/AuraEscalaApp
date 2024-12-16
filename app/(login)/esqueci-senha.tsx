@@ -1,63 +1,113 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useRef, useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Dimensions, Text, Animated, TextInput, TouchableOpacity } from 'react-native';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import {
+  View,
+  Image,
+  ScrollView,
+  Text,
+  Animated,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+
+import styles from "@/src/styles/loginStyle";
+import loginHooks from "@/src/hooks/loginHooks";
+import FlashMessage from "react-native-flash-message";
+import auth from "@react-native-firebase/auth";
+import { useRef, useState } from "react";
 
 export default function EsqueciSenhaScreen() {
+  const {
+    emailLabelAnimated,
+    isEmailFocused,
+    handleFocus,
+    setIsEmailFocused,
+    handleBlur,
+  } = loginHooks();
+  const alertEmail = useRef<FlashMessage | null>(null);
+  const [email, setEmail] = useState("");
 
-  const [email, setEmail] = useState('');
-  const emailLabelAnimated = useRef(new Animated.Value(0)).current;
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-
-  const handleFocus = (animatedValue: Animated.Value, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-    Animated.timing(animatedValue, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setIsFocused(true);
-  };
-
-  const handleBlur = (animatedValue: Animated.Value, text: string, setIsFocused: React.Dispatch<React.SetStateAction<boolean>>) => {
-    if (!text) {
-      Animated.timing(animatedValue, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
+  // Função que envia o e-mail de redefinição de senha
+  const handleSubmit = async () => {
+    if (!email) {
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message: "Por favor, digite um e-mail.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+      return;
     }
-    setIsFocused(false);
+    try {
+      await auth().sendPasswordResetEmail(email);
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message:
+            "E-mail de redefinição enviado, verifique sua caixa de spam.",
+          type: "success",
+          duration: 6000,
+          style: { alignItems: "center" },
+        });
+      }
+    } catch (error) {
+      if (alertEmail.current) {
+        alertEmail.current.showMessage({
+          floating: true,
+          statusBarHeight: -65,
+          message: "Ocorreu um erro, tente novamente.",
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    }
   };
-  
+
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.container}>
+    <ScrollView
+      scrollEnabled={false}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <View style={styles.container}>
+        <Image
+          source={require("@/assets/images/auraescalas.png")}
+          style={styles.image}
+        />
 
-          <Image source={require('@/assets/images/auraPlantaoLogo.png')} style={styles.image} />
+        <Text style={styles.titleText}>
+          Informe o e-mail que você usa para login, enviaremos um link para
+          redefinição de senha.
+        </Text>
 
-          <View style={styles.separator} />
-
-          <Text style={styles.titleText}>
-            Informe o e-mail que você usa para login, enviaremos um link para redefinição de senha.
-          </Text>
-
-          <View style={styles.inputContainer}>
-          <Animated.Text style={[styles.inputLabel, {
-            top: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [18, -20], // Mover o rótulo para cima
-            }),
-            fontSize: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: [16, 12], // Diminuir o tamanho do rótulo
-            }),
-            fontWeight: emailLabelAnimated.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['400', '600'], // Tornar o rótulo em negrito
-            }),
-          }]} >
+        <View style={styles.inputContainerEsqueci}>
+          <Animated.Text
+            style={[
+              styles.inputLabel,
+              {
+                top: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [18, -20], // Mover o rótulo para cima
+                }),
+                fontSize: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [16, 12], // Diminuir o tamanho do rótulo
+                }),
+                fontWeight: emailLabelAnimated.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["400", "600"], // Tornar o rótulo em negrito
+                }),
+              },
+            ]}
+          >
             E-mail
           </Animated.Text>
-          <TextInput style={styles.input}
+          <TextInput
+            style={styles.input}
             placeholder={!isEmailFocused ? "E-mail" : ""}
             placeholderTextColor="#191a1c"
             keyboardType="email-address"
@@ -65,95 +115,22 @@ export default function EsqueciSenhaScreen() {
             value={email}
             onChangeText={setEmail}
             onFocus={() => handleFocus(emailLabelAnimated, setIsEmailFocused)}
-            onBlur={() => handleBlur(emailLabelAnimated, email, setIsEmailFocused)}
+            onBlur={() =>
+              handleBlur(emailLabelAnimated, email, setIsEmailFocused)
+            }
           />
-          <MaterialIcons name="alternate-email" size={24} color="black" style={styles.iconEmail} />
+          <MaterialIcons
+            name="alternate-email"
+            size={24}
+            color="black"
+            style={styles.iconEmail}
+          />
         </View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={handleSubmit} style={styles.button}>
           <Text style={styles.buttonText}>Enviar</Text>
         </TouchableOpacity>
-
-        </View>
+      </View>
+      <FlashMessage ref={alertEmail} />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  contentContainer:{
-    display: 'flex',
-    flexGrow: 1,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-  },
-  container: {
-    display: 'flex',
-    width: '100%',
-    maxHeight: '100%',
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  image: {
-    display: 'flex',
-    marginBottom: 8,
-    width: Dimensions.get('window').width * 0.5,
-    height: (Dimensions.get('window').width * 0.5) * 0.5,
-  },
-  separator: {
-    width: '50%',
-    height: 5,
-    marginBottom: 50,
-    backgroundColor: '#081e27',
-    alignSelf: 'center',
-    borderRadius: 30,
-  },
-  titleText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  inputContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems:'center', 
-    marginBottom: 25,
-    marginTop: 30,
-  },
-  inputLabel: {
-    position: 'absolute',
-    left: 10,
-    color: '#ccc',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    backgroundColor: '#d1d8e3',
-  },
-  iconEmail: {
-    position: 'absolute',
-    right: 10,
-    top: '25%',
-  },
-  button: {
-    backgroundColor: '#111827',
-    display: 'flex',
-    width: '100%',
-    borderWidth: 1,
-    borderColor: 'transparent',
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 24,
-  },
-});

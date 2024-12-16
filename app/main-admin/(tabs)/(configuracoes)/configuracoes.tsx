@@ -1,108 +1,87 @@
-import Entypo from '@expo/vector-icons/Entypo';
-import { router, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+import Entypo from "@expo/vector-icons/Entypo";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, Image, Text, TouchableOpacity, Dimensions } from "react-native";
+import styles from "@/src/styles/configuracoesScreenStyle";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import configuracoesHooks from "@/src/hooks/configuracoesHooks";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ConfiguracoesScreen() {
-  const [profileImage, setProfileImage] = useState(null); // Estado para armazenar a imagem mockada
-  const mockUserName = "Edd Stark"; // Nome do usuário mockado
+  const [userName, setUserName] = useState("Carregando...");
+  const { handleLogout } = configuracoesHooks();
 
-  const handleSelectImage = () => {
-    // Lógica para selecionar imagem, por exemplo, usando um seletor de arquivos
-  };
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const user = await AsyncStorage.getItem("@user");
+        if (user) {
+          const parsedUser = JSON.parse(user);
+          setUserName(parsedUser.name || "Usuário sem nome");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar o nome do usuário:", error);
+      }
+    };
+    fetchUserName();
+  }, []);
 
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileContainer}>
-        <Text style={styles.userName}>{mockUserName}</Text>
-        <Text style={styles.role}>Administrador</Text>
-        <TouchableOpacity onPress={handleSelectImage} style={styles.imagePicker}>
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={
-                profileImage
-                  ? { uri: profileImage }
-                  : require("@/assets/images/hipocrates.png") // Imagem padrão se nenhuma for selecionada
-              }
-              style={styles.profileImage}
-            />
+    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
+      <View style={styles.wrapperHeader}>
+        <View style={styles.headerMain}>
+          <Image
+            source={require("@/assets/images/iconHeaderAura.png")}
+            style={{
+              width: Dimensions.get("window").width * 0.15,
+              height: Dimensions.get("window").width * 0.15 * 0.5,
+            }}
+          />
+          <View>
+            <TouchableOpacity>
+              <Ionicons name="notifications" size={24} color="white" />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.changePhotoText}>Alterar foto</Text>
-        </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.profileContainer}>
+        <Text style={styles.userName}>{userName}</Text>
+        <Text style={styles.role}>Administrador</Text>
+        <View style={styles.profileImageContainer}>
+          <MaterialIcons
+            name="admin-panel-settings"
+            size={100}
+            color="#081e27"
+          />
+        </View>
       </View>
 
-       {/* Botões para navegação */}
-       <TouchableOpacity style={styles.settingItem} onPress={() => router.push('../locais')}>
-            <Text style={styles.settingText}>Hospitais cadastrados</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Configuração 2</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Configuração 3</Text>
-            <Entypo name="chevron-right" size={25} color="#081e27" />
-          </TouchableOpacity>
-
+      {/* Botões para navegação */}
+      <View style={styles.settingsContainer}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => router.push("../locais")}
+        >
+          <Text style={styles.settingText}>Hospitais cadastrados</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Configuração 2</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Configuração 3</Text>
+          <Entypo name="chevron-right" size={25} color="#081e27" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sairContainer}>
+        <TouchableOpacity onPress={handleLogout} style={styles.sairButton}>
+          <Text style={styles.settingText}>Sair</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#012E40',
-    paddingHorizontal: 20,
-  },
-  profileContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20
-  },
-  userName: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  role: {
-    fontSize: 10,
-    color: '#fff',
-    marginBottom: 25,
-  },
-  imagePicker: {
-    alignItems: 'center',
-  },
-  profileImageContainer: {
-    width: 100, // Largura do círculo
-    height: 100, // Altura do círculo
-    borderRadius: 60, // Define a imagem como circular
-    borderColor: '#fff',
-    marginBottom: 10,
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-  },
-  changePhotoText: {
-    color: '#00BFFF',
-    fontSize: 14,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#01354A',
-    marginVertical: 5,
-    borderRadius: 25,
-    width: '100%',
-  },
-  settingText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-});
