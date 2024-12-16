@@ -13,8 +13,6 @@ export default StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     alignItems: "center",
-    position: "absolute",
-    bottom: "50%",
   },
   title: {
     fontSize: 18,

@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const montarRelatorio = (
   plantoes: any[],
   filtroPorMes: boolean,
@@ -11,18 +13,11 @@ export const montarRelatorio = (
     const { concluido, plantonista, funcao, data, local, observacoes } =
       plantao;
 
-    // Escalas não concluídas
-    if (!concluido) {
-      naoConcluidas.push(
-        `- ${plantonista} como ${funcao} no dia ${data} no hospital ${local}`
-      );
-    }
-
     // Escalas concluídas
     if (concluido) {
       if (observacoes) {
         concluidas.push(
-          `Observação do médico ${plantonista} na função ${funcao} no dia ${data} no hospital ${local}: ${observacoes}`
+          `\nObservação do médico ${plantonista} na função ${funcao} no hospital ${local}:\n\n${observacoes}`
         );
       }
     }
@@ -34,26 +29,26 @@ export const montarRelatorio = (
     }
   });
 
+  const formattedDate = dayjs(dataSelecionada).format("DD-MM-YYYY");
+  const formattedDateMes = dayjs(dataSelecionada).format("MM-YYYY");
   // Formatar relatório
   const relatorio = `
           Relatório ${
             filtroPorMes
-              ? `do mês ${dataSelecionada}`
-              : `do dia ${dataSelecionada}`
-          }:
+              ? `do mês ${formattedDateMes}`
+              : `do dia ${formattedDate}`
+          }
           
-          Escalas não concluídas: (${naoConcluidas.length})
-          ${naoConcluidas.join("\n") || "Nenhuma escala não concluída"}
+          Escalas ativas: (${naoConcluidas.length})${naoConcluidas.join("\n")}
       
-          Escalas concluídas: (${concluidas.length})
-          ${concluidas.join("\n") || "Nenhuma escala concluída"}
+          Escalas concluídas: (${concluidas.length})\n${concluidas.join("\n")}
       
           Médicos:
           ${
             Object.keys(plantonistasCount)
               .map(
                 (plantonista) =>
-                  `- ${plantonista}: ${plantonistasCount[plantonista]} Escalas`
+                  `${plantonista}: ${plantonistasCount[plantonista]} Escalas`
               )
               .join("\n") || "Nenhum médico encontrado"
           }
