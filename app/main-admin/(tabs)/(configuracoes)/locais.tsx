@@ -239,6 +239,7 @@ export default function LocaisScreen() {
               Nome
             </Animated.Text>
             <TextInput
+              value={nomeHospital}
               style={[
                 styles.inputBox,
                 !nomeHospital ? styles.placeholderStyleNome : styles.textStyle,
@@ -286,6 +287,7 @@ export default function LocaisScreen() {
               Endereço
             </Animated.Text>
             <TextInput
+              value={enderecoHospital}
               style={[
                 styles.inputBox,
                 !enderecoHospital

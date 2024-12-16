@@ -283,6 +283,7 @@ export default function MedicosScreen() {
               Nome
             </Animated.Text>
             <TextInput
+              value={nomeMedico}
               style={[
                 styles.inputBox,
                 !nomeMedico ? styles.placeholderStyleNome : styles.textStyle,
@@ -330,6 +331,7 @@ export default function MedicosScreen() {
               E-mail
             </Animated.Text>
             <TextInput
+              value={emailMedico}
               style={[
                 styles.inputBox,
                 !emailMedico ? styles.placeholderStyleEmail : styles.textStyle,
