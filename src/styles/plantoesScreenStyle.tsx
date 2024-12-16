@@ -157,7 +157,17 @@ export default StyleSheet.create({
   containerDataHora: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center",
+    gap: 30,
+  },
+  buttonSeletor: {
+    backgroundColor: "#d1d8e3",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 20,
   },
   inputBoxPickerMedico: {
     width: "100%",

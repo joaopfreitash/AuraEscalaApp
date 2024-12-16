@@ -38,12 +38,8 @@ export default function PlantoesScreen() {
     valueLocal,
     valueFuncao,
     setIsButtonEnabled,
-    setDate,
-    setTime,
     setModalVisible,
     modalVisible,
-    date,
-    time,
     openMedico,
     itemsMedico,
     setOpenMedico,
@@ -74,10 +70,17 @@ export default function PlantoesScreen() {
     isModalObsVisible,
     openModalObs,
     closeModal,
+    selectedDate,
+    setSelectedDate,
+    selectedHora,
+    setSelectedHora,
   } = plantoesHooks();
 
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedHora, setSelectedHora] = useState("");
+  const [selectedDatePicker, setSelectedDatePicker] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [date, setDate] = useState(dayjs());
+  const [time, setTime] = useState(dayjs());
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
@@ -112,21 +115,31 @@ export default function PlantoesScreen() {
 
   const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
     if (date) {
+      setShowDatePicker(false);
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
+      const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
+      setSelectedDatePicker(formattedDatePicker);
       setSelectedDate(formattedDate);
-      setDate(dayjs(date));
     }
   };
 
   const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
     if (time) {
+      setShowTimePicker(false);
       const formattedTime = time.toLocaleTimeString("pt-BR", {
         hour: "2-digit",
         minute: "2-digit",
       });
       setSelectedHora(formattedTime);
-      setTime(dayjs(time));
     }
+  };
+
+  const toggleDatePicker = () => {
+    setShowDatePicker(true);
+  };
+
+  const toggleTimePicker = () => {
+    setShowTimePicker(true);
   };
 
   return (
@@ -208,18 +221,37 @@ export default function PlantoesScreen() {
 
           {/* Seletor de Data */}
           <View style={styles.containerDataHora}>
-            <DateTimePicker
-              value={date.toDate()}
-              mode="date"
-              display="default"
-              onChange={handleDateConfirm}
-            />
-            <DateTimePicker
-              value={time.toDate()}
-              mode="time"
-              display="default"
-              onChange={handleTimeConfirm}
-            />
+            {/* Seletor de Data */}
+            <TouchableOpacity
+              style={styles.buttonSeletor}
+              onPress={toggleDatePicker}
+            >
+              <Text>{selectedDate ? selectedDatePicker : "Data"}</Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={date.toDate()}
+                mode="date"
+                display="default"
+                onChange={handleDateConfirm}
+              />
+            )}
+
+            {/* Seletor de Hora */}
+            <TouchableOpacity
+              style={styles.buttonSeletor}
+              onPress={toggleTimePicker}
+            >
+              <Text>{selectedHora ? selectedHora : "Hora"}</Text>
+            </TouchableOpacity>
+            {showTimePicker && (
+              <DateTimePicker
+                value={time.toDate()}
+                mode="time"
+                display="default"
+                onChange={handleTimeConfirm}
+              />
+            )}
           </View>
 
           <View style={styles.betweenInput}>

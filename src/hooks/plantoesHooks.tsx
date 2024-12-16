@@ -7,6 +7,8 @@ import { Animated } from "react-native";
 
 const plantoesHooks = () => {
   const alertPlantao = useRef<FlashMessage | null>(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedHora, setSelectedHora] = useState("");
 
   const [isFuncaoFocused, setFuncaoFocused] = useState(false);
   const [isMedicoFocused, setMedicoFocused] = useState(false);
@@ -34,8 +36,6 @@ const plantoesHooks = () => {
   const [openMedico, setOpenMedico] = useState(false);
   const [valueMedico, setValueMedico] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [date, setDate] = useState(dayjs().subtract(1, "day"));
-  const [time, setTime] = useState(dayjs());
   const [openLocal, setOpenLocal] = useState(false);
   const [valueLocal, setValueLocal] = useState<string>("");
   const [openFuncao, setOpenFuncao] = useState(false);
@@ -52,8 +52,6 @@ const plantoesHooks = () => {
 
   const resetModal = () => {
     setModalVisible(false);
-    setDate(dayjs().subtract(1, "day"));
-    setTime(dayjs());
     setValueMedico("");
     setOpenMedico(false);
     setValueLocal("");
@@ -64,6 +62,8 @@ const plantoesHooks = () => {
     handleBlurMedico();
     handleBlurLocal();
     handleBlurFuncao();
+    setSelectedDate("");
+    setSelectedHora("");
   };
 
   const fetchPlantoes = async (isConcluido: boolean) => {
@@ -284,12 +284,8 @@ const plantoesHooks = () => {
     valueLocal,
     valueFuncao,
     setIsButtonEnabled,
-    setDate,
-    setTime,
     setModalVisible,
     modalVisible,
-    date,
-    time,
     openMedico,
     itemsMedico,
     setOpenMedico,
@@ -321,6 +317,10 @@ const plantoesHooks = () => {
     isModalObsVisible,
     openModalObs,
     closeModal,
+    selectedDate,
+    setSelectedDate,
+    selectedHora,
+    setSelectedHora,
   };
 };
 
