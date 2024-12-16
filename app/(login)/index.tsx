@@ -64,9 +64,9 @@ export default function LoginScreen() {
           await AsyncStorage.setItem("@user", JSON.stringify(combinedUserData));
 
           if (userData.isAdmin) {
-            router.replace("/main-admin/(tabs)/home");
+            handleRedirectAdmin();
           } else {
-            router.replace("/main-user/(tabs)/home");
+            handleRedirectUser();
           }
         } else {
           alert("Dados do usuário não encontrados.");
@@ -87,6 +87,14 @@ export default function LoginScreen() {
     }
   };
 
+  const handleRedirectAdmin = () => {
+    router.replace("/main-admin/(tabs)/home");
+  };
+
+  const handleRedirectUser = () => {
+    router.replace("/main-user/(tabs)/home");
+  };
+
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async (user) => {
       if (user) {
@@ -105,9 +113,9 @@ export default function LoginScreen() {
               JSON.stringify(combinedUserData)
             );
             if (userData.isAdmin) {
-              router.replace("../main-admin/(tabs)/home");
+              handleRedirectAdmin();
             } else {
-              router.replace("../main-user/(tabs)/home");
+              handleRedirectUser();
             }
           } else {
             console.error("Dados do usuário não encontrados.");
@@ -242,10 +250,7 @@ export default function LoginScreen() {
         <Text style={styles.footerText}>Sua primeira vez acessando o App?</Text>
         <Link href={"/cadastrar"} asChild style={styles.button}>
           <TouchableOpacity>
-            <Text style={styles.buttonText}>
-              <FontAwesome5 name="first-aid" size={15} color="white" /> Clica
-              aqui
-            </Text>
+            <Text style={styles.buttonText}>Clica aqui</Text>
           </TouchableOpacity>
         </Link>
       </View>

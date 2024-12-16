@@ -76,9 +76,8 @@ const homeUserHooks = () => {
     const user = JSON.parse(storedUser);
     const userUid = user.uid;
     const userDocRef = firestore().doc(`users/${userUid}`);
-
     const unsubscribe = userDocRef.onSnapshot((docSnapshot) => {
-      if (docSnapshot.exists) {
+      if (docSnapshot && docSnapshot.exists) {
         const data = docSnapshot.data();
         if (data?.plantaoIdsNovos && data.plantaoIdsNovos.length > 0) {
           setHasNewNotification(true);
@@ -87,6 +86,9 @@ const homeUserHooks = () => {
           setHasNewNotification(false);
           setIsTherePlantaoNovo(false);
         }
+      } else {
+        setHasNewNotification(false);
+        setIsTherePlantaoNovo(false);
       }
     });
     return () => unsubscribe();
