@@ -41,6 +41,18 @@ export default function LoginScreen() {
   } = loginHooks();
 
   const handleLogin = async () => {
+    if (!email || !senha) {
+      if (alertLogin.current) {
+        alertLogin.current.showMessage({
+          message: "Por favor, insira um email e uma senha válidos.",
+          floating: true,
+          type: "danger",
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+      return;
+    }
     try {
       const userCredential = await auth().signInWithEmailAndPassword(
         email,

@@ -80,7 +80,7 @@ export default function EsqueciSenhaScreen() {
         />
 
         <Text style={styles.titleText}>
-          Informe o e-mail que você usa para login, enviaremos um link para
+          Informe o e-mail que você usa para login. Enviaremos um link para
           redefinição de senha.
         </Text>
 
