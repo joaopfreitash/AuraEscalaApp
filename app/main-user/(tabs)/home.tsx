@@ -73,7 +73,7 @@ export default function HomeUserScreen() {
                 <MaterialIcons
                   name="notification-important"
                   size={24}
-                  color="red"
+                  color="#bf3d3d"
                 />
               ) : (
                 <MaterialIcons name="notifications" size={24} color="white" />

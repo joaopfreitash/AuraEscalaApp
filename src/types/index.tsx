@@ -20,7 +20,6 @@ export type Medico = {
   id: string;
   nome: string;
   isAdmin: boolean;
-  avatar: any;
   plantaoIds?: string[];
 };
 

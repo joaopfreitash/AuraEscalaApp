@@ -52,7 +52,6 @@ export default StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.5,
     shadowRadius: 2,
-    elevation: 3,
   },
   mainContainer: {
     flexDirection: "row",
@@ -67,12 +66,11 @@ export default StyleSheet.create({
   containerIcons: {
     flexDirection: "column",
     alignItems: "center",
-    gap: 3,
+    gap: 3.5,
   },
   containerInfos: {
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: 1.5,
   },
   medicoContainer: {
     display: "flex",
@@ -289,7 +287,6 @@ export default StyleSheet.create({
   },
   concluidoText: {
     color: "green",
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 15,
   },
 });

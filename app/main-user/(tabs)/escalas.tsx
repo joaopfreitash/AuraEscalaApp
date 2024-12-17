@@ -76,7 +76,7 @@ export default function PlantoesUserScreen() {
                 <MaterialIcons
                   name="notification-important"
                   size={24}
-                  color="red"
+                  color="#bf3d3d"
                 />
               ) : (
                 <MaterialIcons name="notifications" size={24} color="white" />

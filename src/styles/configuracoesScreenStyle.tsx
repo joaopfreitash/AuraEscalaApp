@@ -13,6 +13,7 @@ export default StyleSheet.create({
     justifyContent: "space-between",
   },
   profileContainer: {
+    width: "100%",
     alignItems: "center",
     marginTop: 20,
     marginBottom: 20,
@@ -28,16 +29,11 @@ export default StyleSheet.create({
     marginBottom: 25,
   },
   profileImageContainer: {
-    width: 100,
-    height: 100,
+    width: "100%",
     borderRadius: 60,
     borderColor: "#fff",
     marginBottom: 10,
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 60,
+    alignItems: "center",
   },
   settingsContainer: {
     paddingHorizontal: 20,

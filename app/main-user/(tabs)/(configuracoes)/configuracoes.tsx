@@ -72,7 +72,7 @@ export default function ConfiguracoesUserScreen() {
                 <MaterialIcons
                   name="notification-important"
                   size={24}
-                  color="red"
+                  color="#bf3d3d"
                 />
               ) : (
                 <MaterialIcons name="notifications" size={24} color="white" />
@@ -116,7 +116,7 @@ export default function ConfiguracoesUserScreen() {
             <Text style={stylesModal.message}>
               {isTherePlantaoNovo ? (
                 <Text style={stylesModal.simNotificacao}>
-                  Você tem novas escalas cadastrados. Verifique a aba Escalas.
+                  Você tem novas escalas cadastradas. Verifique a aba Escalas.
                 </Text>
               ) : (
                 "Nenhuma notificação no momento"

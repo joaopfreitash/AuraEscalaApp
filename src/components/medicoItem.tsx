@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import styles from "../styles/medicosScreenStyle";
 import { Medico } from "../types";
 
@@ -10,7 +10,21 @@ interface MedicoItemProps {
 
 const MedicoItem: React.FC<MedicoItemProps> = ({ medico }) => (
   <View style={styles.medicoItem}>
-    <Image source={medico.avatar} style={styles.medicoAvatar} />
+    {medico.isAdmin ? (
+      <MaterialIcons
+        name="admin-panel-settings"
+        size={32}
+        color="#081e27"
+        style={styles.medicoAvatar}
+      />
+    ) : (
+      <FontAwesome
+        name="user-md"
+        size={32}
+        color="#081e27"
+        style={styles.medicoAvatar}
+      />
+    )}
     <View style={styles.nomePermContainer}>
       <Text style={styles.medicoNome}>{medico.nome}</Text>
       <Text style={styles.permissaoMedico}>

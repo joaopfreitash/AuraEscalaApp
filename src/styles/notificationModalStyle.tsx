@@ -25,7 +25,7 @@ export default StyleSheet.create({
     marginBottom: 20,
   },
   simNotificacao: {
-    color: "#5fb862",
+    color: "#bf3d3d",
     fontWeight: "bold",
   },
   closeButton: {
