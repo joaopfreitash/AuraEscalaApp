@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { Animated, TextInput } from "react-native";
@@ -30,6 +30,17 @@ const locaisHooks = () => {
     clearInputNome();
     clearInputEndereco();
   };
+
+  useEffect(() => {
+    if (!modalVisible) {
+      handleBlur(labelNomeAnimation, nomeHospital, setIsNomeFocused);
+      handleBlur(
+        labelEnderecoAnimation,
+        enderecoHospital,
+        setIsEnderecoFocused
+      );
+    }
+  }, [modalVisible]);
 
   // Buscar Hospitais no FireStore
   const fetchHospitals = async () => {

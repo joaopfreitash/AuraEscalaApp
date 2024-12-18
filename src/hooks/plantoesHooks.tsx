@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
 import dayjs from "dayjs";
 import FlashMessage from "react-native-flash-message";
@@ -59,12 +59,17 @@ const plantoesHooks = () => {
     setValueFuncao("");
     setOpenFuncao(false);
     setIsButtonEnabled(false);
-    handleBlurMedico();
-    handleBlurLocal();
-    handleBlurFuncao();
     setSelectedDate("");
     setSelectedHora("");
   };
+
+  useEffect(() => {
+    if (!modalVisible) {
+      handleBlurMedico();
+      handleBlurLocal();
+      handleBlurFuncao();
+    }
+  }, [modalVisible]);
 
   const fetchPlantoes = async (isConcluido: boolean) => {
     try {
