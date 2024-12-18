@@ -7,6 +7,8 @@ import {
   Animated,
   TextInput,
   TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 import styles from "@/src/styles/cadastroStyle";
@@ -32,7 +34,7 @@ export default function EsqueciSenhaScreen() {
       if (alertEmail.current) {
         alertEmail.current.showMessage({
           floating: true,
-          statusBarHeight: -65,
+          statusBarHeight: -5,
           message: "Por favor, digite um e-mail.",
           type: "danger",
           duration: 4000,
@@ -46,7 +48,7 @@ export default function EsqueciSenhaScreen() {
       if (alertEmail.current) {
         alertEmail.current.showMessage({
           floating: true,
-          statusBarHeight: -65,
+          statusBarHeight: -5,
           message:
             "E-mail de redefinição enviado, verifique sua caixa de spam.",
           type: "success",
@@ -58,7 +60,7 @@ export default function EsqueciSenhaScreen() {
       if (alertEmail.current) {
         alertEmail.current.showMessage({
           floating: true,
-          statusBarHeight: -65,
+          statusBarHeight: -5,
           message: "Ocorreu um erro, tente novamente.",
           type: "danger",
           duration: 4000,
@@ -69,68 +71,67 @@ export default function EsqueciSenhaScreen() {
   };
 
   return (
-    <ScrollView
-      scrollEnabled={false}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.container}>
-        <Image
-          source={require("@/assets/images/auraescalas.png")}
-          style={styles.image}
-        />
-
-        <Text style={styles.titleText}>
-          Informe o e-mail que você usa para login. Enviaremos um link para
-          redefinição de senha.
-        </Text>
-
-        <View style={styles.inputContainerEsqueci}>
-          <Animated.Text
-            style={[
-              styles.inputLabel,
-              {
-                top: emailLabelAnimated.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [18, -20], // Mover o rótulo para cima
-                }),
-                fontSize: emailLabelAnimated.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [16, 12], // Diminuir o tamanho do rótulo
-                }),
-                fontWeight: emailLabelAnimated.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["400", "600"], // Tornar o rótulo em negrito
-                }),
-              },
-            ]}
-          >
-            E-mail
-          </Animated.Text>
-          <TextInput
-            style={styles.input}
-            placeholder={!isEmailFocused ? "E-mail" : ""}
-            placeholderTextColor="#191a1c"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            onFocus={() => handleFocus(emailLabelAnimated, setIsEmailFocused)}
-            onBlur={() =>
-              handleBlur(emailLabelAnimated, email, setIsEmailFocused)
-            }
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.contentContainer}>
+        <View style={styles.container}>
+          <Image
+            source={require("@/assets/images/auraescalas.png")}
+            style={styles.image}
           />
-          <MaterialIcons
-            name="alternate-email"
-            size={24}
-            color="black"
-            style={styles.iconEmail}
-          />
+
+          <Text style={styles.titleText}>
+            Informe o e-mail que você usa para login. Enviaremos um link para
+            redefinição de senha.
+          </Text>
+
+          <View style={styles.inputContainerEsqueci}>
+            <Animated.Text
+              style={[
+                styles.inputLabel,
+                {
+                  top: emailLabelAnimated.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [18, -20], // Mover o rótulo para cima
+                  }),
+                  fontSize: emailLabelAnimated.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [16, 12], // Diminuir o tamanho do rótulo
+                  }),
+                  fontWeight: emailLabelAnimated.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["400", "600"], // Tornar o rótulo em negrito
+                  }),
+                },
+              ]}
+            >
+              E-mail
+            </Animated.Text>
+            <TextInput
+              style={styles.input}
+              placeholder={!isEmailFocused ? "E-mail" : ""}
+              placeholderTextColor="#191a1c"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              onFocus={() => handleFocus(emailLabelAnimated, setIsEmailFocused)}
+              onBlur={() =>
+                handleBlur(emailLabelAnimated, email, setIsEmailFocused)
+              }
+            />
+            <MaterialIcons
+              name="alternate-email"
+              size={24}
+              color="black"
+              style={styles.iconEmail}
+            />
+          </View>
+          <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+            <Text style={styles.buttonText}>Enviar</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-          <Text style={styles.buttonText}>Enviar</Text>
-        </TouchableOpacity>
+        <FlashMessage ref={alertEmail} />
       </View>
-      <FlashMessage ref={alertEmail} />
-    </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }

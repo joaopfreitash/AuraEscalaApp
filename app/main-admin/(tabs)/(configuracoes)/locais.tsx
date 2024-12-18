@@ -9,6 +9,7 @@ import {
   Keyboard,
   Modal,
   SafeAreaView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -203,133 +204,139 @@ export default function LocaisScreen() {
 
       {/* Modal */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <View style={styles.modalContent}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.modalTitle}>Cadastrar hospital</Text>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.modalContent}>
+            <View style={styles.headerContainer}>
+              <Text style={styles.modalTitle}>Cadastrar hospital</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  resetModal();
+                }}
+              >
+                <Ionicons name="close-circle" size={33} color={"#bf3d3d"} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Input de Nome*/}
+            <View style={styles.containerNome}>
+              <Animated.Text
+                style={[
+                  styles.inputLabel,
+                  {
+                    top: labelNomeAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [18, -20],
+                    }),
+                    fontSize: labelNomeAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [16, 12],
+                    }),
+                    fontWeight: labelNomeAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ["400", "600"],
+                    }),
+                  },
+                ]}
+              >
+                Nome
+              </Animated.Text>
+              <TextInput
+                value={nomeHospital}
+                style={[
+                  styles.inputBox,
+                  !nomeHospital
+                    ? styles.placeholderStyleNome
+                    : styles.textStyle,
+                ]}
+                placeholder={!isNomeFocused ? "Nome do hospital" : ""}
+                onChangeText={setNomeHospital}
+                placeholderTextColor="#191a1c"
+                ref={nomeInputRef}
+                autoCapitalize="words"
+                onFocus={() =>
+                  handleFocus(labelNomeAnimation, setIsNomeFocused)
+                }
+              ></TextInput>
+              <FontAwesome6
+                name="edit"
+                size={20}
+                color="black"
+                style={styles.iconEdit}
+              />
+            </View>
+
+            <View style={styles.betweenInput}>
+              <FontAwesome name="level-down" size={30} color="black" />
+            </View>
+
+            {/* Input de Endereço */}
+            <View style={styles.containerEndereço}>
+              <Animated.Text
+                style={[
+                  styles.inputLabel,
+                  {
+                    top: labelEnderecoAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [18, -20],
+                    }),
+                    fontSize: labelEnderecoAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [16, 12],
+                    }),
+                    fontWeight: labelEnderecoAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ["400", "600"],
+                    }),
+                  },
+                ]}
+              >
+                Endereço
+              </Animated.Text>
+              <TextInput
+                value={enderecoHospital}
+                style={[
+                  styles.inputBox,
+                  !enderecoHospital
+                    ? styles.placeholderStyleEndereco
+                    : styles.textStyle,
+                ]}
+                ref={enderecoInputRef}
+                placeholder={!isEnderecoFocused ? "Endereço" : ""}
+                placeholderTextColor="#191a1c"
+                onChangeText={setEnderecoHospital}
+                autoCapitalize="words"
+                onFocus={() =>
+                  handleFocus(labelEnderecoAnimation, setIsEnderecoFocused)
+                }
+              ></TextInput>
+              <FontAwesome6
+                name="edit"
+                size={20}
+                color="black"
+                style={styles.iconEdit}
+              />
+            </View>
             <TouchableOpacity
+              style={[
+                styles.confirmarPlantaoButton,
+                !isButtonEnabled && styles.buttonDisabled,
+              ]}
+              disabled={!isButtonEnabled}
               onPress={() => {
-                resetModal();
+                handleRegisterHospital(nomeHospital, enderecoHospital);
               }}
             >
-              <Ionicons name="close-circle" size={33} color={"#bf3d3d"} />
+              <Text
+                style={[
+                  styles.confirmarPlantaoText,
+                  !isButtonEnabled && styles.buttonTextDisabled,
+                ]}
+              >
+                Confirmar
+              </Text>
             </TouchableOpacity>
           </View>
-
-          {/* Input de Nome*/}
-          <View style={styles.containerNome}>
-            <Animated.Text
-              style={[
-                styles.inputLabel,
-                {
-                  top: labelNomeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [18, -20],
-                  }),
-                  fontSize: labelNomeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 12],
-                  }),
-                  fontWeight: labelNomeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["400", "600"],
-                  }),
-                },
-              ]}
-            >
-              Nome
-            </Animated.Text>
-            <TextInput
-              value={nomeHospital}
-              style={[
-                styles.inputBox,
-                !nomeHospital ? styles.placeholderStyleNome : styles.textStyle,
-              ]}
-              placeholder={!isNomeFocused ? "Nome do hospital" : ""}
-              onChangeText={setNomeHospital}
-              placeholderTextColor="#191a1c"
-              ref={nomeInputRef}
-              autoCapitalize="words"
-              onFocus={() => handleFocus(labelNomeAnimation, setIsNomeFocused)}
-            ></TextInput>
-            <FontAwesome6
-              name="edit"
-              size={20}
-              color="black"
-              style={styles.iconEdit}
-            />
-          </View>
-
-          <View style={styles.betweenInput}>
-            <FontAwesome name="level-down" size={30} color="black" />
-          </View>
-
-          {/* Input de Endereço */}
-          <View style={styles.containerEndereço}>
-            <Animated.Text
-              style={[
-                styles.inputLabel,
-                {
-                  top: labelEnderecoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [18, -20],
-                  }),
-                  fontSize: labelEnderecoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 12],
-                  }),
-                  fontWeight: labelEnderecoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["400", "600"],
-                  }),
-                },
-              ]}
-            >
-              Endereço
-            </Animated.Text>
-            <TextInput
-              value={enderecoHospital}
-              style={[
-                styles.inputBox,
-                !enderecoHospital
-                  ? styles.placeholderStyleEndereco
-                  : styles.textStyle,
-              ]}
-              ref={enderecoInputRef}
-              placeholder={!isEnderecoFocused ? "Endereço" : ""}
-              placeholderTextColor="#191a1c"
-              onChangeText={setEnderecoHospital}
-              autoCapitalize="words"
-              onFocus={() =>
-                handleFocus(labelEnderecoAnimation, setIsEnderecoFocused)
-              }
-            ></TextInput>
-            <FontAwesome6
-              name="edit"
-              size={20}
-              color="black"
-              style={styles.iconEdit}
-            />
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.confirmarPlantaoButton,
-              !isButtonEnabled && styles.buttonDisabled,
-            ]}
-            disabled={!isButtonEnabled}
-            onPress={() => {
-              handleRegisterHospital(nomeHospital, enderecoHospital);
-            }}
-          >
-            <Text
-              style={[
-                styles.confirmarPlantaoText,
-                !isButtonEnabled && styles.buttonTextDisabled,
-              ]}
-            >
-              Confirmar
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
       <FlashMessage ref={alertLocal} />
     </SafeAreaView>
