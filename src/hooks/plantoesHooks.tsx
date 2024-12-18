@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
-import dayjs from "dayjs";
 import FlashMessage from "react-native-flash-message";
 import { Plantao } from "../types";
 import { Animated } from "react-native";
+import searchBar from "../utils/searchBar";
 
 const plantoesHooks = () => {
   const alertPlantao = useRef<FlashMessage | null>(null);
@@ -42,6 +42,7 @@ const plantoesHooks = () => {
   const [valueFuncao, setValueFuncao] = useState<string>("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [isConcluido, setIsConcluido] = useState(false);
+  const [filteredPlantoes, setFilteredPlantoes] = useState<Plantao[]>([]);
   const [itemsFuncao, setItemsFuncao] = useState([
     { label: "Cirurgião", value: "Cirurgião" },
     { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
@@ -49,6 +50,8 @@ const plantoesHooks = () => {
     { label: "Auxílio Anestesia", value: "Auxílio Anestesia" },
     { label: "Ambulatório", value: "Ambulatório" },
   ]);
+
+  const { setSearchQuery } = searchBar();
 
   const resetModal = () => {
     setModalVisible(false);
@@ -73,10 +76,14 @@ const plantoesHooks = () => {
 
   const fetchPlantoes = async (isConcluido: boolean) => {
     try {
-      const plantoesQuery = firestore()
+      let plantoesQuery = firestore()
         .collection("plantoes")
-        .where("concluido", "==", isConcluido)
-        .orderBy("data", "desc");
+        .where("concluido", "==", isConcluido);
+      if (isConcluido) {
+        plantoesQuery = plantoesQuery.orderBy("data", "desc").limit(30);
+      } else {
+        plantoesQuery = plantoesQuery.orderBy("data", "desc");
+      }
 
       const querySnapshot = await plantoesQuery.get();
 
@@ -91,6 +98,7 @@ const plantoesHooks = () => {
           funcao: data.funcao,
           concluido: data.concluido,
           observacoes: data.observacoes,
+          concluidoEm: data.concluidoEm,
         };
       });
 
@@ -101,6 +109,8 @@ const plantoesHooks = () => {
   };
 
   const handleCheckmarkClick = () => {
+    setSearchQuery("");
+    setFilteredPlantoes([]);
     setIsConcluido(!isConcluido);
     fetchPlantoes(!isConcluido);
   };
@@ -221,8 +231,8 @@ const plantoesHooks = () => {
           message: "Ocorreu um erro, tente novamente.",
           type: "danger",
           floating: true,
-          duration: 4000,
           statusBarHeight: -5,
+          duration: 4000,
           style: { alignItems: "center" },
         });
       }
@@ -330,6 +340,8 @@ const plantoesHooks = () => {
     setSelectedDate,
     selectedHora,
     setSelectedHora,
+    filteredPlantoes,
+    setFilteredPlantoes,
   };
 };
 

@@ -25,7 +25,7 @@ export default StyleSheet.create({
   },
   headerTitle: {
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
   },
   containerConcluidas: {
     paddingHorizontal: 10,
@@ -37,6 +37,12 @@ export default StyleSheet.create({
   plantaoTitle: {
     fontSize: 25,
     fontWeight: "bold",
+    color: "#ffffff",
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  plantaoSubTitle: {
+    fontSize: 12,
     color: "#ffffff",
     marginBottom: 10,
     paddingHorizontal: 10,
@@ -288,5 +294,42 @@ export default StyleSheet.create({
   concluidoText: {
     color: "green",
     fontSize: 15,
+  },
+  searchContainerPai: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  searchBarContainer: {
+    display: "flex",
+    paddingHorizontal: 10,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 30,
+    paddingHorizontal: 40,
+    marginBottom: 10,
+    color: "white",
+  },
+  cancelarContainer: {
+    marginBottom: 11,
+  },
+  cancelButton: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#ffffff",
+  },
+  iconSearch: {
+    position: "absolute",
+    left: 25,
+    top: 11,
+  },
+  errorMessage: {
+    color: "#bf3d3d",
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
   },
 });

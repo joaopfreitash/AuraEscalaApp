@@ -8,6 +8,8 @@ import {
   Modal,
   Image,
   Dimensions,
+  Keyboard,
+  TextInput,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -23,9 +25,10 @@ import FlashMessage from "react-native-flash-message";
 import styles from "@/src/styles/plantoesScreenStyle";
 import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesHooks from "@/src/hooks/plantoesHooks";
-import { Plantao } from "@/src/types";
 import stylesModal from "@/src/styles/notificationModalStyle";
-import { Fontisto } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import searchBar from "@/src/utils/searchBar";
+import { Plantao } from "@/src/types";
 
 export default function PlantoesScreen() {
   const {
@@ -74,7 +77,19 @@ export default function PlantoesScreen() {
     setSelectedDate,
     selectedHora,
     setSelectedHora,
+    filteredPlantoes,
+    setFilteredPlantoes,
   } = plantoesHooks();
+
+  const {
+    handleFocusSearchBar,
+    handleBlurSearchbar,
+    searchBarWidth,
+    isSearchFocused,
+    searchQuery,
+    setSearchQuery,
+    setIsSearchFocused,
+  } = searchBar();
 
   const [selectedDatePicker, setSelectedDatePicker] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -142,6 +157,31 @@ export default function PlantoesScreen() {
     setShowTimePicker(true);
   };
 
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    const filtered = plantoes.filter((plantao) =>
+      plantao.plantonista.toLowerCase().includes(text.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
+      setFilteredPlantoes([]);
+    } else {
+      setFilteredPlantoes(filtered);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsSearchFocused(false);
+    setSearchQuery("");
+    setFilteredPlantoes(plantoes);
+    Keyboard.dismiss();
+    Animated.timing(searchBarWidth, {
+      toValue: 100,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+
   return (
     <View
       style={[
@@ -162,37 +202,103 @@ export default function PlantoesScreen() {
       </View>
       <View style={styles.headerFilhoContainer}>
         <View style={styles.headerTitle}>
-          <Text style={styles.plantaoTitle}>
-            {isConcluido ? "Escalas concluídas" : "Escalas"}
-          </Text>
+          {!isConcluido && <Text style={styles.plantaoTitle}>Escalas</Text>}
+          {isConcluido && (
+            <>
+              <Text style={styles.plantaoTitle}>Escalas concluídas</Text>
+              <Text style={styles.plantaoSubTitle}>30 últimas</Text>
+            </>
+          )}
         </View>
         <View style={styles.containerConcluidas}>
-          <TouchableOpacity onPress={handleCheckmarkClick}>
-            {isConcluido ? (
-              <Fontisto name="arrow-return-left" size={24} color={"white"} />
-            ) : (
-              <Ionicons name="checkmark-done" size={24} color="white" />
-            )}
-          </TouchableOpacity>
+          {!isSearchFocused && !searchQuery.trim() && (
+            <TouchableOpacity onPress={handleCheckmarkClick}>
+              {isConcluido ? (
+                <Ionicons name="return-up-back" size={28} color="white" />
+              ) : (
+                <FontAwesome6 name="check" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-      <View style={styles.plantaoContainer}>
-        <FlatList
-          style={styles.flatListContainer}
-          data={plantoes}
-          renderItem={({ item }) => (
-            <PlantaoItem
-              plantao={item}
-              onPress={() => {
-                if (item.concluido) {
-                  openModalObs(item); // Passa a função openModal se o plantão estiver concluído
-                }
-              }}
-            />
+      <View style={styles.searchContainerPai}>
+        <Animated.View
+          style={[
+            styles.searchBarContainer,
+            {
+              width: searchBarWidth.interpolate({
+                inputRange: [80, 100],
+                outputRange: ["80%", "100%"],
+              }),
+            },
+          ]}
+        >
+          <FontAwesome5
+            name="search"
+            size={18}
+            color="white"
+            style={styles.iconSearch}
+          />
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Pesquisar por médico"
+            placeholderTextColor={"#ccc"}
+            value={searchQuery}
+            onChangeText={handleSearch}
+            onFocus={handleFocusSearchBar}
+            onBlur={handleBlurSearchbar}
+          />
+        </Animated.View>
+        <View style={styles.cancelarContainer}>
+          {isSearchFocused && (
+            <TouchableOpacity onPress={handleCancel}>
+              <Text style={styles.cancelButton}>Cancelar</Text>
+            </TouchableOpacity>
           )}
-          keyExtractor={(item) => item.id}
-          numColumns={1}
-        />
+        </View>
+      </View>
+
+      <View style={styles.plantaoContainer}>
+        {filteredPlantoes.length > 0 ? (
+          <FlatList
+            style={styles.flatListContainer}
+            data={filteredPlantoes}
+            renderItem={({ item }) => (
+              <PlantaoItem
+                plantao={item}
+                onPress={() => {
+                  if (item.concluido) {
+                    openModalObs(item);
+                  }
+                }}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            numColumns={1}
+          />
+        ) : searchQuery.trim() ? (
+          <Text style={styles.errorMessage}>
+            Nenhum médico encontrado com esse nome
+          </Text>
+        ) : (
+          <FlatList
+            style={styles.flatListContainer}
+            data={plantoes}
+            renderItem={({ item }) => (
+              <PlantaoItem
+                plantao={item}
+                onPress={() => {
+                  if (item.concluido) {
+                    openModalObs(item);
+                  }
+                }}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            numColumns={1}
+          />
+        )}
       </View>
 
       {/* Botão para abrir o modal */}
