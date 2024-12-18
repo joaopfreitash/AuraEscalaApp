@@ -4,7 +4,7 @@ export default StyleSheet.create({
   contentContainer: {
     display: "flex",
     flexGrow: 1,
-    marginTop: 40,
+    marginTop: 20,
     alignItems: "center",
     paddingHorizontal: 20,
     justifyContent: "space-between",
@@ -26,7 +26,7 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 25,
-    marginTop: 20,
+    marginTop: 50,
   },
   inputContainer: {
     width: "100%",
@@ -92,8 +92,8 @@ export default StyleSheet.create({
   },
   footerContainer: {
     alignItems: "center",
-    flex: 1,
-    marginTop: 150,
+    display: "flex",
+    marginBottom: 100,
   },
   footerText: {
     fontSize: 20,
@@ -105,7 +105,7 @@ export default StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#ffffff",
-    marginTop: 50,
+    marginTop: 20,
   },
   inputContainerEsqueci: {
     width: "100%",

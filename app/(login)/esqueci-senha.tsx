@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import styles from "@/src/styles/loginStyle";
+import styles from "@/src/styles/cadastroStyle";
 import loginHooks from "@/src/hooks/loginHooks";
 import FlashMessage from "react-native-flash-message";
 import auth from "@react-native-firebase/auth";
