@@ -1,5 +1,5 @@
 import Entypo from "@expo/vector-icons/Entypo";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Image, Text, TouchableOpacity, Dimensions } from "react-native";
 import styles from "@/src/styles/configuracoesScreenStyle";
@@ -58,13 +58,12 @@ export default function ConfiguracoesScreen() {
 
       {/* Botões para navegação */}
       <View style={styles.settingsContainer}>
-        <TouchableOpacity
-          style={styles.settingItem}
-          onPress={() => router.push("../locais")}
-        >
-          <Text style={styles.settingText}>Hospitais cadastrados</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
+        <Link href={"../locais"} asChild>
+          <TouchableOpacity style={styles.settingItem}>
+            <Text style={styles.settingText}>Hospitais cadastrados</Text>
+            <Entypo name="chevron-right" size={25} color="#081e27" />
+          </TouchableOpacity>
+        </Link>
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Configuração 2</Text>
           <Entypo name="chevron-right" size={25} color="#081e27" />

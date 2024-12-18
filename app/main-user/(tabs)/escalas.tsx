@@ -163,13 +163,13 @@ export default function PlantoesUserScreen() {
             </View>
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.inputText}
+                style={[styles.inputText, { maxHeight: 100 }]}
                 multiline
-                numberOfLines={4}
                 placeholder="Digite algo..."
                 placeholderTextColor="#a5a8ad"
                 value={text}
                 onChangeText={setText}
+                scrollEnabled={true}
               />
             </View>
             <TouchableOpacity

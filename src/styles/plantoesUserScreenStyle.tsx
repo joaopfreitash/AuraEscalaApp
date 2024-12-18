@@ -60,13 +60,10 @@ export default StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "#012E40",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
     padding: 20,
     alignItems: "center",
-    height: "95%",
-    position: "absolute",
-    bottom: 0,
+    flex: 1,
+    marginTop: 40,
   },
   headerContainer: {
     display: "flex",

@@ -89,9 +89,8 @@ export default StyleSheet.create({
     backgroundColor: "#012E40",
     padding: 20,
     alignItems: "center",
-    height: "95%",
-    position: "absolute",
-    bottom: 0,
+    flex: 1,
+    marginTop: 40,
   },
   headerContainer: {
     display: "flex",

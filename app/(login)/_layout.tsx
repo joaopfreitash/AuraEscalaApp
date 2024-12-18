@@ -11,9 +11,6 @@ export default function LoginLayout() {
           backgroundColor: "#081e27",
         },
         headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
       }}
     >
       <Stack.Screen

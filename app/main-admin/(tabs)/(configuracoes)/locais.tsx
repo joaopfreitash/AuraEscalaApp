@@ -85,7 +85,7 @@ export default function LocaisScreen() {
     } else {
       navigation.setOptions({
         headerShown: true,
-        title: "",
+        title: "Voltar",
         headerShadowVisible: false,
         headerStyle: {
           backgroundColor: "#081e27",
