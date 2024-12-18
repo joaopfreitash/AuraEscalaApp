@@ -110,4 +110,13 @@ export default StyleSheet.create({
   dropDownListContainerMes: {
     maxHeight: 250,
   },
+  buttonSeletor: {
+    backgroundColor: "#d1d8e3",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
 });

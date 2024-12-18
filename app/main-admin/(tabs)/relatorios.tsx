@@ -27,7 +27,23 @@ export default function RelatoriosScreen() {
   const [tituloRelatorio, setTituloRelatorio] = useState("");
   const [isRelatorioMensal, setIsRelatorioMensal] = useState(false);
   const [openMes, setOpenMes] = useState(false);
-  const [valueMes, setValueMes] = useState<string>("");
+  const [valueMes, setValueMes] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDatePicker, setSelectedDatePicker] = useState("");
+  const [months, setMonths] = useState([
+    { label: "Janeiro", value: "01" },
+    { label: "Fevereiro", value: "02" },
+    { label: "Março", value: "03" },
+    { label: "Abril", value: "04" },
+    { label: "Maio", value: "05" },
+    { label: "Junho", value: "06" },
+    { label: "Julho", value: "07" },
+    { label: "Agosto", value: "08" },
+    { label: "Setembro", value: "09" },
+    { label: "Outubro", value: "10" },
+    { label: "Novembro", value: "11" },
+    { label: "Dezembro", value: "12" },
+  ]);
 
   const gerarRelatorio = async (
     dataSelecionada: string,
@@ -70,11 +86,15 @@ export default function RelatoriosScreen() {
   const handleCloseModal = () => {
     setModalVisible(false);
     setRelatorio("");
-    setValueMes("");
+    setValueMes(null);
+    setSelectedDate("");
   };
   const handleDateConfirm = async (event: DateTimePickerEvent, date?: Date) => {
     if (date) {
+      setShowDatePicker(false);
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
+      const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
+      setSelectedDatePicker(formattedDatePicker);
       setSelectedDate(formattedDate);
       setDate(dayjs(date));
       await gerarRelatorio(formattedDate, false);
@@ -85,20 +105,9 @@ export default function RelatoriosScreen() {
     await gerarRelatorio(dataSelecionada, true);
   };
 
-  const months = [
-    { label: "Janeiro", value: "01" },
-    { label: "Fevereiro", value: "02" },
-    { label: "Março", value: "03" },
-    { label: "Abril", value: "04" },
-    { label: "Maio", value: "05" },
-    { label: "Junho", value: "06" },
-    { label: "Julho", value: "07" },
-    { label: "Agosto", value: "08" },
-    { label: "Setembro", value: "09" },
-    { label: "Outubro", value: "10" },
-    { label: "Novembro", value: "11" },
-    { label: "Dezembro", value: "12" },
-  ];
+  const toggleDatePicker = () => {
+    setShowDatePicker(true);
+  };
 
   return (
     <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
@@ -154,15 +163,25 @@ export default function RelatoriosScreen() {
           <View style={styles.modalContent}>
             <View style={styles.headerModal}>
               <Text style={styles.title}>{tituloRelatorio}</Text>
-
-              {/* DateTimePicker para selecionar a data */}
               {!isRelatorioMensal && (
-                <DateTimePicker
-                  value={date.toDate()}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateConfirm}
-                />
+                <View>
+                  <TouchableOpacity
+                    style={styles.buttonSeletor}
+                    onPress={toggleDatePicker}
+                  >
+                    <Text>
+                      {selectedDate ? selectedDatePicker : "Selecione uma data"}
+                    </Text>
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={date.toDate()}
+                      mode="date"
+                      display="default"
+                      onChange={handleDateConfirm}
+                    />
+                  )}
+                </View>
               )}
               {isRelatorioMensal && (
                 <DropDownPicker
@@ -172,7 +191,7 @@ export default function RelatoriosScreen() {
                   items={months}
                   setOpen={setOpenMes}
                   setValue={setValueMes}
-                  setItems={() => {}}
+                  setItems={setMonths}
                   placeholder={"Selecione o mês"}
                   placeholderStyle={styles.placeholderText}
                   textStyle={styles.inputText}
@@ -190,15 +209,9 @@ export default function RelatoriosScreen() {
 
             {/* Exibir relatório gerado */}
             <ScrollView>
-              {relatorio ? (
-                <View style={styles.message}>
-                  <Text selectable>{relatorio}</Text>
-                </View>
-              ) : (
-                <View style={styles.selecioneContainer}>
-                  {!isRelatorioMensal && <Text>Selecione uma data</Text>}
-                </View>
-              )}
+              <View style={styles.message}>
+                <Text selectable>{relatorio}</Text>
+              </View>
             </ScrollView>
 
             {/* Botão para fechar o modal */}
