@@ -144,7 +144,10 @@ export default function PlantoesScreen() {
 
   return (
     <View
-      style={[styles.containerPai, { paddingTop: useSafeAreaInsets().top }]}
+      style={[
+        styles.containerPai,
+        { paddingTop: useSafeAreaInsets().top + 10 },
+      ]}
     >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
@@ -155,11 +158,6 @@ export default function PlantoesScreen() {
               height: Dimensions.get("window").width * 0.15 * 0.5,
             }}
           />
-          <View>
-            <TouchableOpacity>
-              <Ionicons name="notifications" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
       <View style={styles.headerFilhoContainer}>

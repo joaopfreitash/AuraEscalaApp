@@ -125,7 +125,7 @@ export default StyleSheet.create({
     backgroundColor: "#012E40",
     padding: 20,
     alignItems: "center",
-    height: "88.55%",
+    height: "95%",
     position: "absolute",
     bottom: 0,
   },

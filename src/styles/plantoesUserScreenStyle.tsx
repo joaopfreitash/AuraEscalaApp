@@ -64,7 +64,7 @@ export default StyleSheet.create({
     borderTopRightRadius: 30,
     padding: 20,
     alignItems: "center",
-    height: "88.55%",
+    height: "95%",
     position: "absolute",
     bottom: 0,
   },

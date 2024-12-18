@@ -56,7 +56,9 @@ export default function ConfiguracoesUserScreen() {
   }, []);
 
   return (
-    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
+    <View
+      style={[styles.container, { paddingTop: useSafeAreaInsets().top + 10 }]}
+    >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image

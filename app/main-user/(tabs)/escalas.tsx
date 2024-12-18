@@ -59,7 +59,10 @@ export default function PlantoesUserScreen() {
 
   return (
     <View
-      style={[styles.containerPai, { paddingTop: useSafeAreaInsets().top }]}
+      style={[
+        styles.containerPai,
+        { paddingTop: useSafeAreaInsets().top + 10 },
+      ]}
     >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>

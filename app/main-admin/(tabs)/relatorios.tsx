@@ -110,7 +110,9 @@ export default function RelatoriosScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: useSafeAreaInsets().top }]}>
+    <View
+      style={[styles.container, { paddingTop: useSafeAreaInsets().top + 10 }]}
+    >
       <View style={styles.wrapperHeader}>
         <View style={styles.headerMain}>
           <Image
@@ -120,11 +122,6 @@ export default function RelatoriosScreen() {
               height: Dimensions.get("window").width * 0.15 * 0.5,
             }}
           />
-          <View>
-            <TouchableOpacity>
-              <Ionicons name="notifications" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
       <View style={styles.headerContainer}>

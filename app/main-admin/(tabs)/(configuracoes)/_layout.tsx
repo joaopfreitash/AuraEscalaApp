@@ -11,18 +11,7 @@ export default function LayoutConfiguracoes() {
           headerShadowVisible: false,
         }}
       />
-      <Stack.Screen
-        name="locais"
-        options={{
-          headerShown: true,
-          title: "",
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: "#081e27",
-          },
-          headerTintColor: "#fff",
-        }}
-      />
+      <Stack.Screen name="locais" />
     </Stack>
   );
 }
