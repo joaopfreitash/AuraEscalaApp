@@ -27,6 +27,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const alertLogin = useRef<FlashMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     emailLabelAnimated,
     isEmailFocused,
@@ -55,6 +56,7 @@ export default function LoginScreen() {
       }
       return;
     }
+    setIsSubmitting(true);
     try {
       const userCredential = await auth().signInWithEmailAndPassword(
         email,
@@ -99,6 +101,8 @@ export default function LoginScreen() {
           style: { alignItems: "center" },
         });
       }
+    } finally {
+      setIsSubmitting(false); // Finaliza o envio, reabilita o botão
     }
   };
 
@@ -259,12 +263,23 @@ export default function LoginScreen() {
 
             {/* Botão Entrar */}
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, { opacity: isSubmitting ? 0.6 : 1 }]}
               onPress={() => {
+                Keyboard.dismiss();
                 handleLogin();
               }}
+              disabled={isSubmitting}
             >
-              <Text style={styles.buttonText}>Entrar</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.buttonText}>Entrar</Text>
+                {isSubmitting && (
+                  <ActivityIndicator
+                    style={{ marginLeft: 10 }}
+                    size="small"
+                    color="white"
+                  />
+                )}
+              </View>
             </TouchableOpacity>
 
             {/* Links */}
