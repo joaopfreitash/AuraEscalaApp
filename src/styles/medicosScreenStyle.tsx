@@ -224,7 +224,6 @@ export default StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.5,
     shadowRadius: 2,
-    elevation: 3,
   },
   medicoAvatar: {
     width: 30,

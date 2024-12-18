@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Foundation from "@expo/vector-icons/Foundation";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FlashMessage from "react-native-flash-message";
+import firestore from "@react-native-firebase/firestore";
 
 import styles from "@/src/styles/medicosScreenStyle";
 import MedicoItem from "@/src/components/medicoItem";
@@ -26,6 +27,8 @@ import medicosHooks from "@/src/hooks/medicosHooks";
 import searchBar from "@/src/utils/searchBar";
 import { useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Medico, Plantao } from "@/src/types";
+import PlantaoItem from "@/src/components/plantaoItem";
 
 export default function MedicosScreen() {
   const {
@@ -74,6 +77,8 @@ export default function MedicosScreen() {
     labelNomeAnimation,
     labelEmailAnimation,
   } = medicosHooks();
+  const [selectedMedico, setSelectedMedico] = useState<Medico | null>(null);
+  const [plantoes, setPlantoes] = useState<Plantao[]>([]);
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
@@ -136,6 +141,55 @@ export default function MedicosScreen() {
     checkFields();
   }, [value, nomeMedico, emailMedico]);
 
+  const handleSelectMedico = (medico: Medico) => {
+    setSelectedMedico(medico);
+    fetchPlantoes(medico.id);
+  };
+
+  const handleGoBack = () => {
+    setSelectedMedico(null);
+    setSearchQuery("");
+    setFilteredMedicos(medicos);
+  };
+
+  const fetchPlantoes = async (medicoId: string) => {
+    try {
+      const naoConcluidosQuery = firestore()
+        .collection("plantoes")
+        .where("medicoUid", "==", medicoId)
+        .where("concluido", "==", false)
+        .orderBy("data", "desc");
+
+      const concluidosQuery = firestore()
+        .collection("plantoes")
+        .where("medicoUid", "==", medicoId)
+        .where("concluido", "==", true)
+        .orderBy("concluidoEm", "desc")
+        .limit(10);
+
+      const [naoConcluidosSnapshot, concluidosSnapshot] = await Promise.all([
+        naoConcluidosQuery.get(),
+        concluidosQuery.get(),
+      ]);
+
+      const naoConcluidos = naoConcluidosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Plantao[];
+
+      const concluidos = concluidosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Plantao[];
+
+      const plantoesList = [...naoConcluidos, ...concluidos];
+
+      setPlantoes(plantoesList);
+    } catch (error) {
+      console.error("Erro ao buscar plantões:", error);
+    }
+  };
+
   return (
     <View
       style={[
@@ -157,66 +211,114 @@ export default function MedicosScreen() {
       <View style={styles.medicosContainer}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.medicosTitle}>Médicos</Text>
+            <Text style={styles.medicosTitle}>
+              {selectedMedico ? selectedMedico.nome : "Médicos"}
+            </Text>
           </View>
           <View style={styles.containerPaiFiltros}>
-            <TouchableOpacity onPress={toggleFilter}>
-              {filterType === "todos" && (
-                <Foundation name="torsos-all" size={24} color="white" />
-              )}
-              {filterType === "adm" && (
-                <MaterialIcons name="security" size={24} color="white" />
-              )}
-              {filterType === "med" && (
-                <Ionicons name="medkit" size={24} color="white" />
+            <TouchableOpacity
+              onPress={selectedMedico ? handleGoBack : toggleFilter}
+            >
+              {selectedMedico ? (
+                <Ionicons name="return-up-back" size={28} color="white" />
+              ) : (
+                <>
+                  {filterType === "todos" && (
+                    <Foundation name="torsos-all" size={24} color="white" />
+                  )}
+                  {filterType === "adm" && (
+                    <MaterialIcons name="security" size={24} color="white" />
+                  )}
+                  {filterType === "med" && (
+                    <Ionicons name="medkit" size={24} color="white" />
+                  )}
+                </>
               )}
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Campo de pesquisa */}
-        <View style={styles.searchContainerPai}>
-          <Animated.View
-            style={[
-              styles.searchBarContainer,
-              {
-                width: searchBarWidth.interpolate({
-                  inputRange: [80, 100],
-                  outputRange: ["80%", "100%"],
-                }),
-              },
-            ]}
-          >
-            <FontAwesome5
-              name="search"
-              size={18}
-              color="white"
-              style={styles.iconSearch}
-            />
-            <TextInput
-              style={styles.searchBar}
-              placeholder="Pesquisar por nome"
-              placeholderTextColor={"#ccc"}
-              value={searchQuery}
-              onChangeText={handleSearch}
-              onFocus={handleFocusSearchBar}
-              onBlur={handleBlurSearchbar}
-            />
-          </Animated.View>
-          <View style={styles.cancelarContainer}>
-            {isSearchFocused && (
-              <TouchableOpacity onPress={handleCancel}>
-                <Text style={styles.cancelButton}>Cancelar</Text>
-              </TouchableOpacity>
-            )}
+        {!selectedMedico && (
+          <View style={styles.searchContainerPai}>
+            <Animated.View
+              style={[
+                styles.searchBarContainer,
+                {
+                  width: searchBarWidth.interpolate({
+                    inputRange: [80, 100],
+                    outputRange: ["80%", "100%"],
+                  }),
+                },
+              ]}
+            >
+              <FontAwesome5
+                name="search"
+                size={18}
+                color="white"
+                style={styles.iconSearch}
+              />
+              <TextInput
+                style={styles.searchBar}
+                placeholder="Pesquisar por nome"
+                placeholderTextColor={"#ccc"}
+                value={searchQuery}
+                onChangeText={handleSearch}
+                onFocus={handleFocusSearchBar}
+                onBlur={handleBlurSearchbar}
+              />
+            </Animated.View>
+            <View style={styles.cancelarContainer}>
+              {isSearchFocused && (
+                <TouchableOpacity onPress={handleCancel}>
+                  <Text style={styles.cancelButton}>Cancelar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
+        )}
 
-        {filteredMedicos.length > 0 ? (
+        {selectedMedico ? (
+          <FlatList
+            style={styles.flatListContainer}
+            data={plantoes}
+            renderItem={({ item }) => (
+              <PlantaoItem plantao={item} onPress={() => {}} />
+            )}
+            keyExtractor={(item) => item.id}
+            numColumns={1}
+            ListEmptyComponent={() => {
+              if (plantoes.length === 0) {
+                return (
+                  <Text style={styles.errorMessage}>
+                    Nenhum plantão cadastrado
+                  </Text>
+                );
+              }
+
+              const hasActivePlantoes = plantoes.some(
+                (plantao) => !plantao.concluido
+              );
+              if (!hasActivePlantoes) {
+                return (
+                  <Text style={styles.errorMessage}>
+                    Nenhum plantão ativo no momento
+                  </Text>
+                );
+              }
+              return null;
+            }}
+          />
+        ) : filteredMedicos.length > 0 ? (
           <FlatList
             style={styles.flatListContainer}
             data={filteredMedicos}
-            renderItem={({ item }) => <MedicoItem medico={item} />}
+            renderItem={({ item }) => (
+              <MedicoItem
+                medico={item}
+                onPress={() => handleSelectMedico(item)}
+              />
+            )}
             keyExtractor={(item) => item.id}
             numColumns={1}
           />
@@ -228,7 +330,12 @@ export default function MedicosScreen() {
           <FlatList
             style={styles.flatListContainer}
             data={medicos}
-            renderItem={({ item }) => <MedicoItem medico={item} />}
+            renderItem={({ item }) => (
+              <MedicoItem
+                medico={item}
+                onPress={() => handleSelectMedico(item)}
+              />
+            )}
             keyExtractor={(item) => item.id}
             numColumns={1}
           />
@@ -242,7 +349,6 @@ export default function MedicosScreen() {
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-
       {/* Modal */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContent}>
