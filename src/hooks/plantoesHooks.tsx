@@ -130,7 +130,6 @@ const plantoesHooks = () => {
         const data = doc.data();
         return {
           value: data.name,
-          label: data.name,
         };
       });
       setItemsMedico(medicosList);
@@ -146,7 +145,6 @@ const plantoesHooks = () => {
       const hospitaisList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
-          label: data.name,
           value: data.name,
         };
       });

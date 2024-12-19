@@ -223,7 +223,6 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     alignItems: "center",
-    zIndex: 300,
   },
   containerFuncao: {
     display: "flex",
@@ -231,7 +230,6 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     alignItems: "center",
-    zIndex: 200,
   },
   containerLocal: {
     display: "flex",
@@ -239,7 +237,6 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     alignItems: "center",
-    zIndex: 100,
   },
   closeText: {
     color: "white",
@@ -281,5 +278,33 @@ export default StyleSheet.create({
     color: "green",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  dropdown: {
+    height: 50,
+    borderColor: "#c1c4c9",
+    borderWidth: 0.5,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    width: "100%",
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  placeholderStyle: {
+    color: "white",
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    color: "white",
+    fontSize: 16,
+  },
+  label: {
+    position: "absolute",
+    backgroundColor: "#012E40",
+    left: 22,
+    top: -8,
+    zIndex: 999,
+    fontSize: 14,
   },
 });
