@@ -1,48 +1,12 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import firestore from "@react-native-firebase/firestore";
-import auth from "@react-native-firebase/auth";
-import FlashMessage from "react-native-flash-message";
-import { Animated, TextInput } from "react-native";
-import { Medico } from "../types";
+import { Medico, Plantao } from "../types";
 
 const medicosHooks = () => {
-  const alertMedico = useRef<FlashMessage | null>(null);
-
-  const labelNomeAnimation = useRef(new Animated.Value(0)).current;
-  const labelEmailAnimation = useRef(new Animated.Value(0)).current;
-  const labelRoleAnimation = useRef(new Animated.Value(0)).current;
-  const [isRoleFocused, setRoleFocused] = useState(false);
-  const [isNomeFocused, setIsNomeFocused] = useState(false);
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [nomeMedico, setNomeMedico] = useState("");
-  const [emailMedico, setEmailMedico] = useState("");
-
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [filterType, setFilterType] = useState<string>("todos");
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [filteredMedicos, setFilteredMedicos] = useState<Medico[]>([]);
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: "Padrão", value: "padrao" },
-    { label: "Administrador", value: "administrador" },
-  ]);
-
-  const resetModal = () => {
-    setModalVisible(false);
-    handleBlur(labelNomeAnimation, nomeMedico, setIsNomeFocused);
-    handleBlur(labelEmailAnimation, emailMedico, setIsEmailFocused);
-    setValue(null);
-    setOpen(false);
-    handleBlurRole();
-    setIsButtonEnabled(false);
-    setNomeMedico("");
-    setEmailMedico("");
-    clearInputNome();
-    clearInputEmail();
-  };
+  const [plantoes, setPlantoes] = useState<Plantao[]>([]);
 
   // Buscar médicos no FireStore
   const fetchMedicos = async () => {
@@ -72,67 +36,6 @@ const medicosHooks = () => {
     }
   };
 
-  // Handler pra cadastrar o médico
-  const handleRegisterDoctor = async (email: string, name: string) => {
-    try {
-      setIsButtonEnabled(false);
-      const randomPassword = Math.random().toString(36).slice(-8);
-      const userCredential = await auth().createUserWithEmailAndPassword(
-        emailMedico,
-        randomPassword
-      );
-      const user = userCredential.user; //`user.uid` é gerado automaticamente
-      const isAdmin = value === "administrador";
-
-      const doctorDocRef = firestore().collection("users").doc(user.uid);
-
-      await doctorDocRef.set({
-        name: nomeMedico,
-        email: emailMedico,
-        isAdmin: isAdmin,
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      });
-
-      resetModal();
-      fetchMedicos();
-      if (alertMedico.current) {
-        alertMedico.current.showMessage({
-          message: "Médico cadastrado com sucesso!",
-          type: "success",
-          duration: 4000,
-          style: { alignItems: "center" },
-        });
-      }
-    } catch (error) {
-      resetModal();
-      if (alertMedico.current) {
-        alertMedico.current.showMessage({
-          message: "Ocorreu um erro, tente novamente.",
-          type: "danger",
-          floating: true,
-          duration: 4000,
-          style: { alignItems: "center" },
-        });
-      }
-    }
-  };
-
-  //JEITINHO BRASILEIRO PRA LIMPAR INPUT
-  const nomeInputRef = useRef<TextInput>(null);
-  const emailInputRef = useRef<TextInput>(null);
-
-  const clearInputNome = () => {
-    if (nomeInputRef.current) {
-      nomeInputRef.current.clear();
-    }
-  };
-
-  const clearInputEmail = () => {
-    if (emailInputRef.current) {
-      emailInputRef.current.clear();
-    }
-  };
-
   // Alternar entre os estados do filtro
   const toggleFilter = () => {
     if (filterType === "todos") {
@@ -144,84 +47,53 @@ const medicosHooks = () => {
     }
   };
 
-  const handleFocus = (
-    animatedValue: Animated.Value,
-    setIsFocused: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    Animated.timing(animatedValue, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setIsFocused(true);
-  };
+  const fetchPlantoes = async (medicoId: string) => {
+    try {
+      const naoConcluidosQuery = firestore()
+        .collection("plantoes")
+        .where("medicoUid", "==", medicoId)
+        .where("concluido", "==", false)
+        .orderBy("data", "desc");
 
-  const handleBlur = (
-    animatedValue: Animated.Value,
-    text: string,
-    setIsFocused: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    Animated.timing(animatedValue, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setIsFocused(false);
-  };
+      const concluidosQuery = firestore()
+        .collection("plantoes")
+        .where("medicoUid", "==", medicoId)
+        .where("concluido", "==", true)
+        .orderBy("concluidoEm", "desc")
+        .limit(10);
 
-  const handleFocusRole = () => {
-    Animated.timing(labelRoleAnimation, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setRoleFocused(true);
-  };
+      const [naoConcluidosSnapshot, concluidosSnapshot] = await Promise.all([
+        naoConcluidosQuery.get(),
+        concluidosQuery.get(),
+      ]);
 
-  const handleBlurRole = () => {
-    Animated.timing(labelRoleAnimation, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setRoleFocused(false);
+      const naoConcluidos = naoConcluidosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Plantao[];
+
+      const concluidos = concluidosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Plantao[];
+
+      const plantoesList = [...naoConcluidos, ...concluidos];
+
+      setPlantoes(plantoesList);
+    } catch (error) {
+      console.error("Erro ao buscar plantões:", error);
+    }
   };
 
   return {
     filteredMedicos,
     setFilteredMedicos,
     filterType,
-    nomeMedico,
-    setIsButtonEnabled,
-    emailMedico,
-    value,
-    setModalVisible,
-    modalVisible,
     toggleFilter,
-    alertMedico,
-    resetModal,
     fetchMedicos,
     medicos,
-    handleFocus,
-    handleFocusRole,
-    isNomeFocused,
-    setNomeMedico,
-    nomeInputRef,
-    handleRegisterDoctor,
-    setIsNomeFocused,
-    emailInputRef,
-    setEmailMedico,
-    open,
-    items,
-    setOpen,
-    isEmailFocused,
-    setIsEmailFocused,
-    isButtonEnabled,
-    labelRoleAnimation,
-    setValue,
-    setItems,
-    labelNomeAnimation,
-    labelEmailAnimation,
+    fetchPlantoes,
+    plantoes,
   };
 };
 
