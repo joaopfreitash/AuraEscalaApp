@@ -9,6 +9,7 @@ import {
   Keyboard,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
@@ -43,6 +44,7 @@ export default function MedicosScreen() {
     toggleFilter,
     fetchPlantoes,
     plantoes,
+    loading,
   } = medicosHooks();
   const [selectedMedico, setSelectedMedico] = useState<Medico | null>(null);
 
@@ -194,36 +196,40 @@ export default function MedicosScreen() {
         )}
 
         {selectedMedico ? (
-          <FlatList
-            style={styles.flatListContainer}
-            data={plantoes}
-            renderItem={({ item }) => (
-              <PlantaoItem plantao={item} onPress={() => {}} />
-            )}
-            keyExtractor={(item) => item.id}
-            numColumns={1}
-            ListEmptyComponent={() => {
-              if (plantoes.length === 0) {
-                return (
-                  <Text style={styles.errorMessage}>
-                    Nenhum plantão cadastrado
-                  </Text>
-                );
-              }
+          loading ? (
+            <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
+          ) : (
+            <FlatList
+              style={styles.flatListContainer}
+              data={plantoes}
+              renderItem={({ item }) => (
+                <PlantaoItem plantao={item} onPress={() => {}} />
+              )}
+              keyExtractor={(item) => item.id}
+              numColumns={1}
+              ListEmptyComponent={() => {
+                if (plantoes.length === 0) {
+                  return (
+                    <Text style={styles.errorMessage}>
+                      Nenhum plantão cadastrado
+                    </Text>
+                  );
+                }
 
-              const hasActivePlantoes = plantoes.some(
-                (plantao) => !plantao.concluido
-              );
-              if (!hasActivePlantoes) {
-                return (
-                  <Text style={styles.errorMessage}>
-                    Nenhum plantão ativo no momento
-                  </Text>
+                const hasActivePlantoes = plantoes.some(
+                  (plantao) => !plantao.concluido
                 );
-              }
-              return null;
-            }}
-          />
+                if (!hasActivePlantoes) {
+                  return (
+                    <Text style={styles.errorMessage}>
+                      Nenhum plantão ativo no momento
+                    </Text>
+                  );
+                }
+                return null;
+              }}
+            />
+          )
         ) : filteredMedicos.length > 0 ? (
           <FlatList
             style={styles.flatListContainer}
@@ -241,6 +247,8 @@ export default function MedicosScreen() {
           <Text style={styles.errorMessage}>
             Nenhum médico encontrado com esse nome
           </Text>
+        ) : loading ? (
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
         ) : (
           <FlatList
             style={styles.flatListContainer}

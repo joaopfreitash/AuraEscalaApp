@@ -10,6 +10,7 @@ import {
   Modal,
   SafeAreaView,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -61,6 +62,8 @@ export default function LocaisScreen() {
     isButtonEnabled,
     labelNomeAnimation,
     labelEnderecoAnimation,
+    loading,
+    submitting,
   } = locaisHooks();
 
   const handleCancel = () => {
@@ -183,6 +186,8 @@ export default function LocaisScreen() {
           <Text style={styles.errorMessage}>
             Nenhum hospital encontrado com esse nome
           </Text>
+        ) : loading ? (
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
         ) : (
           <FlatList
             style={styles.flatListContainer}
@@ -326,14 +331,23 @@ export default function LocaisScreen() {
                 handleRegisterHospital(nomeHospital, enderecoHospital);
               }}
             >
-              <Text
-                style={[
-                  styles.confirmarPlantaoText,
-                  !isButtonEnabled && styles.buttonTextDisabled,
-                ]}
-              >
-                Confirmar
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.confirmarPlantaoText,
+                    !isButtonEnabled && styles.buttonTextDisabled,
+                  ]}
+                >
+                  Confirmar
+                </Text>
+                {submitting && (
+                  <ActivityIndicator
+                    style={{ marginLeft: 10 }}
+                    size="small"
+                    color="white"
+                  />
+                )}
+              </View>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>

@@ -11,8 +11,10 @@ const homeUserHooks = () => {
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [isTherePlantaoNovo, setIsTherePlantaoNovo] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchPlantoes = async () => {
+    setLoading(true);
     try {
       const storedUser = await AsyncStorage.getItem("@user");
       if (!storedUser) {
@@ -64,6 +66,8 @@ const homeUserHooks = () => {
       setMarkedDays(updatedMarkedDays);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,6 +139,7 @@ const homeUserHooks = () => {
     hasNewNotification,
     isTherePlantaoNovo,
     updatePlantaoIdsArray,
+    loading,
   };
 };
 

@@ -123,4 +123,14 @@ export default StyleSheet.create({
     fontWeight: "600",
     lineHeight: 24,
   },
+  buttonDisabled: {
+    backgroundColor: "#ddd",
+    opacity: 0.2,
+  },
+  buttonTextDisabled: {
+    color: "black",
+    fontSize: 15,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
 });

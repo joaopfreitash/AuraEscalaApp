@@ -7,8 +7,10 @@ const homeHooks = (selectedDate: Date) => {
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [markedDays, setMarkedDays] = useState<MarkedDays>({});
   const [filteredPlantao, setFilteredPlantao] = useState<Plantao[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchPlantoes = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await firestore()
         .collection("plantoes")
@@ -32,6 +34,8 @@ const homeHooks = (selectedDate: Date) => {
       setMarkedDays(updatedMarkedDays);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +49,7 @@ const homeHooks = (selectedDate: Date) => {
     }
   }, [selectedDate, plantoes]);
 
-  return { plantoes, markedDays, filteredPlantao, fetchPlantoes };
+  return { plantoes, markedDays, filteredPlantao, fetchPlantoes, loading };
 };
 
 export default homeHooks;

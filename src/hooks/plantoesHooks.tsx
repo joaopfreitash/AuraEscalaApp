@@ -9,13 +9,13 @@ const plantoesHooks = () => {
   const alertPlantao = useRef<FlashMessage | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHora, setSelectedHora] = useState("");
-
   const [isFuncaoFocused, setFuncaoFocused] = useState(false);
   const [isMedicoFocused, setMedicoFocused] = useState(false);
   const [isLocalFocused, setLocalFocused] = useState(false);
-
   const [selectedPlantao, setSelectedPlantao] = useState<Plantao | null>(null);
   const [isModalObsVisible, setIsModalObsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const openModalObs = (plantao: Plantao) => {
     setSelectedPlantao(plantao); // Armazena o plantão selecionado
@@ -75,6 +75,7 @@ const plantoesHooks = () => {
   }, [modalVisible]);
 
   const fetchPlantoes = async (isConcluido: boolean) => {
+    setLoading(true);
     try {
       let plantoesQuery = firestore()
         .collection("plantoes")
@@ -105,6 +106,8 @@ const plantoesHooks = () => {
       setPlantoes(plantoesList);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -156,6 +159,7 @@ const plantoesHooks = () => {
     horario: string,
     funcao: string
   ) => {
+    setSubmitting(true);
     try {
       setIsButtonEnabled(false);
       // Buscar o médico pelo nome
@@ -236,6 +240,8 @@ const plantoesHooks = () => {
           style: { alignItems: "center" },
         });
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -342,6 +348,8 @@ const plantoesHooks = () => {
     setSelectedHora,
     filteredPlantoes,
     setFilteredPlantoes,
+    loading,
+    submitting,
   };
 };
 

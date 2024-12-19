@@ -12,8 +12,11 @@ const homeUserHooks = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, setText] = useState("");
   const alertPlantao = useRef<FlashMessage | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchPlantoes = async () => {
+    setLoading(true);
     try {
       const storedUser = await AsyncStorage.getItem("@user");
       if (!storedUser) {
@@ -66,6 +69,8 @@ const homeUserHooks = () => {
       setPlantoes(sortedPlantoes);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,6 +79,7 @@ const homeUserHooks = () => {
       console.error("Nenhum plantão selecionado.");
       return;
     }
+    setSubmitting(true);
     try {
       const plantaoDocRef = firestore()
         .collection("plantoes")
@@ -163,6 +169,8 @@ const homeUserHooks = () => {
           style: { alignItems: "center" },
         });
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -200,6 +208,8 @@ const homeUserHooks = () => {
     setText,
     handleConcluirPlantao,
     alertPlantao,
+    submitting,
+    loading,
   };
 };
 

@@ -7,9 +7,11 @@ const medicosHooks = () => {
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [filteredMedicos, setFilteredMedicos] = useState<Medico[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Buscar médicos no FireStore
   const fetchMedicos = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await firestore()
         .collection("users")
@@ -33,6 +35,8 @@ const medicosHooks = () => {
       setFilteredMedicos(medicosList);
     } catch (error) {
       console.error("Erro ao buscar médicos:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +52,7 @@ const medicosHooks = () => {
   };
 
   const fetchPlantoes = async (medicoId: string) => {
+    setLoading(true);
     try {
       const naoConcluidosQuery = firestore()
         .collection("plantoes")
@@ -82,6 +87,8 @@ const medicosHooks = () => {
       setPlantoes(plantoesList);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,6 +101,7 @@ const medicosHooks = () => {
     medicos,
     fetchPlantoes,
     plantoes,
+    loading,
   };
 };
 

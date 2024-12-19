@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 
 import styles from "@/src/styles/plantoesUserScreenStyle";
@@ -34,6 +35,8 @@ export default function PlantoesUserScreen() {
     setText,
     handleConcluirPlantao,
     alertPlantao,
+    submitting,
+    loading,
   } = plantoesUserHooks();
   const {
     hasNewNotification,
@@ -92,27 +95,31 @@ export default function PlantoesUserScreen() {
         <Text style={styles.plantaoTitle}>Minhas escalas</Text>
       </View>
       <View style={styles.plantaoContainer}>
-        <FlatList
-          style={styles.flatListContainer}
-          data={plantoes}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => handleSelectPlantao(item.id)}
-              style={[
-                selectedPlantaoId === item.id && styles.selectedPlantaoItem,
-              ]}
-            >
-              <PlantaoItem plantao={item} onPress={() => {}} />
-              {selectedPlantaoId === item.id && (
-                <View style={styles.checkIconContainer}>
-                  <Entypo name="check" size={24} color="green" />
-                </View>
-              )}
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id}
-          numColumns={1}
-        />
+        {loading ? (
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
+        ) : (
+          <FlatList
+            style={styles.flatListContainer}
+            data={plantoes}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => handleSelectPlantao(item.id)}
+                style={[
+                  selectedPlantaoId === item.id && styles.selectedPlantaoItem,
+                ]}
+              >
+                <PlantaoItem plantao={item} onPress={() => {}} />
+                {selectedPlantaoId === item.id && (
+                  <View style={styles.checkIconContainer}>
+                    <Entypo name="check" size={24} color="green" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.id}
+            numColumns={1}
+          />
+        )}
       </View>
 
       <View
@@ -173,10 +180,23 @@ export default function PlantoesUserScreen() {
               />
             </View>
             <TouchableOpacity
-              style={styles.confirmarButton}
+              style={[
+                styles.confirmarButton,
+                { opacity: submitting ? 0.6 : 1 },
+              ]}
+              disabled={submitting}
               onPress={() => handleConcluirPlantao()}
             >
-              <Text style={styles.confirmarButtonText}>Confirmar</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={[styles.confirmarButtonText]}>Confirmar</Text>
+                {submitting && (
+                  <ActivityIndicator
+                    style={{ marginLeft: 10 }}
+                    size="small"
+                    color="white"
+                  />
+                )}
+              </View>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>

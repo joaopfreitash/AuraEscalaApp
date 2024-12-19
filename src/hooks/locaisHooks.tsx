@@ -16,6 +16,8 @@ const locaisHooks = () => {
   const [isNomeFocused, setIsNomeFocused] = useState(false);
   const [isEnderecoFocused, setIsEnderecoFocused] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const labelNomeAnimation = useRef(new Animated.Value(0)).current;
   const labelEnderecoAnimation = useRef(new Animated.Value(0)).current;
@@ -44,6 +46,7 @@ const locaisHooks = () => {
 
   // Buscar Hospitais no FireStore
   const fetchHospitals = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await firestore()
         .collection("hospitais")
@@ -62,11 +65,14 @@ const locaisHooks = () => {
       setFilteredHospitais(hospitaisList);
     } catch (error) {
       console.error("Erro ao buscar hospitais:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Handler pra cadastrar o Hospital
   const handleRegisterHospital = async (name: string, address: string) => {
+    setSubmitting(true);
     try {
       setIsButtonEnabled(false);
       const hospitalDocRef = firestore().collection("hospitais").doc();
@@ -101,6 +107,8 @@ const locaisHooks = () => {
           style: { alignItems: "center" },
         });
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -170,6 +178,8 @@ const locaisHooks = () => {
     isButtonEnabled,
     labelNomeAnimation,
     labelEnderecoAnimation,
+    loading,
+    submitting,
   };
 };
 

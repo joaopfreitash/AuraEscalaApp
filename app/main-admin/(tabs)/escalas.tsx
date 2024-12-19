@@ -10,6 +10,7 @@ import {
   Dimensions,
   Keyboard,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -79,6 +80,8 @@ export default function PlantoesScreen() {
     setSelectedHora,
     filteredPlantoes,
     setFilteredPlantoes,
+    loading,
+    submitting,
   } = plantoesHooks();
 
   const {
@@ -281,6 +284,8 @@ export default function PlantoesScreen() {
           <Text style={styles.errorMessage}>
             Nenhum médico encontrado com esse nome
           </Text>
+        ) : loading ? (
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
         ) : (
           <FlatList
             style={styles.flatListContainer}
@@ -516,14 +521,23 @@ export default function PlantoesScreen() {
               );
             }}
           >
-            <Text
-              style={[
-                styles.confirmarPlantaoText,
-                !isButtonEnabled && styles.buttonTextDisabled,
-              ]}
-            >
-              Confirmar
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={[
+                  styles.confirmarPlantaoText,
+                  !isButtonEnabled && styles.buttonTextDisabled,
+                ]}
+              >
+                Confirmar
+              </Text>
+              {submitting && (
+                <ActivityIndicator
+                  style={{ marginLeft: 10 }}
+                  size="small"
+                  color="white"
+                />
+              )}
+            </View>
           </TouchableOpacity>
         </View>
       </Modal>

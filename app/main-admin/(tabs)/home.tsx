@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Calendar } from "react-native-calendario";
 import { useFocusEffect } from "expo-router";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons } from "@expo/vector-icons";
 
 import homeHooks from "@/src/hooks/homeHooks";
 import PlantaoItem from "@/src/components/plantaoItem";
@@ -20,7 +21,7 @@ import { StatusBar } from "react-native";
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isExpanded, setIsExpanded] = useState(false);
-  const { markedDays, filteredPlantao, fetchPlantoes } =
+  const { markedDays, filteredPlantao, fetchPlantoes, loading } =
     homeHooks(selectedDate);
 
   useFocusEffect(
@@ -56,62 +57,70 @@ export default function HomeScreen() {
         </View>
         {!isExpanded && (
           <View style={styles.calendarContainer}>
-            <Calendar
-              locale="br"
-              key={JSON.stringify(markedDays)}
-              markedDays={markedDays}
-              onPress={onDayPress}
-              startDate={selectedDate}
-              theme={{
-                activeDayColor: "red",
-                monthTitleTextStyle: {
-                  color: "white",
-                  fontWeight: "bold",
-                  fontSize: 25,
-                },
-                emptyMonthContainerStyle: {},
-                emptyMonthTextStyle: {
-                  fontWeight: "200",
-                },
-                weekColumnsContainerStyle: {},
-                weekColumnStyle: {
-                  paddingVertical: 10,
-                },
-                weekColumnTextStyle: {
-                  color: "#b6c1cd",
-                  fontSize: 13,
-                },
-                nonTouchableDayContainerStyle: {},
-                nonTouchableDayTextStyle: {
-                  color: "#2d4150",
-                },
-                startDateContainerStyle: {},
-                endDateContainerStyle: {},
-                dayContainerStyle: {
-                  backgroundColor: "#012E40",
-                },
-                dayTextStyle: {
-                  color: "white",
-                  fontSize: 15,
-                },
-                dayOutOfRangeContainerStyle: {},
-                dayOutOfRangeTextStyle: {},
-                todayContainerStyle: {},
-                todayTextStyle: {
-                  color: "#6d95da",
-                  fontWeight: "bold",
-                },
-                activeDayContainerStyle: {
-                  backgroundColor: "#1A4D5C",
-                  borderRadius: 30,
-                },
-                activeDayTextStyle: {
-                  color: "white",
-                  fontWeight: "bold",
-                },
-                nonTouchableLastMonthDayTextStyle: {},
-              }}
-            />
+            {Object.keys(markedDays).length === 0 ? (
+              <ActivityIndicator
+                style={{ flex: 1 }}
+                size="large"
+                color="white"
+              />
+            ) : (
+              <Calendar
+                locale="br"
+                key={JSON.stringify(markedDays)}
+                markedDays={markedDays}
+                onPress={onDayPress}
+                startDate={selectedDate}
+                theme={{
+                  activeDayColor: "red",
+                  monthTitleTextStyle: {
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: 25,
+                  },
+                  emptyMonthContainerStyle: {},
+                  emptyMonthTextStyle: {
+                    fontWeight: "200",
+                  },
+                  weekColumnsContainerStyle: {},
+                  weekColumnStyle: {
+                    paddingVertical: 10,
+                  },
+                  weekColumnTextStyle: {
+                    color: "#b6c1cd",
+                    fontSize: 13,
+                  },
+                  nonTouchableDayContainerStyle: {},
+                  nonTouchableDayTextStyle: {
+                    color: "#2d4150",
+                  },
+                  startDateContainerStyle: {},
+                  endDateContainerStyle: {},
+                  dayContainerStyle: {
+                    backgroundColor: "#012E40",
+                  },
+                  dayTextStyle: {
+                    color: "white",
+                    fontSize: 15,
+                  },
+                  dayOutOfRangeContainerStyle: {},
+                  dayOutOfRangeTextStyle: {},
+                  todayContainerStyle: {},
+                  todayTextStyle: {
+                    color: "#6d95da",
+                    fontWeight: "bold",
+                  },
+                  activeDayContainerStyle: {
+                    backgroundColor: "#1A4D5C",
+                    borderRadius: 30,
+                  },
+                  activeDayTextStyle: {
+                    color: "white",
+                    fontWeight: "bold",
+                  },
+                  nonTouchableLastMonthDayTextStyle: {},
+                }}
+              />
+            )}
           </View>
         )}
         <View style={styles.listContainer}>
@@ -128,8 +137,10 @@ export default function HomeScreen() {
           {filteredPlantao.length === 0 ? (
             <View style={styles.noPlantaoContainer}>
               <MaterialIcons name="error" size={40} color="white" />
-              <Text style={styles.noPlantaoText}>Nada por aqui!</Text>
+              <Text style={styles.noPlantaoText}>Nada por aqui</Text>
             </View>
+          ) : loading ? (
+            <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
           ) : (
             <FlatList
               data={filteredPlantao}
