@@ -30,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/auraescalas.png",
+          "image": "./assets/images/auraicon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#012E40"
