@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
 import FlashMessage from "react-native-flash-message";
 import { Plantao } from "../types";
-import { Animated } from "react-native";
 import searchBar from "../utils/searchBar";
+import { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import dayjs from "dayjs";
 
 const plantoesHooks = () => {
   const alertPlantao = useRef<FlashMessage | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHora, setSelectedHora] = useState("");
-  const [isFuncaoFocused, setFuncaoFocused] = useState(false);
-  const [isMedicoFocused, setMedicoFocused] = useState(false);
-  const [isLocalFocused, setLocalFocused] = useState(false);
   const [selectedPlantao, setSelectedPlantao] = useState<Plantao | null>(null);
   const [isModalObsVisible, setIsModalObsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,23 +24,19 @@ const plantoesHooks = () => {
     setIsModalObsVisible(false);
   };
 
-  const labelFuncaoAnimation = useRef(new Animated.Value(0)).current;
-  const labelMedicoAnimation = useRef(new Animated.Value(0)).current;
-  const labelLocalAnimation = useRef(new Animated.Value(0)).current;
-
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [itemsMedico, setItemsMedico] = useState<{ value: string }[]>([]);
   const [itemsLocal, setItemsLocal] = useState<{ value: string }[]>([]);
-  const [openMedico, setOpenMedico] = useState(false);
   const [valueMedico, setValueMedico] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [openLocal, setOpenLocal] = useState(false);
   const [valueLocal, setValueLocal] = useState<string>("");
-  const [openFuncao, setOpenFuncao] = useState(false);
   const [valueFuncao, setValueFuncao] = useState<string>("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [isConcluido, setIsConcluido] = useState(false);
   const [filteredPlantoes, setFilteredPlantoes] = useState<Plantao[]>([]);
+  const [selectedDatePicker, setSelectedDatePicker] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [itemsFuncao, setItemsFuncao] = useState([
     { label: "Cirurgião", value: "Cirurgião" },
     { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
@@ -56,23 +50,13 @@ const plantoesHooks = () => {
   const resetModal = () => {
     setModalVisible(false);
     setValueMedico("");
-    setOpenMedico(false);
     setValueLocal("");
-    setOpenLocal(false);
     setValueFuncao("");
-    setOpenFuncao(false);
     setIsButtonEnabled(false);
     setSelectedDate("");
     setSelectedHora("");
+    setSelectedDatePicker("");
   };
-
-  useEffect(() => {
-    if (!modalVisible) {
-      handleBlurMedico();
-      handleBlurLocal();
-      handleBlurFuncao();
-    }
-  }, [modalVisible]);
 
   const fetchPlantoes = async (isConcluido: boolean) => {
     setLoading(true);
@@ -126,7 +110,6 @@ const plantoesHooks = () => {
         const data = doc.data();
         return {
           value: data.name,
-          label: data.name,
         };
       });
       setItemsMedico(medicosList);
@@ -142,7 +125,6 @@ const plantoesHooks = () => {
       const hospitaisList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
-          label: data.name,
           value: data.name,
         };
       });
@@ -245,58 +227,33 @@ const plantoesHooks = () => {
     }
   };
 
-  const handleFocusMedico = () => {
-    Animated.timing(labelMedicoAnimation, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setMedicoFocused(true);
+  const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
+    if (date) {
+      setShowDatePicker(false);
+      const formattedDate = dayjs(date).format("YYYY-MM-DD");
+      const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
+      setSelectedDatePicker(formattedDatePicker);
+      setSelectedDate(formattedDate);
+    }
   };
 
-  const handleBlurMedico = () => {
-    Animated.timing(labelMedicoAnimation, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setMedicoFocused(false);
+  const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
+    if (time) {
+      setShowTimePicker(false);
+      const formattedTime = time.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setSelectedHora(formattedTime);
+    }
   };
 
-  const handleFocusLocal = () => {
-    Animated.timing(labelLocalAnimation, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setLocalFocused(true);
+  const toggleDatePicker = () => {
+    setShowDatePicker(true);
   };
 
-  const handleBlurLocal = () => {
-    Animated.timing(labelLocalAnimation, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setLocalFocused(false);
-  };
-
-  const handleFocusFuncao = () => {
-    Animated.timing(labelFuncaoAnimation, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setFuncaoFocused(true);
-  };
-
-  const handleBlurFuncao = () => {
-    Animated.timing(labelFuncaoAnimation, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    setFuncaoFocused(false);
+  const toggleTimePicker = () => {
+    setShowTimePicker(true);
   };
 
   return {
@@ -311,30 +268,18 @@ const plantoesHooks = () => {
     setIsButtonEnabled,
     setModalVisible,
     modalVisible,
-    openMedico,
     itemsMedico,
-    setOpenMedico,
     setValueMedico,
     setItemsMedico,
-    openFuncao,
     itemsFuncao,
-    setOpenFuncao,
     setValueFuncao,
     setItemsFuncao,
-    openLocal,
     itemsLocal,
-    setOpenLocal,
     alertPlantao,
     setValueLocal,
     setItemsLocal,
     isButtonEnabled,
     handleRegisterShift,
-    labelFuncaoAnimation,
-    labelMedicoAnimation,
-    labelLocalAnimation,
-    handleFocusLocal,
-    handleFocusFuncao,
-    handleFocusMedico,
     setIsConcluido,
     handleCheckmarkClick,
     isConcluido,
@@ -350,6 +295,13 @@ const plantoesHooks = () => {
     setFilteredPlantoes,
     loading,
     submitting,
+    selectedDatePicker,
+    showDatePicker,
+    showTimePicker,
+    handleDateConfirm,
+    handleTimeConfirm,
+    toggleDatePicker,
+    toggleTimePicker,
   };
 };
 

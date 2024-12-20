@@ -23,6 +23,7 @@ import styles from "@/src/styles/locaisScreenStyle";
 import LocalItem from "@/src/components/localItem";
 import locaisHooks from "@/src/hooks/locaisHooks";
 import searchBar from "@/src/utils/searchBar";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function LocaisScreen() {
   const navigation = useNavigation();
@@ -271,7 +272,11 @@ export default function LocaisScreen() {
             </View>
 
             <View style={styles.betweenInput}>
-              <FontAwesome name="level-down" size={30} color="black" />
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={20}
+                color="black"
+              />
             </View>
 
             {/* Input de Endereço */}

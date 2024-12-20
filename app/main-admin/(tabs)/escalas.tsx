@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from "react-native-element-dropdown";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFocusEffect } from "expo-router";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
 import FlashMessage from "react-native-flash-message";
 
@@ -27,9 +24,12 @@ import styles from "@/src/styles/plantoesScreenStyle";
 import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesHooks from "@/src/hooks/plantoesHooks";
 import stylesModal from "@/src/styles/notificationModalStyle";
-import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import {
+  FontAwesome5,
+  FontAwesome6,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import searchBar from "@/src/utils/searchBar";
-import { Plantao } from "@/src/types";
 
 export default function PlantoesScreen() {
   const {
@@ -44,30 +44,15 @@ export default function PlantoesScreen() {
     setIsButtonEnabled,
     setModalVisible,
     modalVisible,
-    openMedico,
     itemsMedico,
-    setOpenMedico,
     setValueMedico,
-    setItemsMedico,
-    openFuncao,
     itemsFuncao,
-    setOpenFuncao,
     setValueFuncao,
-    setItemsFuncao,
-    openLocal,
     itemsLocal,
-    setOpenLocal,
     alertPlantao,
     setValueLocal,
-    setItemsLocal,
     isButtonEnabled,
     handleRegisterShift,
-    labelFuncaoAnimation,
-    labelMedicoAnimation,
-    labelLocalAnimation,
-    handleFocusMedico,
-    handleFocusFuncao,
-    handleFocusLocal,
     handleCheckmarkClick,
     isConcluido,
     selectedPlantao,
@@ -75,13 +60,18 @@ export default function PlantoesScreen() {
     openModalObs,
     closeModal,
     selectedDate,
-    setSelectedDate,
     selectedHora,
-    setSelectedHora,
     filteredPlantoes,
     setFilteredPlantoes,
     loading,
     submitting,
+    selectedDatePicker,
+    showDatePicker,
+    showTimePicker,
+    handleDateConfirm,
+    handleTimeConfirm,
+    toggleDatePicker,
+    toggleTimePicker,
   } = plantoesHooks();
 
   const {
@@ -94,11 +84,106 @@ export default function PlantoesScreen() {
     setIsSearchFocused,
   } = searchBar();
 
-  const [selectedDatePicker, setSelectedDatePicker] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
   const [date, setDate] = useState(dayjs());
   const [time, setTime] = useState(dayjs());
+
+  const [isFocusMedico, setIsFocusMedico] = useState(false);
+  const [isFocusFuncao, setIsFocusFuncao] = useState(false);
+  const [isFocusHospital, setIsFocusedHospital] = useState(false);
+  const dropdownMedicoRef = useRef<any>(null);
+  const dropdownLocalRef = useRef<any>(null);
+  const dropdownFuncaoRef = useRef<any>(null);
+  const renderLabelMedico = () => {
+    if (isFocusMedico) {
+      return (
+        <Text style={[styles.label, isFocusMedico && { color: "#59994e" }]}>
+          Médico
+        </Text>
+      );
+    }
+    if (valueMedico) {
+      return (
+        <Text style={[styles.label, !isFocusMedico && { color: "#59994e" }]}>
+          Médico
+        </Text>
+      );
+    }
+    return null;
+  };
+  const renderLabelLocal = () => {
+    if (isFocusHospital) {
+      return (
+        <Text style={[styles.label, isFocusHospital && { color: "#59994e" }]}>
+          Hospital
+        </Text>
+      );
+    }
+    if (valueLocal) {
+      return (
+        <Text style={[styles.label, !isFocusHospital && { color: "#59994e" }]}>
+          Hospital
+        </Text>
+      );
+    }
+    return null;
+  };
+  const renderLabelFuncao = () => {
+    if (isFocusFuncao) {
+      return (
+        <Text style={[styles.label, isFocusFuncao && { color: "#59994e" }]}>
+          Função
+        </Text>
+      );
+    }
+    if (valueFuncao) {
+      return (
+        <Text style={[styles.label, !isFocusFuncao && { color: "#59994e" }]}>
+          Função
+        </Text>
+      );
+    }
+    return null;
+  };
+  const renderLabelData = () => {
+    if (showDatePicker) {
+      return (
+        <Text
+          style={[styles.labelData, showDatePicker && { color: "#59994e" }]}
+        >
+          Data
+        </Text>
+      );
+    }
+    if (selectedDatePicker !== "") {
+      return (
+        <Text
+          style={[styles.labelData, selectedDatePicker && { color: "#59994e" }]}
+        >
+          Data
+        </Text>
+      );
+    }
+    return null;
+  };
+  const renderLabelHora = () => {
+    if (showTimePicker) {
+      return (
+        <Text
+          style={[styles.labelHora, showTimePicker && { color: "#59994e" }]}
+        >
+          Hora
+        </Text>
+      );
+    }
+    if (selectedHora !== "") {
+      return (
+        <Text style={[styles.labelHora, selectedHora && { color: "#59994e" }]}>
+          Hora
+        </Text>
+      );
+    }
+    return null;
+  };
 
   // Chama a função de buscar médicos assim que o componente é montado
   useEffect(() => {
@@ -130,35 +215,6 @@ export default function PlantoesScreen() {
   useEffect(() => {
     checkFields();
   }, [valueMedico, selectedDate, selectedHora, valueLocal, valueFuncao]);
-
-  const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
-    if (date) {
-      setShowDatePicker(false);
-      const formattedDate = dayjs(date).format("YYYY-MM-DD");
-      const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
-      setSelectedDatePicker(formattedDatePicker);
-      setSelectedDate(formattedDate);
-    }
-  };
-
-  const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
-    if (time) {
-      setShowTimePicker(false);
-      const formattedTime = time.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      setSelectedHora(formattedTime);
-    }
-  };
-
-  const toggleDatePicker = () => {
-    setShowDatePicker(true);
-  };
-
-  const toggleTimePicker = () => {
-    setShowTimePicker(true);
-  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -328,15 +384,20 @@ export default function PlantoesScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Seletor de Data */}
           <View style={styles.containerDataHora}>
             {/* Seletor de Data */}
             <TouchableOpacity
-              style={styles.buttonSeletor}
+              style={[
+                styles.buttonSeletor,
+                (showDatePicker || selectedDate) && { borderColor: "#59994e" },
+              ]}
               onPress={toggleDatePicker}
             >
-              <Text>{selectedDate ? selectedDatePicker : "Data"}</Text>
+              <Text style={styles.textDateTimePicker}>
+                {selectedDate ? selectedDatePicker : "Data"}
+              </Text>
             </TouchableOpacity>
+            {renderLabelData()}
             {showDatePicker && (
               <DateTimePicker
                 value={date.toDate()}
@@ -348,11 +409,17 @@ export default function PlantoesScreen() {
 
             {/* Seletor de Hora */}
             <TouchableOpacity
-              style={styles.buttonSeletor}
+              style={[
+                styles.buttonSeletor,
+                (showTimePicker || selectedHora) && { borderColor: "#59994e" },
+              ]}
               onPress={toggleTimePicker}
             >
-              <Text>{selectedHora ? selectedHora : "Hora"}</Text>
+              <Text style={styles.textDateTimePicker}>
+                {selectedHora ? selectedHora : "Hora"}
+              </Text>
             </TouchableOpacity>
+            {renderLabelHora()}
             {showTimePicker && (
               <DateTimePicker
                 value={time.toDate()}
@@ -364,147 +431,136 @@ export default function PlantoesScreen() {
           </View>
 
           <View style={styles.betweenInput}>
-            <FontAwesome name="level-down" size={30} color="black" />
+            <MaterialCommunityIcons
+              name="dots-horizontal"
+              size={20}
+              color="black"
+            />
           </View>
 
           {/* Seletor de Médico */}
-          <View style={styles.containerMedico}>
-            <Animated.Text
+          <TouchableOpacity
+            onPress={() => {
+              dropdownMedicoRef.current.open();
+            }}
+            style={styles.containerMedico}
+          >
+            {renderLabelMedico()}
+            <Dropdown
+              ref={dropdownMedicoRef}
               style={[
-                styles.inputLabel,
-                {
-                  top: labelMedicoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [18, -26], // Move o rótulo para cima
-                  }),
-                  fontSize: labelMedicoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 12], // Diminui o tamanho do rótulo
-                  }),
-                  fontWeight: labelMedicoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["400", "600"], // Tornar o rótulo em negrito
-                  }),
-                },
+                styles.dropdown,
+                (isFocusMedico || valueMedico) && { borderColor: "#59994e" },
               ]}
-            >
-              Médico
-            </Animated.Text>
-            <DropDownPicker
-              style={styles.inputBoxPickerMedico}
-              onPress={() => {
-                handleFocusMedico();
+              containerStyle={[styles.dropdownList]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              onFocus={() => {
+                setIsFocusMedico(true);
               }}
-              open={openMedico}
+              onBlur={() => {
+                setIsFocusMedico(false);
+              }}
+              labelField="value"
+              valueField="value"
+              maxHeight={300}
               value={valueMedico}
-              searchable={true}
-              items={itemsMedico}
-              setOpen={setOpenMedico}
-              setValue={setValueMedico}
-              setItems={setItemsMedico}
-              placeholder={"Selecione o médico"}
-              placeholderStyle={styles.placeholderText}
-              textStyle={styles.inputText}
-              multiple={false}
-              language="PT"
-              dropDownContainerStyle={styles.dropDownListContainerMedico} // Estilo da lista suspensa
-            />
-          </View>
-
-          <View style={styles.betweenInput}>
-            <FontAwesome name="level-down" size={30} color="black" />
-          </View>
-
-          {/* Seletor de Função */}
-          <View style={styles.containerFuncao}>
-            <Animated.Text
-              style={[
-                styles.inputLabel,
-                {
-                  top: labelFuncaoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [18, -26], // Move o rótulo para cima
-                  }),
-                  fontSize: labelFuncaoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 12], // Diminui o tamanho do rótulo
-                  }),
-                  fontWeight: labelFuncaoAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["400", "600"], // Tornar o rótulo em negrito
-                  }),
-                },
-              ]}
-            >
-              Função
-            </Animated.Text>
-            <DropDownPicker
-              style={styles.inputBoxPickerFuncao}
-              onPress={() => {
-                handleFocusFuncao();
+              onChange={(item) => {
+                setValueMedico(item.value);
+                setIsFocusMedico(false);
               }}
-              open={openFuncao}
-              value={valueFuncao}
-              items={itemsFuncao}
-              setOpen={setOpenFuncao}
-              setValue={setValueFuncao}
-              setItems={setItemsFuncao}
-              placeholder={"Selecione a função do médico"}
-              placeholderStyle={styles.placeholderText}
-              textStyle={styles.inputText}
-              multiple={false}
-              language="PT"
-              dropDownContainerStyle={styles.dropDownListContainerFuncao} // Estilo da lista suspensa
+              data={itemsMedico}
+              search
+              placeholder={isFocusMedico ? "..." : "Selecione o médico"}
+              searchPlaceholder="Busque..."
             />
-          </View>
+          </TouchableOpacity>
 
           <View style={styles.betweenInput}>
-            <FontAwesome name="level-down" size={30} color="black" />
+            <MaterialCommunityIcons
+              name="dots-horizontal"
+              size={20}
+              color="black"
+            />
           </View>
 
           {/* Seletor de Local */}
-          <View style={styles.containerLocal}>
-            <Animated.Text
+          <TouchableOpacity
+            onPress={() => {
+              dropdownLocalRef.current.open();
+            }}
+            style={styles.containerLocal}
+          >
+            {renderLabelLocal()}
+            <Dropdown
+              ref={dropdownLocalRef}
               style={[
-                styles.inputLabel,
-                {
-                  top: labelLocalAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [18, -26], // Move o rótulo para cima
-                  }),
-                  fontSize: labelLocalAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 12], // Diminui o tamanho do rótulo
-                  }),
-                  fontWeight: labelLocalAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["400", "600"], // Tornar o rótulo em negrito
-                  }),
-                },
+                styles.dropdown,
+                (isFocusHospital || valueLocal) && { borderColor: "#59994e" },
               ]}
-            >
-              Hospital
-            </Animated.Text>
-            <DropDownPicker
-              style={styles.inputBoxPickerLocal}
-              onPress={() => {
-                handleFocusLocal();
-              }}
-              open={openLocal}
+              containerStyle={[styles.dropdownList]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              onFocus={() => setIsFocusedHospital(true)}
+              onBlur={() => setIsFocusedHospital(false)}
+              labelField="value"
+              valueField="value"
+              maxHeight={350}
               value={valueLocal}
-              searchable={true}
-              items={itemsLocal}
-              setOpen={setOpenLocal}
-              setValue={setValueLocal}
-              setItems={setItemsLocal}
-              placeholder={"Selecione o local da escala"}
-              placeholderStyle={styles.placeholderText}
-              textStyle={styles.inputText}
-              multiple={false}
-              language="PT"
-              dropDownContainerStyle={styles.dropDownListContainerLocal} // Estilo da lista suspensa
+              onChange={(item) => {
+                setValueLocal(item.value);
+                setIsFocusedHospital(false);
+              }}
+              data={itemsLocal}
+              search
+              placeholder={isFocusHospital ? "..." : "Selecione o hospital"}
+              searchPlaceholder="Busque..."
+            />
+          </TouchableOpacity>
+
+          <View style={styles.betweenInput}>
+            <MaterialCommunityIcons
+              name="dots-horizontal"
+              size={20}
+              color="black"
             />
           </View>
+
+          {/* Seletor de Função */}
+          <TouchableOpacity
+            onPress={() => {
+              dropdownFuncaoRef.current.open();
+            }}
+            style={styles.containerFuncao}
+          >
+            {renderLabelFuncao()}
+            <Dropdown
+              ref={dropdownFuncaoRef}
+              style={[
+                styles.dropdown,
+                (isFocusFuncao || valueFuncao) && { borderColor: "#59994e" },
+              ]}
+              containerStyle={[styles.dropdownList]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              onFocus={() => setIsFocusFuncao(true)}
+              onBlur={() => setIsFocusFuncao(false)}
+              labelField="label"
+              valueField="value"
+              maxHeight={300}
+              value={valueFuncao}
+              onChange={(item) => {
+                setValueFuncao(item.value);
+                setIsFocusFuncao(false);
+              }}
+              data={itemsFuncao}
+              placeholder={isFocusFuncao ? "..." : "Selecione a função"}
+              searchPlaceholder="Busque..."
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[
               styles.confirmarPlantaoButton,
