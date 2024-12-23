@@ -7,7 +7,10 @@ export const montarRelatorio = (
 ) => {
   let naoConcluidas: string[] = [];
   let concluidas: string[] = [];
-  let plantonistasCount: Record<string, number> = {};
+  let plantonistasCount: Record<
+    string,
+    { ativas: number; concluidas: number }
+  > = {};
 
   plantoes.forEach((plantao) => {
     const { concluido, plantonista, funcao, data, local, observacoes } =
@@ -17,41 +20,59 @@ export const montarRelatorio = (
     if (concluido) {
       if (observacoes) {
         concluidas.push(
-          `\nObservação do médico ${plantonista} na função ${funcao} no hospital ${local}:\n\n${observacoes}`
+          `\n=> Observação do médico ${plantonista} na função ${funcao} no hospital ${local}:\n\n- ${observacoes}`
         );
       }
-    }
 
-    // Contar os médicos (plantonistas)
-    if (plantonista) {
-      plantonistasCount[plantonista] =
-        (plantonistasCount[plantonista] || 0) + 1;
+      // Contar escalas concluídas por plantonista
+      if (plantonista) {
+        if (!plantonistasCount[plantonista]) {
+          plantonistasCount[plantonista] = { ativas: 0, concluidas: 0 };
+        }
+        plantonistasCount[plantonista].concluidas += 1;
+      }
+    } else {
+      // Escalas ativas
+      naoConcluidas.push(
+        `\n=> ${plantonista}
+- ${funcao}
+- Hospital ${local}
+- Data: ${dayjs(data).format("DD-MM-YYYY")}`
+      );
+
+      // Contar escalas ativas por plantonista
+      if (plantonista) {
+        if (!plantonistasCount[plantonista]) {
+          plantonistasCount[plantonista] = { ativas: 0, concluidas: 0 };
+        }
+        plantonistasCount[plantonista].ativas += 1;
+      }
     }
   });
 
   const formattedDate = dayjs(dataSelecionada).format("DD-MM-YYYY");
   const formattedDateMes = dayjs(dataSelecionada).format("MM-YYYY");
+
   // Formatar relatório
-  const relatorio = `
-          Relatório ${
-            filtroPorMes
-              ? `do mês ${formattedDateMes}`
-              : `do dia ${formattedDate}`
-          }
-          
-          Escalas ativas: (${naoConcluidas.length})${naoConcluidas.join("\n")}
+  const relatorio = `Relatório ${
+    filtroPorMes ? `do mês ${formattedDateMes}` : `do dia ${formattedDate}`
+  }
+
+Escalas ativas: (${naoConcluidas.length})\n${naoConcluidas.join("\n")}
       
-          Escalas concluídas: (${concluidas.length})\n${concluidas.join("\n")}
+Escalas concluídas: (${concluidas.length})\n${concluidas.join("\n")}
       
-          Médicos:
-          ${
-            Object.keys(plantonistasCount)
-              .map(
-                (plantonista) =>
-                  `${plantonista}: ${plantonistasCount[plantonista]} Escalas`
-              )
-              .join("\n") || "Nenhum médico encontrado"
-          }
+Médicos:
+${
+  Object.keys(plantonistasCount)
+    .map((plantonista) => {
+      const { ativas, concluidas } = plantonistasCount[plantonista];
+      return `\n${plantonista}:
+- ${ativas} Escalas Ativas
+- ${concluidas} Escalas Concluídas`;
+    })
+    .join("\n") || "\nNenhum médico com escala"
+}
         `;
 
   return relatorio;

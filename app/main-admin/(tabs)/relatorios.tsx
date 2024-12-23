@@ -11,13 +11,12 @@ import {
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { montarRelatorio } from "@/src/components/relatorios";
 import styles from "@/src/styles/relatoriosScreenStyle";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from "react-native-element-dropdown";
 
 export default function RelatoriosScreen() {
   const [relatorio, setRelatorio] = useState<string>("");
@@ -26,10 +25,11 @@ export default function RelatoriosScreen() {
   const [date, setDate] = useState(dayjs().subtract(1, "day"));
   const [tituloRelatorio, setTituloRelatorio] = useState("");
   const [isRelatorioMensal, setIsRelatorioMensal] = useState(false);
-  const [openMes, setOpenMes] = useState(false);
   const [valueMes, setValueMes] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDatePicker, setSelectedDatePicker] = useState("");
+  const dropdownMesRef = useRef<any>(null);
+  const [isFocusMes, setIsFocusMes] = useState(false);
   const [months, setMonths] = useState([
     { label: "Janeiro", value: "01" },
     { label: "Fevereiro", value: "02" },
@@ -166,7 +166,7 @@ export default function RelatoriosScreen() {
                     style={styles.buttonSeletor}
                     onPress={toggleDatePicker}
                   >
-                    <Text>
+                    <Text style={styles.selectedTextStyle}>
                       {selectedDate ? selectedDatePicker : "Selecione uma data"}
                     </Text>
                   </TouchableOpacity>
@@ -181,26 +181,38 @@ export default function RelatoriosScreen() {
                 </View>
               )}
               {isRelatorioMensal && (
-                <DropDownPicker
-                  style={styles.inputBoxPickerMes}
-                  open={openMes}
-                  value={valueMes}
-                  items={months}
-                  setOpen={setOpenMes}
-                  setValue={setValueMes}
-                  setItems={setMonths}
-                  placeholder={"Selecione o mês"}
-                  placeholderStyle={styles.placeholderText}
-                  textStyle={styles.inputText}
-                  multiple={false}
-                  language="PT"
-                  dropDownContainerStyle={styles.dropDownListContainerMes} // Estilo da lista suspensa
-                  onChangeValue={(value) => {
-                    if (value) {
-                      handleMesConfirm(value);
-                    }
+                <TouchableOpacity
+                  onPress={() => {
+                    dropdownMesRef.current.open();
                   }}
-                />
+                  style={styles.containerMes}
+                >
+                  <Dropdown
+                    ref={dropdownMesRef}
+                    style={[styles.dropdown]}
+                    containerStyle={[styles.dropdownList]}
+                    placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    onFocus={() => {
+                      setIsFocusMes(true);
+                    }}
+                    onBlur={() => {
+                      setIsFocusMes(false);
+                    }}
+                    labelField="label"
+                    valueField="value"
+                    maxHeight={300}
+                    value={valueMes}
+                    onChange={(item) => {
+                      if (item && item.value) {
+                        handleMesConfirm(item.value);
+                      }
+                      setIsFocusMes(false);
+                    }}
+                    data={months}
+                    placeholder={isFocusMes ? "..." : "Selecione o mês"}
+                  />
+                </TouchableOpacity>
               )}
             </View>
 

@@ -64,14 +64,6 @@ export default function ConfiguracoesScreen() {
             <Entypo name="chevron-right" size={25} color="#081e27" />
           </TouchableOpacity>
         </Link>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Configuração 2</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Configuração 3</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
       </View>
       <View style={styles.sairContainer}>
         <TouchableOpacity onPress={handleLogout} style={styles.sairButton}>

@@ -92,20 +92,6 @@ export default function ConfiguracoesUserScreen() {
       </View>
 
       {/* Botões para navegação */}
-      <View style={styles.settingsContainer}>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Configuração 1</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Configuração 2</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Configuração 3</Text>
-          <Entypo name="chevron-right" size={25} color="#081e27" />
-        </TouchableOpacity>
-      </View>
       <View style={styles.sairContainer}>
         <TouchableOpacity onPress={handleLogout} style={styles.sairButton}>
           <Text style={styles.settingText}>Sair</Text>

@@ -16,7 +16,7 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/auraicon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#081e27"
       },
       "package": "com.escalaappaura"
     },
@@ -33,7 +33,7 @@
           "image": "./assets/images/auraicon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#012E40"
+          "backgroundColor": "#081e27"
         }
       ]
     ],

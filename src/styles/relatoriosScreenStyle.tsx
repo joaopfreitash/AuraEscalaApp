@@ -111,12 +111,35 @@ export default StyleSheet.create({
     maxHeight: 250,
   },
   buttonSeletor: {
-    backgroundColor: "#d1d8e3",
-    borderWidth: 1,
-    borderColor: "transparent",
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: "center",
+    borderColor: "#c1c4c9",
+    borderWidth: 0.5,
+    borderRadius: 12,
+    padding: 12,
+    width: "100%",
+    marginBottom: 15,
+  },
+  containerMes: {
+    width: "100%",
+    height: 50,
+    marginBottom: 15,
+  },
+  dropdown: {
+    height: "100%",
+    borderColor: "#c1c4c9",
+    borderWidth: 0.5,
+    borderRadius: 12,
+    padding: 12,
+    width: "100%",
+  },
+  dropdownList: {
+    borderRadius: 12,
+  },
+  placeholderStyle: {
+    color: "black",
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    color: "black",
+    fontSize: 16,
   },
 });
