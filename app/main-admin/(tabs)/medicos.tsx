@@ -211,7 +211,7 @@ export default function MedicosScreen() {
                 if (plantoes.length === 0) {
                   return (
                     <Text style={styles.errorMessage}>
-                      Nenhum plantão cadastrado
+                      Nenhuma escala cadastrada
                     </Text>
                   );
                 }
@@ -222,7 +222,7 @@ export default function MedicosScreen() {
                 if (!hasActivePlantoes) {
                   return (
                     <Text style={styles.errorMessage}>
-                      Nenhum plantão ativo no momento
+                      Nenhuma escala ativa no momento
                     </Text>
                   );
                 }
