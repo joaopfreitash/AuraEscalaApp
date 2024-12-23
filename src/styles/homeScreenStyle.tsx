@@ -40,6 +40,7 @@ export default StyleSheet.create({
   },
   expandIcon: {
     marginLeft: 10,
+    marginTop: 5,
   },
   noPlantaoContainer: {
     flexDirection: "row",
