@@ -27,6 +27,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "aura-ct",
+          "project": "react-native",
+          "url": "https://sentry.io/"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
