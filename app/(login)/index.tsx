@@ -1,5 +1,6 @@
 import { Link, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   View,
   Text,
@@ -24,6 +25,7 @@ import styles from "@/src/styles/loginStyle";
 import loginHooks from "@/src/hooks/loginHooks";
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const alertLogin = useRef<FlashMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -162,7 +164,10 @@ export default function LoginScreen() {
         barStyle="light-content" // Define o texto da Status Bar como claro (ícones/branco)
         translucent={false} // Faz com que a Status Bar não seja transparente
       />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        style={{ paddingTop: insets.top + 10 }}
+      >
         <View style={styles.contentContainer}>
           <View style={styles.container}>
             <Image
