@@ -151,8 +151,7 @@ const homeUserHooks = () => {
         alertPlantao.current.showMessage({
           message: "Escala concluída com sucesso!",
           type: "success",
-          floating: true,
-          statusBarHeight: -5,
+          floating: false,
           duration: 4000,
           style: { alignItems: "center" },
         });
@@ -163,8 +162,7 @@ const homeUserHooks = () => {
         alertPlantao.current.showMessage({
           message: "Ocorreu um erro, tente novamente.",
           type: "danger",
-          floating: true,
-          statusBarHeight: -5,
+          floating: false,
           duration: 4000,
           style: { alignItems: "center" },
         });

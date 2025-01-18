@@ -152,7 +152,7 @@ export default function LoginScreen() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="white" />
+        <ActivityIndicator size="small" color="white" />
       </View>
     );
   }

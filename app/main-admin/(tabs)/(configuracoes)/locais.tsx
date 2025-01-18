@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useNavigation } from "@react-navigation/native";
 import FlashMessage from "react-native-flash-message";
@@ -90,7 +89,7 @@ export default function LocaisScreen() {
     } else {
       navigation.setOptions({
         headerShown: true,
-        title: "Voltar",
+        title: "Locais",
         headerShadowVisible: false,
         headerStyle: {
           backgroundColor: "#081e27",
@@ -188,7 +187,7 @@ export default function LocaisScreen() {
             Nenhum hospital encontrado com esse nome
           </Text>
         ) : loading ? (
-          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
+          <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />
         ) : (
           <FlatList
             style={styles.flatListContainer}

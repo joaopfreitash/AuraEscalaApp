@@ -57,70 +57,62 @@ export default function HomeScreen() {
         </View>
         {!isExpanded && (
           <View style={styles.calendarContainer}>
-            {Object.keys(markedDays).length === 0 ? (
-              <ActivityIndicator
-                style={{ flex: 1 }}
-                size="large"
-                color="white"
-              />
-            ) : (
-              <Calendar
-                locale="br"
-                key={JSON.stringify(markedDays)}
-                markedDays={markedDays}
-                onPress={onDayPress}
-                startDate={selectedDate}
-                theme={{
-                  activeDayColor: "red",
-                  monthTitleTextStyle: {
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: 25,
-                  },
-                  emptyMonthContainerStyle: {},
-                  emptyMonthTextStyle: {
-                    fontWeight: "200",
-                  },
-                  weekColumnsContainerStyle: {},
-                  weekColumnStyle: {
-                    paddingVertical: 10,
-                  },
-                  weekColumnTextStyle: {
-                    color: "#b6c1cd",
-                    fontSize: 13,
-                  },
-                  nonTouchableDayContainerStyle: {},
-                  nonTouchableDayTextStyle: {
-                    color: "#2d4150",
-                  },
-                  startDateContainerStyle: {},
-                  endDateContainerStyle: {},
-                  dayContainerStyle: {
-                    backgroundColor: "#012E40",
-                  },
-                  dayTextStyle: {
-                    color: "white",
-                    fontSize: 15,
-                  },
-                  dayOutOfRangeContainerStyle: {},
-                  dayOutOfRangeTextStyle: {},
-                  todayContainerStyle: {},
-                  todayTextStyle: {
-                    color: "#6d95da",
-                    fontWeight: "bold",
-                  },
-                  activeDayContainerStyle: {
-                    backgroundColor: "#1A4D5C",
-                    borderRadius: 30,
-                  },
-                  activeDayTextStyle: {
-                    color: "white",
-                    fontWeight: "bold",
-                  },
-                  nonTouchableLastMonthDayTextStyle: {},
-                }}
-              />
-            )}
+            <Calendar
+              locale="br"
+              key={JSON.stringify(markedDays)}
+              markedDays={markedDays}
+              onPress={onDayPress}
+              startDate={selectedDate}
+              theme={{
+                activeDayColor: "red",
+                monthTitleTextStyle: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: 25,
+                },
+                emptyMonthContainerStyle: {},
+                emptyMonthTextStyle: {
+                  fontWeight: "200",
+                },
+                weekColumnsContainerStyle: {},
+                weekColumnStyle: {
+                  paddingVertical: 10,
+                },
+                weekColumnTextStyle: {
+                  color: "#b6c1cd",
+                  fontSize: 13,
+                },
+                nonTouchableDayContainerStyle: {},
+                nonTouchableDayTextStyle: {
+                  color: "#2d4150",
+                },
+                startDateContainerStyle: {},
+                endDateContainerStyle: {},
+                dayContainerStyle: {
+                  backgroundColor: "#012E40",
+                },
+                dayTextStyle: {
+                  color: "white",
+                  fontSize: 15,
+                },
+                dayOutOfRangeContainerStyle: {},
+                dayOutOfRangeTextStyle: {},
+                todayContainerStyle: {},
+                todayTextStyle: {
+                  color: "#6d95da",
+                  fontWeight: "bold",
+                },
+                activeDayContainerStyle: {
+                  backgroundColor: "#1A4D5C",
+                  borderRadius: 30,
+                },
+                activeDayTextStyle: {
+                  color: "white",
+                  fontWeight: "bold",
+                },
+                nonTouchableLastMonthDayTextStyle: {},
+              }}
+            />
           </View>
         )}
         <View style={styles.listContainer}>
@@ -140,7 +132,7 @@ export default function HomeScreen() {
               <Text style={styles.noPlantaoText}>Nada por aqui</Text>
             </View>
           ) : loading ? (
-            <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
+            <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />
           ) : (
             <FlatList
               data={filteredPlantao}

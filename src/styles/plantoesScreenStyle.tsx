@@ -77,6 +77,7 @@ export default StyleSheet.create({
   containerInfos: {
     flexDirection: "column",
     alignItems: "flex-start",
+    gap: 2,
   },
   medicoContainer: {
     display: "flex",

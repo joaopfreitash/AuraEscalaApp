@@ -24,7 +24,7 @@ export default function LayoutConfiguracoes() {
         name="locais"
         options={{
           headerShown: true,
-          title: "Voltar",
+          title: "Locais",
         }}
       />
     </Stack>

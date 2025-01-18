@@ -204,8 +204,7 @@ const plantoesHooks = () => {
         alertPlantao.current.showMessage({
           message: "Escala cadastrada com sucesso!",
           type: "success",
-          floating: true,
-          statusBarHeight: -5,
+          floating: false,
           duration: 4000,
           style: { alignItems: "center" },
         });
@@ -216,8 +215,7 @@ const plantoesHooks = () => {
         alertPlantao.current.showMessage({
           message: "Ocorreu um erro, tente novamente.",
           type: "danger",
-          floating: true,
-          statusBarHeight: -5,
+          floating: false,
           duration: 4000,
           style: { alignItems: "center" },
         });

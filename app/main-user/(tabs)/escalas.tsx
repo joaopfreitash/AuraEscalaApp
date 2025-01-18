@@ -96,7 +96,7 @@ export default function PlantoesUserScreen() {
       </View>
       <View style={styles.plantaoContainer}>
         {loading ? (
-          <ActivityIndicator style={{ flex: 1 }} size="large" color="white" />
+          <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />
         ) : (
           <FlatList
             style={styles.flatListContainer}
