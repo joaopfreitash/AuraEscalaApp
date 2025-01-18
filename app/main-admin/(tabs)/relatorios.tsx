@@ -7,6 +7,7 @@ import {
   Dimensions,
   Modal,
   ScrollView,
+  Platform,
 } from "react-native";
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -91,7 +92,6 @@ export default function RelatoriosScreen() {
   };
   const handleDateConfirm = async (event: DateTimePickerEvent, date?: Date) => {
     if (date) {
-      setShowDatePicker(false);
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
       const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
       setSelectedDatePicker(formattedDatePicker);
@@ -170,13 +170,34 @@ export default function RelatoriosScreen() {
                       {selectedDate ? selectedDatePicker : "Selecione uma data"}
                     </Text>
                   </TouchableOpacity>
-                  {showDatePicker && (
-                    <DateTimePicker
-                      value={date.toDate()}
-                      mode="date"
-                      display="default"
-                      onChange={handleDateConfirm}
-                    />
+                  {Platform.OS === "ios" && showDatePicker && (
+                    <Modal
+                      transparent={true}
+                      animationType="fade"
+                      onRequestClose={() => setShowDatePicker(false)}
+                    >
+                      <View style={styles.modalContainer}>
+                        <View style={styles.modalContentSpinner}>
+                          <DateTimePicker
+                            locale="pt-BR"
+                            value={date.toDate()}
+                            mode="date"
+                            display="spinner"
+                            onChange={handleDateConfirm}
+                          />
+                          <TouchableOpacity
+                            onPress={() => {
+                              setShowDatePicker(false);
+                            }}
+                            style={styles.confirmButton}
+                          >
+                            <Text style={styles.confirmButtonText}>
+                              Confirmar
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </Modal>
                   )}
                 </View>
               )}

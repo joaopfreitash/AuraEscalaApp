@@ -142,4 +142,43 @@ export default StyleSheet.create({
     color: "black",
     fontSize: 16,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContentSpinner: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  confirmButton: {
+    backgroundColor: "#111827",
+    display: "flex",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  confirmButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
+  cancelButtonText: {
+    color: "white",
+    textAlign: "center",
+  },
 });

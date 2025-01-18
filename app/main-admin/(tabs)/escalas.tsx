@@ -11,6 +11,7 @@ import {
   Keyboard,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Dropdown } from "react-native-element-dropdown";
@@ -68,10 +69,12 @@ export default function PlantoesScreen() {
     selectedDatePicker,
     showDatePicker,
     showTimePicker,
-    handleDateConfirm,
-    handleTimeConfirm,
     toggleDatePicker,
     toggleTimePicker,
+    toggleDatePickerFalse,
+    handleTempDate,
+    toggleTimePickerFalse,
+    handleTempTime,
   } = plantoesHooks();
 
   const {
@@ -84,8 +87,8 @@ export default function PlantoesScreen() {
     setIsSearchFocused,
   } = searchBar();
 
-  const [date, setDate] = useState(dayjs());
-  const [time, setTime] = useState(dayjs());
+  const [date, setDate] = useState(dayjs().subtract(1, "day"));
+  const [time, setTime] = useState(dayjs().subtract(1, "hour"));
 
   const [isFocusMedico, setIsFocusMedico] = useState(false);
   const [isFocusFuncao, setIsFocusFuncao] = useState(false);
@@ -398,13 +401,32 @@ export default function PlantoesScreen() {
               </Text>
             </TouchableOpacity>
             {renderLabelData()}
-            {showDatePicker && (
-              <DateTimePicker
-                value={date.toDate()}
-                mode="date"
-                display="default"
-                onChange={handleDateConfirm}
-              />
+            {Platform.OS === "ios" && showDatePicker && (
+              <Modal
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => toggleDatePickerFalse()}
+              >
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContentSpinner}>
+                    <DateTimePicker
+                      locale="pt-BR"
+                      value={date.toDate()}
+                      mode="date"
+                      display="spinner"
+                      onChange={handleTempDate}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        toggleDatePickerFalse();
+                      }}
+                      style={styles.confirmButton}
+                    >
+                      <Text style={styles.confirmButtonText}>Confirmar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
             )}
 
             {/* Seletor de Hora */}
@@ -420,13 +442,32 @@ export default function PlantoesScreen() {
               </Text>
             </TouchableOpacity>
             {renderLabelHora()}
-            {showTimePicker && (
-              <DateTimePicker
-                value={time.toDate()}
-                mode="time"
-                display="default"
-                onChange={handleTimeConfirm}
-              />
+            {Platform.OS === "ios" && showTimePicker && (
+              <Modal
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => toggleTimePickerFalse()}
+              >
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContentSpinner}>
+                    <DateTimePicker
+                      locale="pt-BR"
+                      value={time.toDate()}
+                      mode="time"
+                      display="spinner"
+                      onChange={handleTempTime}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        toggleTimePickerFalse();
+                      }}
+                      style={styles.confirmButton}
+                    >
+                      <Text style={styles.confirmButtonText}>Confirmar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
             )}
           </View>
 

@@ -227,9 +227,8 @@ const plantoesHooks = () => {
     }
   };
 
-  const handleDateConfirm = (event: DateTimePickerEvent, date?: Date) => {
+  const handleTempDate = (event: DateTimePickerEvent, date?: Date) => {
     if (date) {
-      setShowDatePicker(false);
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
       const formattedDatePicker = dayjs(date).format("DD/MM/YYYY");
       setSelectedDatePicker(formattedDatePicker);
@@ -237,9 +236,8 @@ const plantoesHooks = () => {
     }
   };
 
-  const handleTimeConfirm = (event: DateTimePickerEvent, time?: Date) => {
+  const handleTempTime = (event: DateTimePickerEvent, time?: Date) => {
     if (time) {
-      setShowTimePicker(false);
       const formattedTime = time.toLocaleTimeString("pt-BR", {
         hour: "2-digit",
         minute: "2-digit",
@@ -252,8 +250,16 @@ const plantoesHooks = () => {
     setShowDatePicker(true);
   };
 
+  const toggleDatePickerFalse = () => {
+    setShowDatePicker(false);
+  };
+
   const toggleTimePicker = () => {
     setShowTimePicker(true);
+  };
+
+  const toggleTimePickerFalse = () => {
+    setShowTimePicker(false);
   };
 
   return {
@@ -298,10 +304,12 @@ const plantoesHooks = () => {
     selectedDatePicker,
     showDatePicker,
     showTimePicker,
-    handleDateConfirm,
-    handleTimeConfirm,
     toggleDatePicker,
     toggleTimePicker,
+    toggleDatePickerFalse,
+    handleTempDate,
+    toggleTimePickerFalse,
+    handleTempTime,
   };
 };
 
