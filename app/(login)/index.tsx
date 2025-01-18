@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Image,
   Animated,
-  ScrollView,
   ActivityIndicator,
   StatusBar,
   TouchableWithoutFeedback,
@@ -43,7 +42,6 @@ export default function LoginScreen() {
     senha,
     setSenha,
     setIsSenhaFocused,
-    registerForPushNotificationsAsync,
   } = loginHooks();
 
   const handleLogin = async () => {
@@ -79,20 +77,7 @@ export default function LoginScreen() {
             email: user.email,
             name: userData.name,
           };
-
           await AsyncStorage.setItem("@user", JSON.stringify(combinedUserData));
-
-          // Registra o token de push notification
-          try {
-            const expoPushToken = await registerForPushNotificationsAsync();
-            if (expoPushToken) {
-              await AsyncStorage.setItem("@expoPushToken", expoPushToken);
-              console.log("Expo Push Token salvo com sucesso:", expoPushToken);
-            }
-          } catch (error) {
-            console.error("Erro ao registrar push notification:", error);
-          }
-
           if (userData.isAdmin) {
             handleRedirectAdmin();
           } else {
