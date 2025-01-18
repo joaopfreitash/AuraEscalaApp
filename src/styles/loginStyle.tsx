@@ -4,7 +4,7 @@ export default StyleSheet.create({
   contentContainer: {
     display: "flex",
     flexGrow: 1,
-    marginTop: 40,
+    marginTop: 100,
     alignItems: "center",
     paddingHorizontal: 20,
     justifyContent: "space-between",

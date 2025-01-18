@@ -8,6 +8,11 @@
     "scheme": "exp+auraescalaappv4",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/acda957e-c321-4951-a8a2-f7752567daeb"
+    },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
@@ -66,6 +71,9 @@
       "eas": {
         "projectId": "acda957e-c321-4951-a8a2-f7752567daeb"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

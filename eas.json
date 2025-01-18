@@ -9,19 +9,22 @@
       "distribution": "internal",
       "env": {
         "SENTRY_AUTH_TOKEN": "@SENTRY_AUTH_TOKEN"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "SENTRY_AUTH_TOKEN": "@SENTRY_AUTH_TOKEN"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "SENTRY_AUTH_TOKEN": "@SENTRY_AUTH_TOKEN"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
