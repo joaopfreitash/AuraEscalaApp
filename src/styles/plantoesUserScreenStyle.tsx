@@ -136,4 +136,15 @@ export default StyleSheet.create({
     fontWeight: "600",
     lineHeight: 24,
   },
+  noPlantaoContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flex: 1,
+    alignItems: "center",
+  },
+  noPlantaoText: {
+    fontSize: 18,
+    color: "#fff",
+    marginLeft: 10,
+  },
 });
