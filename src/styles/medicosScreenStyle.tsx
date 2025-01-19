@@ -34,7 +34,7 @@ export default StyleSheet.create({
     justifyContent: "space-between",
   },
   headerLeft: {
-    flexDirection: "row",
+    flex: 1,
   },
   errorMessage: {
     color: "#bf3d3d",
