@@ -10,12 +10,14 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Foundation from "@expo/vector-icons/Foundation";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import styles from "@/src/styles/medicosScreenStyle";
+import stylesModal from "@/src/styles/notificationModalStyle";
 import MedicoItem from "@/src/components/medicoItem";
 import medicosHooks from "@/src/hooks/medicosHooks";
 import searchBar from "@/src/utils/searchBar";
@@ -23,6 +25,7 @@ import { useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Medico } from "@/src/types";
 import PlantaoItem from "@/src/components/plantaoItem";
+import plantoesHooks from "@/src/hooks/plantoesHooks";
 
 export default function MedicosScreen() {
   const {
@@ -46,6 +49,9 @@ export default function MedicosScreen() {
     plantoes,
     loading,
   } = medicosHooks();
+
+  const { openModalObs, isModalObsVisible, selectedPlantao, closeModal } =
+    plantoesHooks();
   const [selectedMedico, setSelectedMedico] = useState<Medico | null>(null);
 
   // Chama a função de buscar médicos assim que o componente é montado
@@ -203,7 +209,14 @@ export default function MedicosScreen() {
               style={styles.flatListContainer}
               data={plantoes}
               renderItem={({ item }) => (
-                <PlantaoItem plantao={item} onPress={() => {}} />
+                <PlantaoItem
+                  plantao={item}
+                  onPress={() => {
+                    if (item.concluido) {
+                      openModalObs(item);
+                    }
+                  }}
+                />
               )}
               keyExtractor={(item) => item.id}
               numColumns={1}
@@ -264,6 +277,30 @@ export default function MedicosScreen() {
           />
         )}
       </View>
+      <Modal visible={isModalObsVisible} transparent animationType="fade">
+        {selectedPlantao && (
+          <View style={stylesModal.overlay}>
+            <View style={stylesModal.modalContent}>
+              <Text style={stylesModal.title}>Observações do médico</Text>
+              <Text style={stylesModal.message}>
+                {selectedPlantao.observacoes ? (
+                  selectedPlantao.observacoes
+                ) : (
+                  <Text style={{ color: "#bf3d3d" }}>
+                    Médico não fez observações
+                  </Text>
+                )}
+              </Text>
+              <TouchableOpacity
+                onPress={() => closeModal()}
+                style={stylesModal.closeButton}
+              >
+                <Text style={stylesModal.closeButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Modal>
     </View>
   );
 }

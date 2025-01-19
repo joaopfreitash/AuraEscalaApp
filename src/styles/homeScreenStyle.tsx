@@ -49,8 +49,8 @@ export default StyleSheet.create({
     alignItems: "center",
   },
   noPlantaoText: {
-    fontSize: 18,
-    color: "#fff",
-    marginLeft: 10,
+    color: "#bf3d3d",
+    fontSize: 16,
+    textAlign: "center",
   },
 });

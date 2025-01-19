@@ -97,8 +97,7 @@ export default function PlantoesUserScreen() {
       <View style={styles.plantaoContainer}>
         {plantoes.length === 0 ? (
           <View style={styles.noPlantaoContainer}>
-            <MaterialIcons name="error" size={40} color="white" />
-            <Text style={styles.noPlantaoText}>Nada por aqui</Text>
+            <Text style={styles.noPlantaoText}>Nenhuma escala cadastrada</Text>
           </View>
         ) : loading ? (
           <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />

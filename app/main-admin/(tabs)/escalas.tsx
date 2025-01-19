@@ -345,7 +345,7 @@ export default function PlantoesScreen() {
           </Text>
         ) : loading ? (
           <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />
-        ) : (
+        ) : plantoes.length > 0 ? (
           <FlatList
             style={styles.flatListContainer}
             data={plantoes}
@@ -362,6 +362,8 @@ export default function PlantoesScreen() {
             keyExtractor={(item) => item.id}
             numColumns={1}
           />
+        ) : (
+          <Text style={styles.errorMessage}>Nenhuma escala cadastrada</Text>
         )}
       </View>
 

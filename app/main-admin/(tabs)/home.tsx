@@ -7,22 +7,28 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { Calendar } from "react-native-calendario";
 import { useFocusEffect } from "expo-router";
-import { Entypo, MaterialIcons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 import homeHooks from "@/src/hooks/homeHooks";
 import PlantaoItem from "@/src/components/plantaoItem";
 import styles from "@/src/styles/homeScreenStyle";
+import stylesModal from "@/src/styles/notificationModalStyle";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
+import plantoesHooks from "@/src/hooks/plantoesHooks";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isExpanded, setIsExpanded] = useState(false);
   const { markedDays, filteredPlantao, fetchPlantoes, loading } =
     homeHooks(selectedDate);
+
+  const { openModalObs, isModalObsVisible, selectedPlantao, closeModal } =
+    plantoesHooks();
 
   useFocusEffect(
     useCallback(() => {
@@ -128,8 +134,9 @@ export default function HomeScreen() {
 
           {filteredPlantao.length === 0 ? (
             <View style={styles.noPlantaoContainer}>
-              <MaterialIcons name="error" size={40} color="white" />
-              <Text style={styles.noPlantaoText}>Nada por aqui</Text>
+              <Text style={styles.noPlantaoText}>
+                Nenhuma escala cadastrada
+              </Text>
             </View>
           ) : loading ? (
             <ActivityIndicator style={{ flex: 1 }} size="small" color="white" />
@@ -137,13 +144,44 @@ export default function HomeScreen() {
             <FlatList
               data={filteredPlantao}
               renderItem={({ item }) => (
-                <PlantaoItem plantao={item} onPress={() => {}} />
+                <PlantaoItem
+                  plantao={item}
+                  onPress={() => {
+                    if (item.concluido) {
+                      openModalObs(item);
+                    }
+                  }}
+                />
               )}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.flatlistContainer}
             />
           )}
         </View>
+        <Modal visible={isModalObsVisible} transparent animationType="fade">
+          {selectedPlantao && (
+            <View style={stylesModal.overlay}>
+              <View style={stylesModal.modalContent}>
+                <Text style={stylesModal.title}>Observações do médico</Text>
+                <Text style={stylesModal.message}>
+                  {selectedPlantao.observacoes ? (
+                    selectedPlantao.observacoes
+                  ) : (
+                    <Text style={{ color: "#bf3d3d" }}>
+                      Médico não fez observações
+                    </Text>
+                  )}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => closeModal()}
+                  style={stylesModal.closeButton}
+                >
+                  <Text style={stylesModal.closeButtonText}>Fechar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </Modal>
       </View>
     </>
   );

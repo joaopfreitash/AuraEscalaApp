@@ -139,12 +139,12 @@ export default StyleSheet.create({
   noPlantaoContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    flex: 1,
+    marginTop: 30,
     alignItems: "center",
   },
   noPlantaoText: {
-    fontSize: 18,
-    color: "#fff",
-    marginLeft: 10,
+    color: "#bf3d3d",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
