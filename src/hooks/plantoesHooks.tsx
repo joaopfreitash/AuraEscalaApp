@@ -105,13 +105,17 @@ const plantoesHooks = () => {
   const fetchMedicos = async () => {
     try {
       const querySnapshot = await firestore().collection("users").get();
-
-      const medicosList = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          value: data.name,
-        };
-      });
+      const medicosList = querySnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          if (data.isDev) {
+            return null;
+          }
+          return {
+            value: data.name,
+          };
+        })
+        .filter((medico) => medico !== null);
       setItemsMedico(medicosList);
     } catch (error) {
       console.error("Erro ao buscar médicos:", error);
