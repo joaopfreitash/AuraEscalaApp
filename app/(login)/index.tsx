@@ -51,6 +51,7 @@ export default function LoginScreen() {
         alertLogin.current.showMessage({
           message: "Por favor, insira um email e uma senha válidos.",
           floating: true,
+          statusBarHeight: -5,
           type: "danger",
           duration: 4000,
           style: { alignItems: "center" },
