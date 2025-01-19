@@ -410,6 +410,7 @@ export default function PlantoesScreen() {
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContentSpinner}>
                     <DateTimePicker
+                      themeVariant="light"
                       locale="pt-BR"
                       value={date.toDate()}
                       mode="date"
@@ -451,6 +452,7 @@ export default function PlantoesScreen() {
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContentSpinner}>
                     <DateTimePicker
+                      themeVariant="light"
                       locale="pt-BR"
                       value={time.toDate()}
                       mode="time"
