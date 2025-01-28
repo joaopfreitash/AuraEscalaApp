@@ -58,6 +58,14 @@ export default function ConfiguracoesScreen() {
 
       {/* Botões para navegação */}
       <View style={styles.settingsContainer}>
+        <Link href={"../minhasescalas"} asChild>
+          <TouchableOpacity style={styles.settingItem}>
+            <Text style={styles.settingText}>Minhas escalas</Text>
+            <Entypo name="chevron-right" size={25} color="#081e27" />
+          </TouchableOpacity>
+        </Link>
+      </View>
+      <View style={styles.settingsContainer}>
         <Link href={"../locais"} asChild>
           <TouchableOpacity style={styles.settingItem}>
             <Text style={styles.settingText}>Hospitais cadastrados</Text>
