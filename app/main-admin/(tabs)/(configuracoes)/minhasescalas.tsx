@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -12,12 +12,10 @@ import {
 } from "react-native";
 
 import styles from "@/src/styles/plantoesUserScreenStyle";
-import stylesModal from "@/src/styles/notificationModalStyle";
 import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesUserHooks from "@/src/hooks/plantoesUserHooks";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
-import homeUserHooks from "@/src/hooks/homeUserHooks";
 import { useNavigation } from "expo-router";
 
 export default function MinhasEscalasScreen() {
@@ -37,19 +35,6 @@ export default function MinhasEscalasScreen() {
     submitting,
     loading,
   } = plantoesUserHooks();
-  const { isTherePlantaoNovo, updatePlantaoIdsArray, checkNewPlantao } =
-    homeUserHooks();
-
-  const [modalNotifVisible, setModalNotifVisible] = useState(false);
-
-  const handleCloseModal = () => {
-    setModalNotifVisible(false);
-    updatePlantaoIdsArray();
-  };
-
-  useEffect(() => {
-    checkNewPlantao();
-  }, []);
 
   useEffect(() => {
     if (modalVisible) {
@@ -187,28 +172,6 @@ export default function MinhasEscalasScreen() {
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
-      </Modal>
-      <Modal visible={modalNotifVisible} transparent animationType="fade">
-        <View style={stylesModal.overlay}>
-          <View style={stylesModal.modalContent}>
-            <Text style={stylesModal.title}>Notificações</Text>
-            <Text style={stylesModal.message}>
-              {isTherePlantaoNovo ? (
-                <Text style={stylesModal.simNotificacao}>
-                  Você tem novas escalas cadastradas. Verifique a aba Escalas.
-                </Text>
-              ) : (
-                "Nenhuma notificação no momento"
-              )}
-            </Text>
-            <TouchableOpacity
-              onPress={() => handleCloseModal()}
-              style={stylesModal.closeButton}
-            >
-              <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
       </Modal>
       <FlashMessage ref={alertPlantao} />
     </View>
