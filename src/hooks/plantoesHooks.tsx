@@ -14,6 +14,12 @@ const plantoesHooks = () => {
   const [isModalObsVisible, setIsModalObsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [escalas, setEscalas] = useState([{ id: 1, aberta: false }]);
+  const [modalCalendarioVisible, setModalCalendarioVisible] = useState(false);
+  const [selectedRange, setSelectedRange] = useState<{
+    startDate?: Date;
+    endDate?: Date;
+  }>({});
 
   const openModalObs = (plantao: Plantao) => {
     setSelectedPlantao(plantao); // Armazena o plantão selecionado
@@ -265,6 +271,32 @@ const plantoesHooks = () => {
     setShowTimePicker(false);
   };
 
+  const toggleEscala = (id: number) => {
+    setEscalas((prev) =>
+      prev.map((escala) =>
+        escala.id === id ? { ...escala, aberta: !escala.aberta } : escala
+      )
+    );
+  };
+
+  // Adicionar uma nova escala
+  const adicionarEscala = () => {
+    setEscalas([...escalas, { id: Date.now(), aberta: false }]); // Geração de id único com base no tempo
+  };
+
+  const deletarEscala = (id: number) => {
+    setEscalas(escalas.filter((escala) => escala.id !== id));
+  };
+
+  const handleConfirmRangeCalendario = () => {
+    setModalCalendarioVisible(false);
+    setSelectedRange({});
+  };
+
+  const handleClearRangeCalendario = () => {
+    setSelectedRange({});
+  };
+
   return {
     resetModal,
     fetchPlantoes,
@@ -315,6 +347,16 @@ const plantoesHooks = () => {
     handleTempTime,
     setModalFixaVisible,
     modalFixaVisible,
+    escalas,
+    toggleEscala,
+    adicionarEscala,
+    deletarEscala,
+    setModalCalendarioVisible,
+    modalCalendarioVisible,
+    setSelectedRange,
+    selectedRange,
+    handleConfirmRangeCalendario,
+    handleClearRangeCalendario,
   };
 };
 
