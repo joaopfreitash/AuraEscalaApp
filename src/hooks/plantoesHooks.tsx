@@ -44,6 +44,7 @@ const plantoesHooks = () => {
     { label: "Auxílio Anestesia", value: "Auxílio Anestesia" },
     { label: "Ambulatório", value: "Ambulatório" },
   ]);
+  const [modalFixaVisible, setModalFixaVisible] = useState(false);
 
   const { setSearchQuery } = searchBar();
 
@@ -312,6 +313,8 @@ const plantoesHooks = () => {
     handleTempDate,
     toggleTimePickerFalse,
     handleTempTime,
+    setModalFixaVisible,
+    modalFixaVisible,
   };
 };
 

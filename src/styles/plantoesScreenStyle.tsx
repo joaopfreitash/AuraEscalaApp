@@ -121,6 +121,7 @@ export default StyleSheet.create({
     shadowOffset: { width: 7, height: 7 },
     shadowOpacity: 0.7,
     shadowRadius: 5,
+    zIndex: 999,
   },
   addButtonText: {
     fontSize: 25,
@@ -367,5 +368,42 @@ export default StyleSheet.create({
   cancelButtonText: {
     color: "white",
     textAlign: "center",
+  },
+  popup: {
+    position: "absolute",
+    bottom: 85,
+    right: 20,
+    elevation: 5, // Sombra no Android
+    shadowColor: "#000", // Sombra no iOS
+    shadowOffset: { width: 7, height: 7 },
+    shadowOpacity: 0.7,
+    shadowRadius: 5,
+  },
+  popupText: {
+    fontSize: 16,
+    color: "#fff",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semi-transparente
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  popupButton: {
+    backgroundColor: "#081e27",
+    display: "flex",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 20,
+    zIndex: 999,
   },
 });
