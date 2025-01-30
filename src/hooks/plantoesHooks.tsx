@@ -14,7 +14,28 @@ const plantoesHooks = () => {
   const [isModalObsVisible, setIsModalObsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [escalas, setEscalas] = useState([{ id: 1, aberta: false }]);
+  const [selectedHoraFixa, setSelectedHoraFixa] = useState("");
+  const [escalas, setEscalas] = useState<
+    {
+      id: number;
+      aberta: boolean;
+      dias: Date[];
+      medico?: string;
+      local?: string;
+      funcao?: string;
+      hora?: string;
+    }[]
+  >([
+    {
+      id: 1,
+      aberta: false,
+      dias: [],
+      medico: "",
+      local: "",
+      funcao: "",
+      hora: "",
+    },
+  ]);
   const [modalCalendarioVisible, setModalCalendarioVisible] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{
     startDate?: Date;
@@ -273,28 +294,75 @@ const plantoesHooks = () => {
 
   const toggleEscala = (id: number) => {
     setEscalas((prev) =>
-      prev.map((escala) =>
-        escala.id === id ? { ...escala, aberta: !escala.aberta } : escala
+      prev.map(
+        (escala) =>
+          escala.id === id
+            ? { ...escala, aberta: !escala.aberta } // Inverte o estado da escala clicada
+            : { ...escala, aberta: false } // Fecha todas as outras escalas
       )
     );
   };
 
   // Adicionar uma nova escala
   const adicionarEscala = () => {
-    setEscalas([...escalas, { id: Date.now(), aberta: false }]); // Geração de id único com base no tempo
+    setEscalas([...escalas, { id: Date.now(), aberta: false, dias: [] }]); // Garantimos que dias é um array vazio
   };
 
   const deletarEscala = (id: number) => {
-    setEscalas(escalas.filter((escala) => escala.id !== id));
+    setEscalas((prevEscalas) =>
+      prevEscalas.filter((escala) => escala.id !== id)
+    );
   };
 
-  const handleConfirmRangeCalendario = () => {
+  const handleConfirmRangeCalendario = (id: number) => {
     setModalCalendarioVisible(false);
-    setSelectedRange({});
+    atualizarDiasEscala(id);
   };
 
   const handleClearRangeCalendario = () => {
     setSelectedRange({});
+  };
+
+  const atualizarDiasEscala = (id: number) => {
+    if (!selectedRange.startDate || !selectedRange.endDate) return;
+
+    const start = new Date(selectedRange.startDate);
+    const end = new Date(selectedRange.endDate);
+    const dias: Date[] = [];
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dias.push(new Date(d)); // Criamos cópias para evitar mutação
+    }
+
+    setEscalas((prevEscalas) =>
+      prevEscalas.map((escala) =>
+        escala.id === id ? { ...escala, dias } : escala
+      )
+    );
+  };
+
+  const atualizarEscala = (
+    id: number,
+    campo: "medico" | "local" | "funcao" | "hora",
+    valor: string
+  ) => {
+    setEscalas((prevEscalas) =>
+      prevEscalas.map((escala) =>
+        escala.id === id ? { ...escala, [campo]: valor } : escala
+      )
+    );
+
+    console.log(`Escala ID ${id} - ${campo}:`, valor);
+  };
+
+  const handleTempTimeFixa = (event: DateTimePickerEvent, time?: Date) => {
+    if (time) {
+      const formattedTimeFixa = time.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setSelectedHoraFixa(formattedTimeFixa);
+    }
   };
 
   return {
@@ -357,6 +425,9 @@ const plantoesHooks = () => {
     selectedRange,
     handleConfirmRangeCalendario,
     handleClearRangeCalendario,
+    atualizarEscala,
+    handleTempTimeFixa,
+    selectedHoraFixa,
   };
 };
 

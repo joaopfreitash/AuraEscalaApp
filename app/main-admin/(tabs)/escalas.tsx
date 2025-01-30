@@ -19,7 +19,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Dropdown } from "react-native-element-dropdown";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "expo-router";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
 import FlashMessage from "react-native-flash-message";
 
@@ -90,6 +92,10 @@ export default function PlantoesScreen() {
     setSelectedRange,
     selectedRange,
     handleConfirmRangeCalendario,
+    atualizarEscala,
+    handleClearRangeCalendario,
+    handleTempTimeFixa,
+    selectedHoraFixa,
   } = plantoesHooks();
 
   const {
@@ -517,7 +523,7 @@ export default function PlantoesScreen() {
                         onPress={toggleTimePicker}
                       >
                         <Text style={styles.textDateTimePicker}>
-                          {selectedHora ? selectedHora : "Hora"}
+                          {escala.hora ? escala.hora : "Hora"}
                         </Text>
                       </TouchableOpacity>
                       {Platform.OS === "ios" && showTimePicker && (
@@ -534,11 +540,16 @@ export default function PlantoesScreen() {
                                 value={time.toDate()}
                                 mode="time"
                                 display="spinner"
-                                onChange={handleTempTime}
+                                onChange={handleTempTimeFixa}
                               />
                               <TouchableOpacity
                                 onPress={() => {
                                   toggleTimePickerFalse();
+                                  atualizarEscala(
+                                    escala.id,
+                                    "hora",
+                                    selectedHoraFixa
+                                  );
                                 }}
                                 style={styles.confirmButton}
                               >
@@ -634,11 +645,13 @@ export default function PlantoesScreen() {
                               nonTouchableLastMonthDayTextStyle: {},
                             }}
                           />
-
                           {/* Botões de ação */}
                           <TouchableOpacity
                             style={styles.confirmButton}
-                            onPress={handleConfirmRangeCalendario}
+                            onPress={() => {
+                              handleConfirmRangeCalendario(escala.id);
+                              handleClearRangeCalendario();
+                            }}
                           >
                             <Text style={styles.buttonText}>Confirmar</Text>
                           </TouchableOpacity>
@@ -662,6 +675,7 @@ export default function PlantoesScreen() {
                       style={styles.containerMedico}
                     >
                       {renderLabelMedico()}
+                      {/* Usando onLayout no contêiner */}
                       <Dropdown
                         ref={dropdownMedicoRef}
                         style={[
@@ -675,7 +689,7 @@ export default function PlantoesScreen() {
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
                         onFocus={() => {
-                          setIsFocusMedico(true);
+                          setIsFocusMedico(true); // Marca o dropdown como em foco
                         }}
                         onBlur={() => {
                           setIsFocusMedico(false);
@@ -683,9 +697,10 @@ export default function PlantoesScreen() {
                         labelField="value"
                         valueField="value"
                         maxHeight={300}
-                        value={valueMedico}
+                        value={escala.medico}
                         onChange={(item) => {
                           setValueMedico(item.value);
+                          atualizarEscala(escala.id, "medico", item.value);
                           setIsFocusMedico(false);
                         }}
                         data={itemsMedico}
@@ -730,9 +745,9 @@ export default function PlantoesScreen() {
                         labelField="value"
                         valueField="value"
                         maxHeight={350}
-                        value={valueLocal}
+                        value={escala.local}
                         onChange={(item) => {
-                          setValueLocal(item.value);
+                          atualizarEscala(escala.id, "local", item.value);
                           setIsFocusedHospital(false);
                         }}
                         data={itemsLocal}
@@ -776,9 +791,9 @@ export default function PlantoesScreen() {
                         labelField="label"
                         valueField="value"
                         maxHeight={300}
-                        value={valueFuncao}
+                        value={escala.funcao}
                         onChange={(item) => {
-                          setValueFuncao(item.value);
+                          atualizarEscala(escala.id, "funcao", item.value);
                           setIsFocusFuncao(false);
                         }}
                         data={itemsFuncao}
