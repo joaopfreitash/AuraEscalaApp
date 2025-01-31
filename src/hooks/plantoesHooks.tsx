@@ -15,11 +15,20 @@ const plantoesHooks = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedHoraFixa, setSelectedHoraFixa] = useState("");
+  const [escalaAbertaId, setEscalaAbertaId] = useState<number | null>(null);
+  const [escalasComDataSelecionada, setEscalasComDataSelecionada] = useState<
+    number[]
+  >([]);
+  const [escalasComMedico, setEscalasComMedico] = useState<number[]>([]);
+  const [escalasComLocal, setEscalasComLocal] = useState<number[]>([]);
+  const [escalasComFuncao, setEscalasComFuncao] = useState<number[]>([]);
+  const [escalasComHora, setEscalasComHora] = useState<number[]>([]);
+
   const [escalas, setEscalas] = useState<
     {
       id: number;
       aberta: boolean;
-      dias: Date[];
+      dias: string[];
       medico?: string;
       local?: string;
       funcao?: string;
@@ -27,7 +36,7 @@ const plantoesHooks = () => {
     }[]
   >([
     {
-      id: 1,
+      id: Date.now(),
       aberta: false,
       dias: [],
       medico: "",
@@ -303,9 +312,10 @@ const plantoesHooks = () => {
     );
   };
 
-  // Adicionar uma nova escala
   const adicionarEscala = () => {
-    setEscalas([...escalas, { id: Date.now(), aberta: false, dias: [] }]); // Garantimos que dias é um array vazio
+    if (escalas.length < 5) {
+      setEscalas([...escalas, { id: Date.now(), aberta: false, dias: [] }]);
+    }
   };
 
   const deletarEscala = (id: number) => {
@@ -328,17 +338,25 @@ const plantoesHooks = () => {
 
     const start = new Date(selectedRange.startDate);
     const end = new Date(selectedRange.endDate);
-    const dias: Date[] = [];
+    const dias: string[] = [];
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dias.push(new Date(d)); // Criamos cópias para evitar mutação
+      dias.push(dayjs(d).format("YYYY-MM-DD")); // Formata para Firestore
     }
 
-    setEscalas((prevEscalas) =>
-      prevEscalas.map((escala) =>
+    setEscalas((prevEscalas) => {
+      const escalasAtualizadas = prevEscalas.map((escala) =>
         escala.id === id ? { ...escala, dias } : escala
-      )
-    );
+      );
+
+      const escalasComData = escalasAtualizadas
+        .filter((escala) => escala.dias.length > 0)
+        .map((escala) => escala.id);
+
+      setEscalasComDataSelecionada(escalasComData);
+
+      return escalasAtualizadas;
+    });
   };
 
   const atualizarEscala = (
@@ -346,13 +364,27 @@ const plantoesHooks = () => {
     campo: "medico" | "local" | "funcao" | "hora",
     valor: string
   ) => {
-    setEscalas((prevEscalas) =>
-      prevEscalas.map((escala) =>
+    setEscalas((prevEscalas) => {
+      const escalasAtualizadas = prevEscalas.map((escala) =>
         escala.id === id ? { ...escala, [campo]: valor } : escala
-      )
-    );
+      );
 
-    console.log(`Escala ID ${id} - ${campo}:`, valor);
+      // Atualiza o estado com os escalas que têm valores nos campos
+      if (campo === "medico" && valor !== "") {
+        setEscalasComMedico((prev) => [...prev, id]);
+      }
+      if (campo === "local" && valor !== "") {
+        setEscalasComLocal((prev) => [...prev, id]);
+      }
+      if (campo === "funcao" && valor !== "") {
+        setEscalasComFuncao((prev) => [...prev, id]);
+      }
+      if (campo === "hora" && valor !== "") {
+        setEscalasComHora((prev) => [...prev, id]);
+      }
+
+      return escalasAtualizadas;
+    });
   };
 
   const handleTempTimeFixa = (event: DateTimePickerEvent, time?: Date) => {
@@ -428,6 +460,14 @@ const plantoesHooks = () => {
     atualizarEscala,
     handleTempTimeFixa,
     selectedHoraFixa,
+    escalaAbertaId,
+    setEscalaAbertaId,
+    escalasComDataSelecionada,
+    setEscalasComDataSelecionada,
+    escalasComMedico,
+    escalasComFuncao,
+    escalasComHora,
+    escalasComLocal,
   };
 };
 

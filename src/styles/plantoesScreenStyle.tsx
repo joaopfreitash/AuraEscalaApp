@@ -314,6 +314,15 @@ export default StyleSheet.create({
     zIndex: 999,
     fontSize: 14,
   },
+  labelFixa: {
+    position: "absolute",
+    backgroundColor: "#012E40",
+    color: "#59994e",
+    left: 22,
+    top: -8,
+    zIndex: 999,
+    fontSize: 14,
+  },
   labelData: {
     position: "absolute",
     backgroundColor: "#012E40",
@@ -322,9 +331,27 @@ export default StyleSheet.create({
     zIndex: 999,
     fontSize: 14,
   },
+  labelDataFixa: {
+    position: "absolute",
+    backgroundColor: "#012E40",
+    color: "#59994e",
+    left: 70,
+    top: 11,
+    zIndex: 999,
+    fontSize: 14,
+  },
   labelHora: {
     position: "absolute",
     backgroundColor: "#012E40",
+    right: 100,
+    top: 11,
+    zIndex: 999,
+    fontSize: 14,
+  },
+  labelHoraFixa: {
+    position: "absolute",
+    backgroundColor: "#012E40",
+    color: "#59994e",
     right: 100,
     top: 11,
     zIndex: 999,
@@ -389,7 +416,7 @@ export default StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semi-transparente
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Fundo semi-transparente
     justifyContent: "center",
     alignItems: "center",
   },
@@ -485,5 +512,34 @@ export default StyleSheet.create({
   },
   textDropDownCalendario: {
     color: "white",
+  },
+  modalContentFixa: {
+    backgroundColor: "#012E40",
+    alignItems: "center",
+    height: "95%",
+    position: "absolute",
+    bottom: 0,
+    padding: 20,
+  },
+  confirmButtonFixa: {
+    backgroundColor: "#111827",
+    display: "flex",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 50,
+  },
+  textConfirmButtonDisabled: {
+    color: "black",
+    textAlign: "center",
+  },
+  textConfirmButtonEnabled: {
+    color: "white",
+    textAlign: "center",
   },
 });

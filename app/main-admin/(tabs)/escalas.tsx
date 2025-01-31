@@ -96,6 +96,13 @@ export default function PlantoesScreen() {
     handleClearRangeCalendario,
     handleTempTimeFixa,
     selectedHoraFixa,
+    escalaAbertaId,
+    setEscalaAbertaId,
+    escalasComDataSelecionada,
+    escalasComMedico,
+    escalasComFuncao,
+    escalasComHora,
+    escalasComLocal,
   } = plantoesHooks();
 
   const {
@@ -191,6 +198,15 @@ export default function PlantoesScreen() {
     }
     return null;
   };
+  const renderLabelDataFixa = (escalaId: number) => {
+    if (
+      escalaAbertaId === escalaId ||
+      escalasComDataSelecionada.includes(escalaId)
+    ) {
+      return <Text style={[styles.labelDataFixa]}>Data</Text>;
+    }
+    return null;
+  };
   const renderLabelHora = () => {
     if (showTimePicker) {
       return (
@@ -207,6 +223,36 @@ export default function PlantoesScreen() {
           Hora
         </Text>
       );
+    }
+    return null;
+  };
+  const renderLabelFixaMisc = (
+    escalaId: number,
+    campo: "medico" | "local" | "funcao" | "hora"
+  ) => {
+    switch (campo) {
+      case "medico":
+        if (isFocusMedico || escalasComMedico.includes(escalaId)) {
+          return <Text style={[styles.labelFixa]}>Médico</Text>;
+        }
+        break;
+      case "local":
+        if (isFocusHospital || escalasComLocal.includes(escalaId)) {
+          return <Text style={[styles.labelFixa]}>Local</Text>;
+        }
+        break;
+      case "funcao":
+        if (isFocusFuncao || escalasComFuncao.includes(escalaId)) {
+          return <Text style={[styles.labelFixa]}>Função</Text>;
+        }
+        break;
+      case "hora":
+        if (showTimePicker || escalasComHora.includes(escalaId)) {
+          return <Text style={[styles.labelHoraFixa]}>Hora</Text>;
+        }
+        break;
+      default:
+        return null;
     }
     return null;
   };
@@ -464,7 +510,7 @@ export default function PlantoesScreen() {
         transparent={true}
         visible={modalFixaVisible}
       >
-        <View style={styles.modalContent}>
+        <View style={styles.modalContentFixa}>
           <View style={styles.headerContainer}>
             <Text style={styles.modalTitle}>Cadastrar repetição</Text>
             <TouchableOpacity
@@ -476,7 +522,11 @@ export default function PlantoesScreen() {
               <Ionicons name="close-circle" size={33} color={"#bf3d3d"} />
             </TouchableOpacity>
           </View>
-          <ScrollView style={styles.scrollContainer}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 500 }}
+            style={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {escalas.map((escala) => (
               <View key={escala.id}>
                 {/* Botão expansível */}
@@ -487,9 +537,28 @@ export default function PlantoesScreen() {
                   >
                     <Text style={styles.escalaText}>Nova escala fixa</Text>
                     <Ionicons
-                      name={escala.aberta ? "chevron-up" : "chevron-down"}
+                      name={
+                        // Verificando se todos os campos estão preenchidos
+                        escala.dias.length > 0 &&
+                        escala.hora &&
+                        escala.medico &&
+                        escala.local &&
+                        escala.funcao
+                          ? "checkmark-circle" // Se todos os valores estão preenchidos
+                          : escala.aberta
+                          ? "chevron-up" // Se a escala está aberta
+                          : "chevron-down" // Caso contrário
+                      }
                       size={24}
-                      color="white"
+                      color={
+                        escala.dias.length > 0 &&
+                        escala.hora &&
+                        escala.medico &&
+                        escala.local &&
+                        escala.funcao
+                          ? "#59994e"
+                          : "white"
+                      } // Cor verde se completa, branca caso contrário
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -503,20 +572,30 @@ export default function PlantoesScreen() {
                   <View style={styles.escalaContent}>
                     {/* Botão para abrir o calendário */}
                     <View style={styles.containerDataHora}>
+                      {renderLabelDataFixa(escala.id)}
                       <TouchableOpacity
-                        style={styles.dropdownEscalaFixa}
-                        onPress={() => setModalCalendarioVisible(true)}
+                        style={[
+                          styles.dropdownEscalaFixa,
+                          escala.dias.length > 0 && { borderColor: "#59994e" },
+                        ]}
+                        onPress={() => {
+                          setEscalaAbertaId(escala.id); // Define a escala ativa ao clicar
+                          setModalCalendarioVisible(true);
+                        }}
                       >
                         <Text style={styles.textDropDownCalendario}>
-                          Calendário
+                          {escala.dias.length > 0
+                            ? `${escala.dias.length} dias`
+                            : "Calendário"}
                         </Text>
                       </TouchableOpacity>
 
                       {/* Seletor de Hora */}
+                      {renderLabelFixaMisc(escala.id, "hora")}
                       <TouchableOpacity
                         style={[
                           styles.buttonSeletor,
-                          (showTimePicker || selectedHora) && {
+                          (showTimePicker || escala.hora) && {
                             borderColor: "#59994e",
                           },
                         ]}
@@ -674,13 +753,13 @@ export default function PlantoesScreen() {
                       }}
                       style={styles.containerMedico}
                     >
-                      {renderLabelMedico()}
                       {/* Usando onLayout no contêiner */}
+                      {renderLabelFixaMisc(escala.id, "medico")}
                       <Dropdown
                         ref={dropdownMedicoRef}
                         style={[
                           styles.dropdown,
-                          (isFocusMedico || valueMedico) && {
+                          (escala.medico || isFocusMedico) && {
                             borderColor: "#59994e",
                           },
                         ]}
@@ -727,12 +806,12 @@ export default function PlantoesScreen() {
                       }}
                       style={styles.containerLocal}
                     >
-                      {renderLabelLocal()}
+                      {renderLabelFixaMisc(escala.id, "local")}
                       <Dropdown
                         ref={dropdownLocalRef}
                         style={[
                           styles.dropdown,
-                          (isFocusHospital || valueLocal) && {
+                          (escala.local || isFocusHospital) && {
                             borderColor: "#59994e",
                           },
                         ]}
@@ -774,12 +853,12 @@ export default function PlantoesScreen() {
                       }}
                       style={styles.containerFuncao}
                     >
-                      {renderLabelFuncao()}
+                      {renderLabelFixaMisc(escala.id, "funcao")}
                       <Dropdown
                         ref={dropdownFuncaoRef}
                         style={[
                           styles.dropdown,
-                          (isFocusFuncao || valueFuncao) && {
+                          (escala.funcao || isFocusFuncao) && {
                             borderColor: "#59994e",
                           },
                         ]}
@@ -809,11 +888,54 @@ export default function PlantoesScreen() {
             ))}
 
             {/* Botão para adicionar mais escalas */}
+            {escalas.length < 5 && (
+              <TouchableOpacity
+                style={styles.addButtonFixa}
+                onPress={adicionarEscala}
+              >
+                <Entypo name="add-to-list" size={24} color="white" />
+              </TouchableOpacity>
+            )}
+            {/* Botão "Confirmar" */}
             <TouchableOpacity
-              style={styles.addButtonFixa}
-              onPress={adicionarEscala}
+              style={[
+                styles.confirmButtonFixa,
+                !escalas.some(
+                  (escala) =>
+                    escala.dias.length > 0 &&
+                    escala.hora &&
+                    escala.medico &&
+                    escala.local &&
+                    escala.funcao
+                ) && styles.buttonDisabled,
+              ]}
+              disabled={
+                !escalas.some(
+                  (escala) =>
+                    escala.dias.length > 0 &&
+                    escala.hora &&
+                    escala.medico &&
+                    escala.local &&
+                    escala.funcao
+                )
+              }
             >
-              <Entypo name="add-to-list" size={24} color="white" />
+              <Text
+                style={[
+                  !escalas.some(
+                    (escala) =>
+                      escala.dias.length > 0 &&
+                      escala.hora &&
+                      escala.medico &&
+                      escala.local &&
+                      escala.funcao
+                  )
+                    ? styles.textConfirmButtonDisabled // Estilo do texto quando o botão está desabilitado
+                    : styles.textConfirmButtonEnabled, // Estilo do texto quando o botão está habilitado
+                ]}
+              >
+                Confirmar
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
