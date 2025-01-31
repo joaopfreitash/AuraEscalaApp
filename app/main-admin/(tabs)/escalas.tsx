@@ -14,6 +14,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   ScrollView,
+  Touchable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Dropdown } from "react-native-element-dropdown";
@@ -103,6 +104,11 @@ export default function PlantoesScreen() {
     escalasComFuncao,
     escalasComHora,
     escalasComLocal,
+    handleRegisterFixedShift,
+    showModalAtencao,
+    modalAtencaoTitle,
+    modalAtencaoMessage,
+    setShowModalAtencao,
   } = plantoesHooks();
 
   const {
@@ -909,6 +915,22 @@ export default function PlantoesScreen() {
                     escala.funcao
                 ) && styles.buttonDisabled,
               ]}
+              onPress={() => {
+                const escalasCompletas = escalas.filter(
+                  (escala) =>
+                    escala.dias.length > 0 &&
+                    escala.hora &&
+                    escala.medico &&
+                    escala.local &&
+                    escala.funcao
+                );
+
+                if (escalasCompletas.length > 0) {
+                  handleRegisterFixedShift(); // Chama a função apenas uma vez
+                } else {
+                  console.error("Nenhuma escala completa encontrada.");
+                }
+              }}
               disabled={
                 !escalas.some(
                   (escala) =>
@@ -937,6 +959,28 @@ export default function PlantoesScreen() {
                 Confirmar
               </Text>
             </TouchableOpacity>
+            <Modal visible={showModalAtencao} transparent animationType="fade">
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalAtencaoContent}>
+                  <Text style={styles.modalAtencaoTitle}>
+                    {modalAtencaoTitle}
+                  </Text>
+
+                  <ScrollView>
+                    <Text style={styles.modalAtencaoMessage}>
+                      {modalAtencaoMessage}
+                    </Text>
+                  </ScrollView>
+
+                  <TouchableOpacity
+                    onPress={() => setShowModalAtencao(false)}
+                    style={stylesModal.closeButton}
+                  >
+                    <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </ScrollView>
         </View>
       </Modal>

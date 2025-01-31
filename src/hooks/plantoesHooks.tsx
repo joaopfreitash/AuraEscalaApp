@@ -266,6 +266,169 @@ const plantoesHooks = () => {
     }
   };
 
+  const [modalAtencaoTitle, setModalAtencaoTitle] = useState("");
+  const [modalAtencaoMessage, setModalAtencaoMessage] = useState("");
+  const [showModalAtencao, setShowModalAtencao] = useState(false);
+
+  const abrirModalAtencao = (titulo: any, mensagem: any) => {
+    setModalAtencaoTitle(titulo);
+    setModalAtencaoMessage(mensagem);
+    setShowModalAtencao(true);
+  };
+
+  const handleRegisterFixedShift = async () => {
+    setSubmitting(true);
+    let escalasNaoCadastradas = []; // Armazena as escalas já existentes
+
+    try {
+      console.log("Iniciando cadastro de escala fixa...");
+      setIsButtonEnabled(false);
+
+      // Itera sobre as escalas para processar uma por uma
+      for (const escala of escalas) {
+        const { medico, local, dias, funcao, hora } = escala;
+
+        // Validação dos dados obrigatórios
+        if (!medico || !local || !dias?.length || !funcao || !hora) {
+          console.error("Faltando dados obrigatórios para registrar a escala.");
+          throw new Error("Dados obrigatórios não fornecidos.");
+        }
+
+        // Buscar o médico pelo nome
+        const medicoSnapshot = await firestore()
+          .collection("users")
+          .where("name", "==", medico)
+          .get();
+
+        if (medicoSnapshot.empty) {
+          console.error("Médico não encontrado.");
+          throw new Error("Médico não encontrado.");
+        }
+        const medicoDoc = medicoSnapshot.docs[0];
+        const medicoUid = medicoDoc.id;
+
+        // Buscar o hospital pelo nome
+        const localSnapshot = await firestore()
+          .collection("hospitais")
+          .where("name", "==", local)
+          .get();
+
+        if (localSnapshot.empty) {
+          console.error("Hospital não encontrado.");
+          throw new Error("Hospital não encontrado.");
+        }
+        const localDoc = localSnapshot.docs[0];
+        const localUid = localDoc.id;
+
+        // Processa cada dia e cria uma escala separada
+        for (const dia of dias) {
+          // Verifica se a escala já existe
+          const existingShiftSnapshot = await firestore()
+            .collection("plantoes")
+            .where("data", "==", dia)
+            .where("medicoUid", "==", medicoUid)
+            .where("localUid", "==", localUid)
+            .get();
+
+          console.log(
+            `Consultando escala para o dia ${dia}:`,
+            existingShiftSnapshot.size,
+            "registros encontrados"
+          );
+
+          if (!existingShiftSnapshot.empty) {
+            const formattedDateFixa = dayjs(dia).format("DD/MM/YYYY");
+            escalasNaoCadastradas.push(
+              `${medico} no dia ${formattedDateFixa}\n`
+            );
+            continue;
+          }
+
+          // Cria nova escala
+          const shiftsDocRef = firestore().collection("plantoes").doc();
+          const shiftId = shiftsDocRef.id;
+
+          try {
+            await shiftsDocRef.set({
+              plantonista: medico,
+              local,
+              data: dia,
+              horario: hora,
+              funcao,
+              createdAt: firestore.FieldValue.serverTimestamp(),
+              medicoUid,
+              localUid,
+              escalafixa: true,
+              concluido: false,
+            });
+
+            console.log(`Escala cadastrada com sucesso para o dia ${dia}`);
+
+            // Atualiza o médico com a nova escala
+            const medicoRef = firestore().collection("users").doc(medicoUid);
+            await medicoRef.update({
+              plantaoIdsNovos: firestore.FieldValue.arrayUnion(shiftId),
+            });
+            console.log(`Médico atualizado com a nova escala: ${medicoUid}`);
+
+            // Atualiza o hospital com a nova escala
+            const localRef = firestore().collection("hospitais").doc(localUid);
+            await localRef.update({
+              plantaoIdsH: firestore.FieldValue.arrayUnion(shiftId),
+            });
+            console.log(`Hospital atualizado com a nova escala: ${localUid}`);
+          } catch (error) {
+            console.error(
+              `Erro ao cadastrar a escala para o dia ${dia}:`,
+              error
+            );
+            throw error;
+          }
+        }
+      }
+
+      // Finaliza o processo
+      resetModal();
+      fetchPlantoes(isConcluido);
+
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Escala fixa cadastrada com sucesso!",
+          type: "success",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+
+      // Exibir modal se houver escalas não cadastradas
+      if (escalasNaoCadastradas.length > 0) {
+        const mensagem = `As seguintes escalas não foram cadastradas, o(s) médico(s) já apresentam escalas nesse dia:\n\n${escalasNaoCadastradas.join(
+          "\n"
+        )}`;
+
+        abrirModalAtencao("Atenção", mensagem);
+      }
+    } catch (error) {
+      console.error("Erro ao cadastrar escala fixa:", error);
+      resetModal();
+
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Ocorreu um erro, tente novamente.",
+          type: "danger",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    } finally {
+      setSubmitting(false);
+      setIsButtonEnabled(true); // Reativa o botão após o processo
+      console.log("Cadastro finalizado.");
+    }
+  };
+
   const handleTempDate = (event: DateTimePickerEvent, date?: Date) => {
     if (date) {
       const formattedDate = dayjs(date).format("YYYY-MM-DD");
@@ -468,6 +631,11 @@ const plantoesHooks = () => {
     escalasComFuncao,
     escalasComHora,
     escalasComLocal,
+    handleRegisterFixedShift,
+    showModalAtencao,
+    modalAtencaoTitle,
+    modalAtencaoMessage,
+    setShowModalAtencao,
   };
 };
 

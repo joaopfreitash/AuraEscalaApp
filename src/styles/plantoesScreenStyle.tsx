@@ -542,4 +542,23 @@ export default StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
+  modalAtencaoContent: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "center",
+    maxHeight: 500,
+  },
+  modalAtencaoTitle: {
+    fontSize: 18,
+    color: "#bf3d3d",
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalAtencaoMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
 });
