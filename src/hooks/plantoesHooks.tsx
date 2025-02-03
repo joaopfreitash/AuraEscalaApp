@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
 import FlashMessage from "react-native-flash-message";
 import { Plantao } from "../types";
@@ -279,22 +279,11 @@ const plantoesHooks = () => {
   const handleRegisterFixedShift = async () => {
     setSubmitting(true);
     let escalasNaoCadastradas = []; // Armazena as escalas já existentes
-
     try {
-      console.log("Iniciando cadastro de escala fixa...");
       setIsButtonEnabled(false);
-
-      // Itera sobre as escalas para processar uma por uma
       for (const escala of escalas) {
         const { medico, local, dias, funcao, hora } = escala;
 
-        // Validação dos dados obrigatórios
-        if (!medico || !local || !dias?.length || !funcao || !hora) {
-          console.error("Faltando dados obrigatórios para registrar a escala.");
-          throw new Error("Dados obrigatórios não fornecidos.");
-        }
-
-        // Buscar o médico pelo nome
         const medicoSnapshot = await firestore()
           .collection("users")
           .where("name", "==", medico)
@@ -327,19 +316,13 @@ const plantoesHooks = () => {
             .collection("plantoes")
             .where("data", "==", dia)
             .where("medicoUid", "==", medicoUid)
-            .where("localUid", "==", localUid)
+            .where("horario", "==", hora)
             .get();
-
-          console.log(
-            `Consultando escala para o dia ${dia}:`,
-            existingShiftSnapshot.size,
-            "registros encontrados"
-          );
 
           if (!existingShiftSnapshot.empty) {
             const formattedDateFixa = dayjs(dia).format("DD/MM/YYYY");
             escalasNaoCadastradas.push(
-              `${medico} no dia ${formattedDateFixa}\n`
+              `${medico} no dia ${formattedDateFixa} às ${hora}\n`
             );
             continue;
           }
@@ -362,21 +345,17 @@ const plantoesHooks = () => {
               concluido: false,
             });
 
-            console.log(`Escala cadastrada com sucesso para o dia ${dia}`);
-
             // Atualiza o médico com a nova escala
             const medicoRef = firestore().collection("users").doc(medicoUid);
             await medicoRef.update({
               plantaoIdsNovos: firestore.FieldValue.arrayUnion(shiftId),
             });
-            console.log(`Médico atualizado com a nova escala: ${medicoUid}`);
 
             // Atualiza o hospital com a nova escala
             const localRef = firestore().collection("hospitais").doc(localUid);
             await localRef.update({
               plantaoIdsH: firestore.FieldValue.arrayUnion(shiftId),
             });
-            console.log(`Hospital atualizado com a nova escala: ${localUid}`);
           } catch (error) {
             console.error(
               `Erro ao cadastrar a escala para o dia ${dia}:`,
@@ -386,10 +365,29 @@ const plantoesHooks = () => {
           }
         }
       }
-
-      // Finaliza o processo
-      resetModal();
       fetchPlantoes(isConcluido);
+
+      if (escalasNaoCadastradas.length > 0) {
+        const mensagem = `As seguintes escalas não foram cadastradas, o(s) médico(s) já apresentam escalas nesse dia:\n\n${escalasNaoCadastradas.join(
+          "\n"
+        )}`;
+
+        if (alertPlantao.current) {
+          alertPlantao.current.showMessage({
+            message:
+              "Algumas escalas não foram cadastradas. Verifique as datas.",
+            type: "warning", // Tipo de alerta alterado para "warning"
+            floating: false,
+            duration: 4000,
+            style: { alignItems: "center", backgroundColor: "#FFC107" }, // Cor de fundo amarelo
+          });
+        }
+        setModalFixaVisible(false);
+        setTimeout(() => {
+          abrirModalAtencao("Atenção", mensagem);
+        }, 1000); // Atraso de 300ms
+        return;
+      }
 
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
@@ -400,19 +398,8 @@ const plantoesHooks = () => {
           style: { alignItems: "center" },
         });
       }
-
-      // Exibir modal se houver escalas não cadastradas
-      if (escalasNaoCadastradas.length > 0) {
-        const mensagem = `As seguintes escalas não foram cadastradas, o(s) médico(s) já apresentam escalas nesse dia:\n\n${escalasNaoCadastradas.join(
-          "\n"
-        )}`;
-
-        abrirModalAtencao("Atenção", mensagem);
-      }
     } catch (error) {
       console.error("Erro ao cadastrar escala fixa:", error);
-      resetModal();
-
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
           message: "Ocorreu um erro, tente novamente.",
@@ -424,8 +411,7 @@ const plantoesHooks = () => {
       }
     } finally {
       setSubmitting(false);
-      setIsButtonEnabled(true); // Reativa o botão após o processo
-      console.log("Cadastro finalizado.");
+      setIsButtonEnabled(true);
     }
   };
 
@@ -489,37 +475,88 @@ const plantoesHooks = () => {
 
   const handleConfirmRangeCalendario = (id: number) => {
     setModalCalendarioVisible(false);
+    setSelectedWeekdays([]);
     atualizarDiasEscala(id);
   };
 
-  const handleClearRangeCalendario = () => {
-    setSelectedRange({});
+  const weekdays = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ];
+
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    new Date().getMonth()
+  );
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
+
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+
+  const toggleWeekday = (dayIndex: number) => {
+    setSelectedWeekdays((prev) =>
+      prev.includes(dayIndex)
+        ? prev.filter((d) => d !== dayIndex)
+        : [...prev, dayIndex]
+    );
   };
 
-  const atualizarDiasEscala = (id: number) => {
-    if (!selectedRange.startDate || !selectedRange.endDate) return;
+  useEffect(() => {
+    if (selectedDates.length > 0) {
+      // Quando selectedDates for atualizado, atualiza as escalas
+      setEscalas((prevEscalas) => {
+        const escalasAtualizadas = prevEscalas.map((escala) =>
+          escala.id === escalaAbertaId
+            ? {
+                ...escala,
+                dias: selectedDates.map((date) =>
+                  dayjs(date).format("YYYY-MM-DD")
+                ),
+              }
+            : escala
+        );
 
-    const start = new Date(selectedRange.startDate);
-    const end = new Date(selectedRange.endDate);
-    const dias: string[] = [];
+        const escalasComData = escalasAtualizadas
+          .filter((escala) => escala.dias.length > 0)
+          .map((escala) => escala.id);
 
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dias.push(dayjs(d).format("YYYY-MM-DD")); // Formata para Firestore
+        setEscalasComDataSelecionada(escalasComData);
+        return escalasAtualizadas;
+      });
     }
+  }, [selectedDates]); // Dependência no selectedDates
 
-    setEscalas((prevEscalas) => {
-      const escalasAtualizadas = prevEscalas.map((escala) =>
-        escala.id === id ? { ...escala, dias } : escala
-      );
+  const atualizarDiasEscala = (id: number) => {
+    const dates: Date[] = [];
+    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
-      const escalasComData = escalasAtualizadas
-        .filter((escala) => escala.dias.length > 0)
-        .map((escala) => escala.id);
-
-      setEscalasComDataSelecionada(escalasComData);
-
-      return escalasAtualizadas;
-    });
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(selectedYear, selectedMonth, day);
+      if (selectedWeekdays.includes(date.getDay())) {
+        dates.push(date);
+      }
+    }
+    setSelectedDates(dates); // Atualiza selectedDates
   };
 
   const atualizarEscala = (
@@ -619,7 +656,6 @@ const plantoesHooks = () => {
     setSelectedRange,
     selectedRange,
     handleConfirmRangeCalendario,
-    handleClearRangeCalendario,
     atualizarEscala,
     handleTempTimeFixa,
     selectedHoraFixa,
@@ -636,6 +672,18 @@ const plantoesHooks = () => {
     modalAtencaoTitle,
     modalAtencaoMessage,
     setShowModalAtencao,
+    selectedMonth,
+    setSelectedMonth,
+    setSelectedYear,
+    monthNames,
+    selectedYear,
+    selectedWeekdays,
+    toggleWeekday,
+    selectedDates,
+    weekdays,
+    setEscalas,
+    setLoading,
+    abrirModalAtencao,
   };
 };
 

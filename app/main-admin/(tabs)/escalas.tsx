@@ -14,15 +14,13 @@ import {
   Platform,
   TouchableWithoutFeedback,
   ScrollView,
-  Touchable,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Dropdown } from "react-native-element-dropdown";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "expo-router";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
 import FlashMessage from "react-native-flash-message";
 
@@ -37,7 +35,6 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import searchBar from "@/src/utils/searchBar";
-import { Calendar } from "react-native-calendario";
 
 export default function PlantoesScreen() {
   const {
@@ -90,11 +87,8 @@ export default function PlantoesScreen() {
     deletarEscala,
     setModalCalendarioVisible,
     modalCalendarioVisible,
-    setSelectedRange,
-    selectedRange,
     handleConfirmRangeCalendario,
     atualizarEscala,
-    handleClearRangeCalendario,
     handleTempTimeFixa,
     selectedHoraFixa,
     escalaAbertaId,
@@ -109,6 +103,16 @@ export default function PlantoesScreen() {
     modalAtencaoTitle,
     modalAtencaoMessage,
     setShowModalAtencao,
+    selectedMonth,
+    setSelectedMonth,
+    setSelectedYear,
+    monthNames,
+    selectedYear,
+    selectedWeekdays,
+    toggleWeekday,
+    weekdays,
+    setEscalas,
+    setLoading,
   } = plantoesHooks();
 
   const {
@@ -521,7 +525,6 @@ export default function PlantoesScreen() {
             <Text style={styles.modalTitle}>Cadastrar repetição</Text>
             <TouchableOpacity
               onPress={() => {
-                resetModal();
                 setModalFixaVisible(false);
               }}
             >
@@ -592,7 +595,7 @@ export default function PlantoesScreen() {
                         <Text style={styles.textDropDownCalendario}>
                           {escala.dias.length > 0
                             ? `${escala.dias.length} dias`
-                            : "Calendário"}
+                            : "Dias"}
                         </Text>
                       </TouchableOpacity>
 
@@ -657,88 +660,107 @@ export default function PlantoesScreen() {
                     >
                       <View style={styles.modalOverlay}>
                         <View style={styles.modalContentCalendario}>
-                          <Text style={styles.modalTitleCalendario}>
-                            Selecione os dias
-                          </Text>
-                          <Calendar
-                            locale="br"
-                            onPress={(date) => {
-                              if (!selectedRange.startDate) {
-                                setSelectedRange({ startDate: date });
-                              } else if (
-                                !selectedRange.endDate &&
-                                date > selectedRange.startDate
-                              ) {
-                                setSelectedRange({
-                                  ...selectedRange,
-                                  endDate: date,
-                                });
-                              } else {
-                                setSelectedRange({ startDate: date });
-                              }
-                            }}
-                            minDate={new Date()}
-                            startDate={selectedRange.startDate}
-                            endDate={selectedRange.endDate}
-                            theme={{
-                              activeDayColor: "red",
-                              monthTitleTextStyle: {
-                                color: "white",
-                                fontWeight: "bold",
-                                fontSize: 25,
-                              },
-                              emptyMonthContainerStyle: {},
-                              emptyMonthTextStyle: {
-                                fontWeight: "200",
-                              },
-                              weekColumnsContainerStyle: {},
-                              weekColumnStyle: {
-                                paddingVertical: 10,
-                              },
-                              weekColumnTextStyle: {
-                                color: "#b6c1cd",
-                                fontSize: 13,
-                              },
-                              nonTouchableDayContainerStyle: {},
-                              nonTouchableDayTextStyle: {
-                                color: "#2d4150",
-                              },
-                              startDateContainerStyle: {},
-                              endDateContainerStyle: {},
-                              dayContainerStyle: {
-                                backgroundColor: "#012E40",
-                              },
-                              dayTextStyle: {
-                                color: "white",
-                                fontSize: 15,
-                              },
-                              dayOutOfRangeContainerStyle: {},
-                              dayOutOfRangeTextStyle: {},
-                              todayContainerStyle: {},
-                              todayTextStyle: {
-                                color: "#6d95da",
-                                fontWeight: "bold",
-                              },
-                              activeDayContainerStyle: {
-                                backgroundColor: "#1A4D5C",
-                                borderRadius: 30,
-                              },
-                              activeDayTextStyle: {
-                                color: "white",
-                                fontWeight: "bold",
-                              },
-                              nonTouchableLastMonthDayTextStyle: {},
-                            }}
-                          />
-                          {/* Botões de ação */}
-                          <TouchableOpacity
-                            style={styles.confirmButton}
-                            onPress={() => {
-                              handleConfirmRangeCalendario(escala.id);
-                              handleClearRangeCalendario();
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
                             }}
                           >
-                            <Text style={styles.buttonText}>Confirmar</Text>
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (selectedMonth === 0) {
+                                  setSelectedMonth(11);
+                                  setSelectedYear((prev) => prev - 1); // Volta para dezembro do ano anterior
+                                } else {
+                                  setSelectedMonth((prev) => prev - 1);
+                                }
+                              }}
+                            >
+                              <FontAwesome6
+                                name="circle-chevron-left"
+                                size={26}
+                                color="white"
+                              />
+                            </TouchableOpacity>
+
+                            <Text
+                              style={{
+                                fontSize: 18,
+                                fontWeight: "bold",
+                                color: "white",
+                              }}
+                            >
+                              {`${monthNames[selectedMonth]} ${selectedYear}`}
+                            </Text>
+
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (selectedMonth === 11) {
+                                  setSelectedMonth(0);
+                                  setSelectedYear((prev) => prev + 1); // Avança para janeiro do próximo ano
+                                } else {
+                                  setSelectedMonth((prev) => prev + 1);
+                                }
+                              }}
+                            >
+                              <FontAwesome6
+                                name="circle-chevron-right"
+                                size={26}
+                                color="white"
+                              />
+                            </TouchableOpacity>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "column",
+                              marginTop: 20,
+                            }}
+                          >
+                            {weekdays.map((day, index) => (
+                              <View
+                                key={index}
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  marginTop: 10,
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: "white",
+                                  }}
+                                >
+                                  {day}
+                                </Text>
+                                <Switch
+                                  value={selectedWeekdays.includes(index)}
+                                  onValueChange={() => toggleWeekday(index)}
+                                />
+                              </View>
+                            ))}
+                          </View>
+                          <TouchableOpacity
+                            onPress={() => {
+                              handleConfirmRangeCalendario(escala.id);
+                            }}
+                            style={[
+                              styles.confirmButton,
+                              selectedWeekdays.length === 0 &&
+                                styles.buttonDisabled, // Desabilita o botão se nenhum switch estiver ativo
+                            ]}
+                            disabled={selectedWeekdays.length === 0} // Desabilita o botão se nenhum switch estiver ativo
+                          >
+                            <Text
+                              style={[
+                                { color: "white", textAlign: "center" },
+                                selectedWeekdays.length === 0 &&
+                                  styles.textConfirmButtonDisabled, // Aplica o estilo de texto desabilitado se nenhum switch estiver ativo
+                              ]}
+                            >
+                              Confirmar
+                            </Text>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -906,16 +928,18 @@ export default function PlantoesScreen() {
             <TouchableOpacity
               style={[
                 styles.confirmButtonFixa,
-                !escalas.some(
-                  (escala) =>
-                    escala.dias.length > 0 &&
-                    escala.hora &&
-                    escala.medico &&
-                    escala.local &&
-                    escala.funcao
-                ) && styles.buttonDisabled,
+                (loading ||
+                  !escalas.some(
+                    (escala) =>
+                      escala.dias.length > 0 &&
+                      escala.hora &&
+                      escala.medico &&
+                      escala.local &&
+                      escala.funcao
+                  )) &&
+                  styles.buttonDisabled,
               ]}
-              onPress={() => {
+              onPress={async () => {
                 const escalasCompletas = escalas.filter(
                   (escala) =>
                     escala.dias.length > 0 &&
@@ -926,7 +950,11 @@ export default function PlantoesScreen() {
                 );
 
                 if (escalasCompletas.length > 0) {
-                  handleRegisterFixedShift(); // Chama a função apenas uma vez
+                  setLoading(true); // Ativa o estado de carregamento
+                  await handleRegisterFixedShift(); // Chama a função e aguarda a resposta
+                  setModalFixaVisible(false);
+                  setEscalas([]);
+                  setLoading(false);
                 } else {
                   console.error("Nenhuma escala completa encontrada.");
                 }
@@ -939,48 +967,37 @@ export default function PlantoesScreen() {
                     escala.medico &&
                     escala.local &&
                     escala.funcao
-                )
+                ) || loading
               }
             >
-              <Text
-                style={[
-                  !escalas.some(
-                    (escala) =>
-                      escala.dias.length > 0 &&
-                      escala.hora &&
-                      escala.medico &&
-                      escala.local &&
-                      escala.funcao
-                  )
-                    ? styles.textConfirmButtonDisabled // Estilo do texto quando o botão está desabilitado
-                    : styles.textConfirmButtonEnabled, // Estilo do texto quando o botão está habilitado
-                ]}
-              >
-                Confirmar
-              </Text>
-            </TouchableOpacity>
-            <Modal visible={showModalAtencao} transparent animationType="fade">
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalAtencaoContent}>
-                  <Text style={styles.modalAtencaoTitle}>
-                    {modalAtencaoTitle}
-                  </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    loading ||
+                    !escalas.some(
+                      (escala) =>
+                        escala.dias.length > 0 &&
+                        escala.hora &&
+                        escala.medico &&
+                        escala.local &&
+                        escala.funcao
+                    )
+                      ? styles.textConfirmButtonDisabled
+                      : styles.textConfirmButtonEnabled,
+                  ]}
+                >
+                  Confirmar
+                </Text>
 
-                  <ScrollView>
-                    <Text style={styles.modalAtencaoMessage}>
-                      {modalAtencaoMessage}
-                    </Text>
-                  </ScrollView>
-
-                  <TouchableOpacity
-                    onPress={() => setShowModalAtencao(false)}
-                    style={stylesModal.closeButton}
-                  >
-                    <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
-                  </TouchableOpacity>
-                </View>
+                {loading && (
+                  <ActivityIndicator
+                    style={{ marginLeft: 10 }}
+                    size="small"
+                    color="black"
+                  />
+                )}
               </View>
-            </Modal>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </Modal>
@@ -1285,6 +1302,26 @@ export default function PlantoesScreen() {
             </View>
           </View>
         )}
+      </Modal>
+      <Modal visible={showModalAtencao} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalAtencaoContent}>
+            <Text style={styles.modalAtencaoTitle}>{modalAtencaoTitle}</Text>
+
+            <ScrollView>
+              <Text style={styles.modalAtencaoMessage}>
+                {modalAtencaoMessage}
+              </Text>
+            </ScrollView>
+
+            <TouchableOpacity
+              onPress={() => setShowModalAtencao(false)}
+              style={stylesModal.closeButton}
+            >
+              <Text style={stylesModal.closeButtonText}>Ok, entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
       <FlashMessage ref={alertPlantao} />
     </View>
