@@ -204,7 +204,7 @@ export default function LocaisScreen() {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>+</Text>
+        <FontAwesome6 name="add" size={20} color="black" />
       </TouchableOpacity>
 
       {/* Modal */}
