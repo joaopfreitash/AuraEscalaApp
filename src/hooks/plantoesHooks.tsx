@@ -487,23 +487,31 @@ const plantoesHooks = () => {
 
   const handleConfirmRangeCalendario = (id: number) => {
     setShowSelectedDatesView(false);
-    setModalCalendarioVisible(false);
     atualizarDiasEscala(id);
     setSelectedWeekdays([]);
   };
 
   const handleConfirmRangeProximo = (id: number) => {
     atualizarDiasEscala(id);
-    setShowSelectedDatesView(true);
+    setModalCalendarioVisible(false);
+    setTimeout(() => {
+      setShowSelectedDatesView(true);
+    }, 500); // Atraso de 300ms
   };
 
-  const [removedDates, setRemovedDates] = useState<Date[]>([]);
+  const [removedDates, setRemovedDates] = useState<{ [key: number]: Date[] }>(
+    {}
+  );
 
-  const removeDate = (dateToRemove: Date) => {
+  const removeDate = (dateToRemove: Date, escalaId: number) => {
     setSelectedDates((prevDates) =>
       prevDates.filter((date) => date.getTime() !== dateToRemove.getTime())
     );
-    setRemovedDates((prev) => [...prev, dateToRemove]); // Salva a data removida
+
+    setRemovedDates((prev) => ({
+      ...prev,
+      [escalaId]: [...(prev[escalaId] || []), dateToRemove],
+    }));
   };
 
   const weekdays = [
@@ -578,11 +586,15 @@ const plantoesHooks = () => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(selectedYear, selectedMonth, day);
+      const escalaRemovedDates = removedDates[id] || []; // Obtém datas removidas da escala atual
+
       if (
         selectedWeekdays.includes(date.getDay()) &&
-        !removedDates.some((removed) => removed.getTime() === date.getTime())
+        !escalaRemovedDates.some(
+          (removed) => removed.getTime() === date.getTime()
+        )
       ) {
-        dates.push(date); // Só adiciona se não estiver na lista de removidas
+        dates.push(date);
       }
     }
     setSelectedDates(dates);
@@ -634,7 +646,7 @@ const plantoesHooks = () => {
         .doc(plantaoId)
         .get();
       if (!shiftDoc.exists) {
-        throw new Error("Plantão não encontrado.");
+        throw new Error("Escala não encontrada.");
       }
       const shiftData = shiftDoc.data();
       const medicoUid = shiftData?.medicoUid;
@@ -664,7 +676,7 @@ const plantoesHooks = () => {
       fetchPlantoes(isConcluido); // Atualiza a lista
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-          message: "Plantão excluído com sucesso!",
+          message: "Escala excluída com sucesso!",
           type: "success",
           floating: false,
           duration: 4000,
@@ -672,10 +684,10 @@ const plantoesHooks = () => {
         });
       }
     } catch (error) {
-      console.error("Erro ao deletar o plantão:", error);
+      console.error("Erro ao deletar escala:", error);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
-          message: "Erro ao excluir plantão. Tente novamente.",
+          message: "Erro ao excluir escala. Tente novamente.",
           type: "danger",
           floating: false,
           duration: 4000,

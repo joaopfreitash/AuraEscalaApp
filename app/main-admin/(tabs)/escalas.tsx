@@ -670,182 +670,186 @@ export default function PlantoesScreen() {
                       visible={modalCalendarioVisible}
                       onRequestClose={() => {
                         setModalCalendarioVisible(false);
-                        setShowSelectedDatesView(false); // Reseta ao fechar o modal
                       }}
                     >
                       <View style={styles.modalOverlay}>
                         <View style={styles.modalContentCalendario}>
-                          {showSelectedDatesView ? (
-                            <View>
-                              <ScrollView
-                                style={{ maxHeight: 400 }} // Limita a altura e adiciona scroll quando necessário
-                                contentContainerStyle={{
-                                  flexDirection: "row",
-                                  flexWrap: "wrap",
-                                  justifyContent: "space-around",
-                                  paddingBottom: 10,
-                                }}
-                              >
-                                {escala.dias.length > 0 ? (
-                                  escala.dias.map((date, index) => (
-                                    <TouchableOpacity
-                                      key={index}
-                                      onPress={() =>
-                                        removeDate(
-                                          dayjs(date, "DD/MM/YYYY").toDate()
-                                        )
-                                      }
-                                      style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        backgroundColor: "#081e27",
-                                        padding: 10,
-                                        borderRadius: 8,
-                                        marginVertical: 5,
-                                      }}
-                                    >
-                                      <Text style={{ color: "white" }}>
-                                        {dayjs(date).format("DD/MM/YYYY")}
-                                      </Text>
-                                      <FontAwesome6
-                                        name="trash-alt"
-                                        size={20}
-                                        color="#bf3d3d"
-                                        style={{ marginLeft: 10 }}
-                                      />
-                                    </TouchableOpacity>
-                                  ))
-                                ) : (
-                                  <Text style={{ color: "gray" }}>
-                                    Nenhum dia selecionado.
-                                  </Text>
-                                )}
-                              </ScrollView>
-
-                              <TouchableOpacity
-                                onPress={() =>
-                                  handleConfirmRangeCalendario(escala.id)
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (selectedMonth === 0) {
+                                  setSelectedMonth(11);
+                                  setSelectedYear((prev) => prev - 1);
+                                } else {
+                                  setSelectedMonth((prev) => prev - 1);
                                 }
-                                style={styles.confirmButton}
-                              >
-                                <Text
-                                  style={{
-                                    textAlign: "center",
-                                    lineHeight: 24,
-                                    color: "#FFFFFF",
-                                    fontSize: 15,
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  Confirmar
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          ) : (
-                            // Visualização original da seleção de dias
-                            <>
+                              }}
+                            >
+                              <FontAwesome6
+                                name="circle-chevron-left"
+                                size={26}
+                                color="white"
+                              />
+                            </TouchableOpacity>
+
+                            <Text
+                              style={{
+                                fontSize: 18,
+                                fontWeight: "bold",
+                                color: "white",
+                              }}
+                            >
+                              {`${monthNames[selectedMonth]} ${selectedYear}`}
+                            </Text>
+
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (selectedMonth === 11) {
+                                  setSelectedMonth(0);
+                                  setSelectedYear((prev) => prev + 1);
+                                } else {
+                                  setSelectedMonth((prev) => prev + 1);
+                                }
+                              }}
+                            >
+                              <FontAwesome6
+                                name="circle-chevron-right"
+                                size={26}
+                                color="white"
+                              />
+                            </TouchableOpacity>
+                          </View>
+
+                          <View style={{ marginTop: 20 }}>
+                            {weekdays.map((day, index) => (
                               <View
+                                key={index}
                                 style={{
                                   flexDirection: "row",
+                                  alignItems: "center",
                                   justifyContent: "space-between",
+                                  marginTop: 10,
                                 }}
                               >
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    if (selectedMonth === 0) {
-                                      setSelectedMonth(11);
-                                      setSelectedYear((prev) => prev - 1);
-                                    } else {
-                                      setSelectedMonth((prev) => prev - 1);
-                                    }
-                                  }}
-                                >
-                                  <FontAwesome6
-                                    name="circle-chevron-left"
-                                    size={26}
-                                    color="white"
-                                  />
-                                </TouchableOpacity>
-
-                                <Text
-                                  style={{
-                                    fontSize: 18,
-                                    fontWeight: "bold",
-                                    color: "white",
-                                  }}
-                                >
-                                  {`${monthNames[selectedMonth]} ${selectedYear}`}
-                                </Text>
-
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    if (selectedMonth === 11) {
-                                      setSelectedMonth(0);
-                                      setSelectedYear((prev) => prev + 1);
-                                    } else {
-                                      setSelectedMonth((prev) => prev + 1);
-                                    }
-                                  }}
-                                >
-                                  <FontAwesome6
-                                    name="circle-chevron-right"
-                                    size={26}
-                                    color="white"
-                                  />
-                                </TouchableOpacity>
+                                <Text style={{ color: "white" }}>{day}</Text>
+                                <Switch
+                                  value={selectedWeekdays.includes(index)}
+                                  onValueChange={() => toggleWeekday(index)}
+                                />
                               </View>
+                            ))}
+                          </View>
 
-                              <View style={{ marginTop: 20 }}>
-                                {weekdays.map((day, index) => (
-                                  <View
+                          <TouchableOpacity
+                            onPress={() => handleConfirmRangeProximo(escala.id)}
+                            style={[
+                              styles.confirmButton,
+                              selectedWeekdays.length === 0 &&
+                                styles.buttonDisabled,
+                            ]}
+                            disabled={selectedWeekdays.length === 0}
+                          >
+                            <Text
+                              style={[
+                                {
+                                  textAlign: "center",
+                                  lineHeight: 24,
+                                  color: "#FFFFFF",
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                },
+                                selectedWeekdays.length === 0 &&
+                                  styles.textConfirmButtonDisabled,
+                              ]}
+                            >
+                              Próximo
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </Modal>
+                    <Modal
+                      animationType="fade"
+                      transparent
+                      visible={showSelectedDatesView}
+                      onRequestClose={() => {
+                        setModalCalendarioVisible(false);
+                        setShowSelectedDatesView(false);
+                      }}
+                    >
+                      <View style={styles.modalOverlay}>
+                        <View style={styles.modalContentCalendario}>
+                          <View>
+                            <ScrollView
+                              style={{ maxHeight: 400 }} // Limita a altura e adiciona scroll quando necessário
+                              contentContainerStyle={{
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                justifyContent: "space-around",
+                                paddingBottom: 10,
+                              }}
+                            >
+                              {escala.dias.length > 0 ? (
+                                escala.dias.map((date, index) => (
+                                  <TouchableOpacity
                                     key={index}
+                                    onPress={() =>
+                                      removeDate(
+                                        dayjs(date, "DD/MM/YYYY").toDate(),
+                                        escala.id
+                                      )
+                                    }
                                     style={{
                                       flexDirection: "row",
                                       alignItems: "center",
-                                      justifyContent: "space-between",
-                                      marginTop: 10,
+                                      backgroundColor: "#081e27",
+                                      padding: 10,
+                                      borderRadius: 8,
+                                      marginVertical: 5,
                                     }}
                                   >
                                     <Text style={{ color: "white" }}>
-                                      {day}
+                                      {dayjs(date).format("DD/MM/YYYY")}
                                     </Text>
-                                    <Switch
-                                      value={selectedWeekdays.includes(index)}
-                                      onValueChange={() => toggleWeekday(index)}
+                                    <FontAwesome6
+                                      name="trash-alt"
+                                      size={20}
+                                      color="#bf3d3d"
+                                      style={{ marginLeft: 10 }}
                                     />
-                                  </View>
-                                ))}
-                              </View>
-
-                              <TouchableOpacity
-                                onPress={() =>
-                                  handleConfirmRangeProximo(escala.id)
-                                }
-                                style={[
-                                  styles.confirmButton,
-                                  selectedWeekdays.length === 0 &&
-                                    styles.buttonDisabled,
-                                ]}
-                                disabled={selectedWeekdays.length === 0}
-                              >
-                                <Text
-                                  style={[
-                                    {
-                                      textAlign: "center",
-                                      lineHeight: 24,
-                                      color: "#FFFFFF",
-                                      fontSize: 15,
-                                      fontWeight: "600",
-                                    },
-                                    selectedWeekdays.length === 0 &&
-                                      styles.textConfirmButtonDisabled,
-                                  ]}
-                                >
-                                  Próximo
+                                  </TouchableOpacity>
+                                ))
+                              ) : (
+                                <Text style={{ color: "gray" }}>
+                                  Nenhum dia selecionado.
                                 </Text>
-                              </TouchableOpacity>
-                            </>
-                          )}
+                              )}
+                            </ScrollView>
+
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleConfirmRangeCalendario(escala.id)
+                              }
+                              style={styles.confirmButton}
+                            >
+                              <Text
+                                style={{
+                                  textAlign: "center",
+                                  lineHeight: 24,
+                                  color: "#FFFFFF",
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Confirmar
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
                         </View>
                       </View>
                     </Modal>
