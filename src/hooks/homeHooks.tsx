@@ -25,9 +25,27 @@ const homeHooks = (selectedDate: Date) => {
       const updatedMarkedDays: MarkedDays = {};
 
       plantoesList.forEach((plantao) => {
-        updatedMarkedDays[plantao.data] = {
-          dots: [{ color: "red", selectedColor: "green" }],
-        };
+        if (!plantao.data) return;
+
+        if (!updatedMarkedDays[plantao.data]) {
+          updatedMarkedDays[plantao.data] = {
+            dots: [],
+          };
+        }
+
+        const existingDots = updatedMarkedDays[plantao.data].dots ?? [];
+
+        const color = plantao.concluido ? "green" : "red";
+        const colorExists = existingDots.some((dot) => dot.color === color);
+
+        if (!colorExists && existingDots.length < 2) {
+          existingDots.push({
+            color: color,
+            selectedColor: color,
+          });
+        }
+
+        updatedMarkedDays[plantao.data].dots = existingDots;
       });
 
       setPlantoes(plantoesList);
