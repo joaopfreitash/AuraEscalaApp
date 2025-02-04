@@ -485,6 +485,7 @@ export default StyleSheet.create({
   },
   modalContentCalendario: {
     width: "90%",
+    maxHeight: "90%",
     padding: 20,
     borderRadius: 10,
     backgroundColor: "#012E40",

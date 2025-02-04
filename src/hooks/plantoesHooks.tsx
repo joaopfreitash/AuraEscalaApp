@@ -473,10 +473,27 @@ const plantoesHooks = () => {
     );
   };
 
+  const [showSelectedDatesView, setShowSelectedDatesView] = useState(false);
+
   const handleConfirmRangeCalendario = (id: number) => {
+    setShowSelectedDatesView(false);
     setModalCalendarioVisible(false);
-    setSelectedWeekdays([]);
     atualizarDiasEscala(id);
+    setSelectedWeekdays([]);
+  };
+
+  const handleConfirmRangeProximo = (id: number) => {
+    atualizarDiasEscala(id);
+    setShowSelectedDatesView(true);
+  };
+
+  const [removedDates, setRemovedDates] = useState<Date[]>([]);
+
+  const removeDate = (dateToRemove: Date) => {
+    setSelectedDates((prevDates) =>
+      prevDates.filter((date) => date.getTime() !== dateToRemove.getTime())
+    );
+    setRemovedDates((prev) => [...prev, dateToRemove]); // Salva a data removida
   };
 
   const weekdays = [
@@ -523,7 +540,6 @@ const plantoesHooks = () => {
 
   useEffect(() => {
     if (selectedDates.length > 0) {
-      // Quando selectedDates for atualizado, atualiza as escalas
       setEscalas((prevEscalas) => {
         const escalasAtualizadas = prevEscalas.map((escala) =>
           escala.id === escalaAbertaId
@@ -552,11 +568,14 @@ const plantoesHooks = () => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(selectedYear, selectedMonth, day);
-      if (selectedWeekdays.includes(date.getDay())) {
-        dates.push(date);
+      if (
+        selectedWeekdays.includes(date.getDay()) &&
+        !removedDates.some((removed) => removed.getTime() === date.getTime())
+      ) {
+        dates.push(date); // Só adiciona se não estiver na lista de removidas
       }
     }
-    setSelectedDates(dates); // Atualiza selectedDates
+    setSelectedDates(dates);
   };
 
   const atualizarEscala = (
@@ -684,6 +703,10 @@ const plantoesHooks = () => {
     setEscalas,
     setLoading,
     abrirModalAtencao,
+    showSelectedDatesView,
+    setShowSelectedDatesView,
+    removeDate,
+    handleConfirmRangeProximo,
   };
 };
 
