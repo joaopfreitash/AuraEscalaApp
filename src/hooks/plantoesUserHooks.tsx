@@ -14,8 +14,22 @@ const homeUserHooks = () => {
   const alertPlantao = useRef<FlashMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isConcluido, setIsConcluido] = useState(false);
+  const [isModalObsVisible, setIsModalObsVisible] = useState(false);
+  const [selectedPlantaoObs, setSelectedPlantaoObs] = useState<Plantao | null>(
+    null
+  );
 
-  const fetchPlantoes = async () => {
+  const openModalObs = (plantao: Plantao) => {
+    setSelectedPlantaoObs(plantao); // Armazena o plantão selecionado
+    setIsModalObsVisible(true); // Abre o modal
+  };
+
+  const closeModal = () => {
+    setIsModalObsVisible(false);
+  };
+
+  const fetchPlantoes = async (isConcluido: boolean) => {
     setLoading(true);
     try {
       const storedUser = await AsyncStorage.getItem("@user");
@@ -27,46 +41,34 @@ const homeUserHooks = () => {
       const user = JSON.parse(storedUser);
       const userUid = user.uid;
 
-      const userDocRef = firestore().collection("users").doc(userUid);
-      const userDoc = await userDocRef.get();
-
-      if (!userDoc.exists) {
-        console.error("Documento do usuário não encontrado");
-        return;
+      let plantoesQuery = firestore()
+        .collection("plantoes")
+        .where("medicoUid", "==", userUid)
+        .where("concluido", "==", isConcluido);
+      if (isConcluido) {
+        plantoesQuery = plantoesQuery.orderBy("data", "desc").limit(30);
+      } else {
+        plantoesQuery = plantoesQuery.orderBy("data", "desc");
       }
 
-      const userData = userDoc.data();
-      const plantaoIds = [
-        ...(userData?.plantaoIdsAntigos || []),
-        ...(userData?.plantaoIdsNovos || []),
-      ];
+      const querySnapshot = await plantoesQuery.get();
 
-      if (plantaoIds.length === 0) {
-        setPlantoes([]);
-        return;
-      }
-
-      const plantoesList: Plantao[] = [];
-
-      for (const plantaoId of plantaoIds) {
-        const plantaoDocRef = firestore().collection("plantoes").doc(plantaoId);
-        const plantaoDoc = await plantaoDocRef.get();
-
-        if (plantaoDoc.exists) {
-          plantoesList.push({
-            id: plantaoDoc.id,
-            ...plantaoDoc.data(),
-          } as Plantao);
-        }
-      }
-
-      const sortedPlantoes = plantoesList.sort((a, b) => {
-        const dateA = new Date(a.data).getTime(); // Converter para timestamp
-        const dateB = new Date(b.data).getTime();
-        return dateB - dateA; // Ordem decrescente
+      const plantoesList = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          plantonista: data.plantonista,
+          data: data.data,
+          horario: data.horario,
+          local: data.local,
+          funcao: data.funcao,
+          concluido: data.concluido,
+          observacoes: data.observacoes,
+          concluidoEm: data.concluidoEm,
+        };
       });
 
-      setPlantoes(sortedPlantoes);
+      setPlantoes(plantoesList);
     } catch (error) {
       console.error("Erro ao buscar plantões:", error);
     } finally {
@@ -99,40 +101,6 @@ const homeUserHooks = () => {
         observacoes: text,
       });
 
-      // 4. Atualizar a coleção 'users' para remover o plantão de plantaoIds
-      const storedUser = await AsyncStorage.getItem("@user");
-      if (!storedUser) {
-        console.error("Usuário não encontrado no AsyncStorage");
-        return;
-      }
-      const user = JSON.parse(storedUser);
-      const userUid = user.uid;
-
-      const userDocRef = firestore().collection("users").doc(userUid);
-      const userDoc = await userDocRef.get();
-      const userData = userDoc.data();
-      const plantaoIdsNovos = userData?.plantaoIdsNovos || [];
-      const plantaoIdsAntigos = userData?.plantaoIdsAntigos || [];
-      const isInNovos = plantaoIdsNovos.includes(selectedPlantaoId);
-      const isInAntigos = plantaoIdsAntigos.includes(selectedPlantaoId);
-
-      if (isInNovos || isInAntigos) {
-        if (isInNovos) {
-          await userDocRef.update({
-            plantaoIdsNovos:
-              firestore.FieldValue.arrayRemove(selectedPlantaoId),
-          });
-        }
-        if (isInAntigos) {
-          await userDocRef.update({
-            plantaoIdsAntigos:
-              firestore.FieldValue.arrayRemove(selectedPlantaoId),
-          });
-        }
-      } else {
-        console.log("O plantão selecionado não está em nenhum dos arrays.");
-      }
-
       // 5. Atualizar a coleção 'hospitais' para remover o plantão de plantaoIdsH
       const hospitalDocRef = firestore()
         .collection("hospitais")
@@ -145,7 +113,7 @@ const homeUserHooks = () => {
         });
       }
       resetModal();
-      fetchPlantoes();
+      fetchPlantoes(isConcluido);
       setSelectedPlantaoId(null);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
@@ -178,7 +146,7 @@ const homeUserHooks = () => {
   };
 
   useEffect(() => {
-    fetchPlantoes();
+    fetchPlantoes(isConcluido);
   }, []);
 
   const handleSelectPlantao = (id: string) => {
@@ -192,6 +160,11 @@ const homeUserHooks = () => {
   const selectedPlantao = plantoes.find(
     (plantao) => plantao.id === selectedPlantaoId
   );
+
+  const handleCheckmarkClick = () => {
+    setIsConcluido(!isConcluido);
+    fetchPlantoes(!isConcluido);
+  };
 
   return {
     plantoes,
@@ -208,6 +181,12 @@ const homeUserHooks = () => {
     alertPlantao,
     submitting,
     loading,
+    isConcluido,
+    handleCheckmarkClick,
+    openModalObs,
+    closeModal,
+    isModalObsVisible,
+    selectedPlantaoObs,
   };
 };
 

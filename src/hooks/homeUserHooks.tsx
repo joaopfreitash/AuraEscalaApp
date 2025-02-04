@@ -41,26 +41,44 @@ const homeUserHooks = () => {
       }
 
       const plantoesList: Plantao[] = [];
+      const updatedMarkedDays: MarkedDays = {};
 
       for (const plantaoId of plantaoIds) {
         const plantaoDocRef = firestore().doc(`plantoes/${plantaoId}`);
         const plantaoDoc = await plantaoDocRef.get();
 
         if (plantaoDoc.exists) {
-          plantoesList.push({
-            id: plantaoDoc.id,
-            ...plantaoDoc.data(),
-          } as Plantao);
+          const plantaoData = plantaoDoc.data() as Plantao;
+
+          if (plantaoData && plantaoData.data) {
+            // Verificação de segurança
+            plantoesList.push({
+              ...plantaoData,
+              id: plantaoDoc.id, // Sobrescreve qualquer 'id' existente em plantaoData
+            });
+
+            // Verificar se o dia já está marcado
+            if (!updatedMarkedDays[plantaoData.data]) {
+              updatedMarkedDays[plantaoData.data] = {
+                dots: [], // Inicializa o array de bolinhas
+              };
+            }
+
+            const existingDots = updatedMarkedDays[plantaoData.data].dots ?? [];
+
+            // Adicionar bolinha verde ou vermelha, sem duplicar
+            const color = plantaoData.concluido ? "green" : "red";
+            const colorExists = existingDots.some((dot) => dot.color === color);
+
+            if (!colorExists && existingDots.length < 2) {
+              existingDots.push({
+                color: color,
+                selectedColor: color,
+              });
+            }
+          }
         }
       }
-
-      const updatedMarkedDays: MarkedDays = {};
-
-      plantoesList.forEach((plantao) => {
-        updatedMarkedDays[plantao.data] = {
-          dots: [{ color: "red", selectedColor: "green" }],
-        };
-      });
 
       setPlantoes(plantoesList);
       setMarkedDays(updatedMarkedDays);

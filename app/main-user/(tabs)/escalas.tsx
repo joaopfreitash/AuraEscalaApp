@@ -17,7 +17,12 @@ import styles from "@/src/styles/plantoesUserScreenStyle";
 import stylesModal from "@/src/styles/notificationModalStyle";
 import PlantaoItem from "@/src/components/plantaoItem";
 import plantoesUserHooks from "@/src/hooks/plantoesUserHooks";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  Entypo,
+  FontAwesome6,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import homeUserHooks from "@/src/hooks/homeUserHooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -37,6 +42,12 @@ export default function PlantoesUserScreen() {
     alertPlantao,
     submitting,
     loading,
+    isConcluido,
+    handleCheckmarkClick,
+    openModalObs,
+    closeModal,
+    isModalObsVisible,
+    selectedPlantaoObs,
   } = plantoesUserHooks();
   const {
     hasNewNotification,
@@ -92,7 +103,26 @@ export default function PlantoesUserScreen() {
         </View>
       </View>
       <View style={styles.header}>
-        <Text style={styles.plantaoTitle}>Minhas escalas</Text>
+        <View style={styles.headerTitle}>
+          {!isConcluido && (
+            <Text style={styles.plantaoTitle}>Minhas escalas</Text>
+          )}
+          {isConcluido && (
+            <>
+              <Text style={styles.plantaoTitle}>Escalas concluídas</Text>
+              <Text style={styles.plantaoSubTitle}>30 últimas</Text>
+            </>
+          )}
+        </View>
+        <View style={styles.containerConcluidas}>
+          <TouchableOpacity onPress={handleCheckmarkClick}>
+            {isConcluido ? (
+              <Ionicons name="return-up-back" size={28} color="white" />
+            ) : (
+              <FontAwesome6 name="check" size={24} color="white" />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.plantaoContainer}>
         {plantoes.length === 0 ? (
@@ -107,12 +137,20 @@ export default function PlantoesUserScreen() {
             data={plantoes}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => handleSelectPlantao(item.id)}
                 style={[
                   selectedPlantaoId === item.id && styles.selectedPlantaoItem,
                 ]}
               >
-                <PlantaoItem plantao={item} onPress={() => {}} />
+                <PlantaoItem
+                  plantao={item}
+                  onPress={() => {
+                    if (item.concluido) {
+                      openModalObs(item);
+                    } else if (!item.concluido) {
+                      handleSelectPlantao(item.id);
+                    }
+                  }}
+                />
                 {selectedPlantaoId === item.id && (
                   <View style={styles.checkIconContainer}>
                     <Entypo name="check" size={24} color="green" />
@@ -126,19 +164,21 @@ export default function PlantoesUserScreen() {
         )}
       </View>
 
-      <View
-        style={[
-          styles.finalizarPlantaoContainer,
-          { opacity: selectedPlantaoId ? 1 : 0.3 },
-        ]}
-      >
-        <TouchableOpacity
-          disabled={!selectedPlantaoId}
-          onPress={() => setModalVisible(true)}
+      {!isConcluido && (
+        <View
+          style={[
+            styles.finalizarPlantaoContainer,
+            { opacity: selectedPlantaoId ? 1 : 0.3 },
+          ]}
         >
-          <Text style={styles.plantaoTitle}>Concluir escala</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            disabled={!selectedPlantaoId}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.plantaoTitle}>Concluir escala</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -227,6 +267,31 @@ export default function PlantoesUserScreen() {
           </View>
         </View>
       </Modal>
+      <Modal visible={isModalObsVisible} transparent animationType="fade">
+        {selectedPlantaoObs && (
+          <View style={stylesModal.overlay}>
+            <View style={stylesModal.modalContent}>
+              <Text style={stylesModal.title}>Observações do médico</Text>
+              <Text style={stylesModal.message}>
+                {selectedPlantaoObs.observacoes ? (
+                  selectedPlantaoObs.observacoes
+                ) : (
+                  <Text style={{ color: "#bf3d3d" }}>
+                    Médico não fez observações
+                  </Text>
+                )}
+              </Text>
+              <TouchableOpacity
+                onPress={() => closeModal()}
+                style={stylesModal.closeButton}
+              >
+                <Text style={stylesModal.closeButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Modal>
+
       <FlashMessage ref={alertPlantao} />
     </View>
   );

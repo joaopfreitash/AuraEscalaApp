@@ -16,11 +16,16 @@ export default StyleSheet.create({
     flex: 1,
   },
   header: {
-    marginTop: 20,
     width: "100%",
     display: "flex",
     flexDirection: "row",
     paddingHorizontal: 10,
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  headerTitle: {
+    display: "flex",
+    flexDirection: "column",
   },
   plantaoTitle: {
     fontSize: 25,
@@ -146,5 +151,14 @@ export default StyleSheet.create({
     color: "#bf3d3d",
     fontSize: 16,
     textAlign: "center",
+  },
+  plantaoSubTitle: {
+    fontSize: 12,
+    color: "#ffffff",
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  containerConcluidas: {
+    paddingHorizontal: 10,
   },
 });
