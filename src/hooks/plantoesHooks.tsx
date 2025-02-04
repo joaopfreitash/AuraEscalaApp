@@ -525,9 +525,19 @@ const plantoesHooks = () => {
     }, 500); // Atraso de 300ms
   };
 
+  const handleConfirmRangeReset = (id: number) => {
+    atualizarDiasEscala(id);
+    setSelectedWeekdays([]);
+  };
+
   const [removedDates, setRemovedDates] = useState<{ [key: number]: Date[] }>(
     {}
   );
+
+  const resetDates = () => {
+    setSelectedDates([]);
+    setRemovedDates({});
+  };
 
   const removeDate = (dateToRemove: Date, escalaId: number) => {
     setSelectedDates((prevDates) =>
@@ -822,6 +832,8 @@ const plantoesHooks = () => {
     setIsModalDeleteVisible,
     isModalDeleteVisible,
     handleDeleteShift,
+    resetDates,
+    handleConfirmRangeReset,
   };
 };
 

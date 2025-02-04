@@ -121,6 +121,8 @@ export default function PlantoesScreen() {
     closeModalDelete,
     isModalDeleteVisible,
     handleDeleteShift,
+    resetDates,
+    handleConfirmRangeReset,
   } = plantoesHooks();
 
   const {
@@ -602,6 +604,8 @@ export default function PlantoesScreen() {
                         ]}
                         onPress={() => {
                           setEscalaAbertaId(escala.id); // Define a escala ativa ao clicar
+                          resetDates();
+                          handleConfirmRangeReset(escala.id);
                           setModalCalendarioVisible(true);
                         }}
                       >
@@ -746,7 +750,9 @@ export default function PlantoesScreen() {
                           </View>
 
                           <TouchableOpacity
-                            onPress={() => handleConfirmRangeProximo(escala.id)}
+                            onPress={() => {
+                              handleConfirmRangeProximo(escala.id);
+                            }}
                             style={[
                               styles.confirmButton,
                               selectedWeekdays.length === 0 &&
