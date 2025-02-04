@@ -203,6 +203,32 @@ const plantoesHooks = () => {
       const medicoDoc = medicoSnapshot.docs[0];
       const medicoUid = medicoDoc.id;
 
+      // Verificar se já existe um plantão para o mesmo médico, data e horário
+      const existingShiftSnapshot = await firestore()
+        .collection("plantoes")
+        .where("data", "==", data)
+        .where("medicoUid", "==", medicoUid)
+        .where("horario", "==", horario)
+        .get();
+
+      if (!existingShiftSnapshot.empty) {
+        // Se existir um plantão, exibe um alerta de erro e encerra a função
+        if (alertPlantao.current) {
+          alertPlantao.current.showMessage({
+            message:
+              "Já existe uma escala cadastrada para este médico no mesmo dia e horário.",
+            type: "danger",
+            floating: false,
+            duration: 5000,
+            style: { alignItems: "center" },
+          });
+        }
+        setIsButtonEnabled(true);
+        setSubmitting(false);
+        resetModal();
+        return;
+      }
+
       // Buscar o hospital pelo nome
       const localSnapshot = await firestore()
         .collection("hospitais")
