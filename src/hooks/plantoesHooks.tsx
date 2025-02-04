@@ -12,6 +12,7 @@ const plantoesHooks = () => {
   const [selectedHora, setSelectedHora] = useState("");
   const [selectedPlantao, setSelectedPlantao] = useState<Plantao | null>(null);
   const [isModalObsVisible, setIsModalObsVisible] = useState(false);
+  const [isModalDeleteVisible, setIsModalDeleteVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedHoraFixa, setSelectedHoraFixa] = useState("");
@@ -58,6 +59,15 @@ const plantoesHooks = () => {
 
   const closeModal = () => {
     setIsModalObsVisible(false);
+  };
+
+  const openModalDelete = (plantao: Plantao) => {
+    setSelectedPlantao(plantao); // Armazena o plantão selecionado
+    setIsModalDeleteVisible(true); // Abre o modal
+  };
+
+  const closeModalDelete = () => {
+    setIsModalDeleteVisible(false);
   };
 
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
@@ -616,6 +626,68 @@ const plantoesHooks = () => {
     }
   };
 
+  const handleDeleteShift = async (plantaoId: string) => {
+    try {
+      setSubmitting(true);
+      const shiftDoc = await firestore()
+        .collection("plantoes")
+        .doc(plantaoId)
+        .get();
+      if (!shiftDoc.exists) {
+        throw new Error("Plantão não encontrado.");
+      }
+      const shiftData = shiftDoc.data();
+      const medicoUid = shiftData?.medicoUid;
+      const localUid = shiftData?.localUid;
+
+      // 2️⃣ Atualizar o documento do usuário (remover plantão dos arrays)
+      if (medicoUid) {
+        const medicoRef = firestore().collection("users").doc(medicoUid);
+        await medicoRef.update({
+          plantaoIdsNovos: firestore.FieldValue.arrayRemove(plantaoId),
+          plantaoIdsAntigos: firestore.FieldValue.arrayRemove(plantaoId),
+        });
+      }
+
+      // 3️⃣ Atualizar o documento do hospital (remover plantão do array)
+      if (localUid) {
+        const localRef = firestore().collection("hospitais").doc(localUid);
+        await localRef.update({
+          plantaoIdsH: firestore.FieldValue.arrayRemove(plantaoId),
+        });
+      }
+
+      // 4️⃣ Deletar o documento do plantão
+      await firestore().collection("plantoes").doc(plantaoId).delete();
+
+      // ✅ Sucesso
+      fetchPlantoes(isConcluido); // Atualiza a lista
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Plantão excluído com sucesso!",
+          type: "success",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao deletar o plantão:", error);
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Erro ao excluir plantão. Tente novamente.",
+          type: "danger",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    } finally {
+      setSubmitting(false);
+      setIsModalDeleteVisible(false);
+    }
+  };
+
   return {
     resetModal,
     fetchPlantoes,
@@ -707,6 +779,11 @@ const plantoesHooks = () => {
     setShowSelectedDatesView,
     removeDate,
     handleConfirmRangeProximo,
+    openModalDelete,
+    closeModalDelete,
+    setIsModalDeleteVisible,
+    isModalDeleteVisible,
+    handleDeleteShift,
   };
 };
 

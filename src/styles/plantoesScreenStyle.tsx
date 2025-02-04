@@ -536,11 +536,15 @@ export default StyleSheet.create({
   },
   textConfirmButtonDisabled: {
     color: "black",
-    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "600",
+    lineHeight: 24,
   },
   textConfirmButtonEnabled: {
-    color: "white",
-    textAlign: "center",
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "600",
+    lineHeight: 24,
   },
   modalAtencaoContent: {
     width: "80%",

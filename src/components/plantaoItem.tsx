@@ -11,7 +11,7 @@ interface PlantaoItemProps {
 }
 
 const PlantaoItem: React.FC<PlantaoItemProps> = ({ plantao, onPress }) => (
-  <TouchableOpacity onPress={onPress} disabled={!plantao.concluido}>
+  <TouchableOpacity onPress={onPress}>
     <View style={styles.plantaoItem}>
       <View style={styles.mainContainer}>
         <View style={styles.containerIcons}>

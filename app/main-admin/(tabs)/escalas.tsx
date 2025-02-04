@@ -115,9 +115,12 @@ export default function PlantoesScreen() {
     setLoading,
     showSelectedDatesView,
     setShowSelectedDatesView,
-    selectedDates,
     removeDate,
     handleConfirmRangeProximo,
+    openModalDelete,
+    closeModalDelete,
+    isModalDeleteVisible,
+    handleDeleteShift,
   } = plantoesHooks();
 
   const {
@@ -446,6 +449,8 @@ export default function PlantoesScreen() {
                 onPress={() => {
                   if (item.concluido) {
                     openModalObs(item);
+                  } else if (!item.concluido) {
+                    openModalDelete(item);
                   }
                 }}
               />
@@ -469,6 +474,8 @@ export default function PlantoesScreen() {
                 onPress={() => {
                   if (item.concluido) {
                     openModalObs(item);
+                  } else if (!item.concluido) {
+                    openModalDelete(item);
                   }
                 }}
               />
@@ -691,7 +698,7 @@ export default function PlantoesScreen() {
                                       style={{
                                         flexDirection: "row",
                                         alignItems: "center",
-                                        backgroundColor: "#1a1a1a",
+                                        backgroundColor: "#081e27",
                                         padding: 10,
                                         borderRadius: 8,
                                         marginVertical: 5,
@@ -723,8 +730,11 @@ export default function PlantoesScreen() {
                               >
                                 <Text
                                   style={{
-                                    color: "white",
                                     textAlign: "center",
+                                    lineHeight: 24,
+                                    color: "#FFFFFF",
+                                    fontSize: 15,
+                                    fontWeight: "600",
                                   }}
                                 >
                                   Confirmar
@@ -820,7 +830,13 @@ export default function PlantoesScreen() {
                               >
                                 <Text
                                   style={[
-                                    { color: "white", textAlign: "center" },
+                                    {
+                                      textAlign: "center",
+                                      lineHeight: 24,
+                                      color: "#FFFFFF",
+                                      fontSize: 15,
+                                      fontWeight: "600",
+                                    },
                                     selectedWeekdays.length === 0 &&
                                       styles.textConfirmButtonDisabled,
                                   ]}
@@ -1367,6 +1383,64 @@ export default function PlantoesScreen() {
               >
                 <Text style={stylesModal.closeButtonText}>Fechar</Text>
               </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Modal>
+      <Modal visible={isModalDeleteVisible} transparent animationType="fade">
+        {selectedPlantao && (
+          <View style={stylesModal.overlayDelete}>
+            <View style={stylesModal.modalContentDelete}>
+              {/* Verifica se o plantão foi selecionado antes de renderizar */}
+              {selectedPlantao ? (
+                <FlatList
+                  style={styles.flatListContainer}
+                  data={[selectedPlantao]} // Passa um array com o plantão selecionado
+                  renderItem={({ item }) => (
+                    <PlantaoItem plantao={item} onPress={() => {}} />
+                  )}
+                  keyExtractor={(item) => item.id}
+                  numColumns={1}
+                />
+              ) : (
+                <Text>Nenhuma escala selecionada</Text>
+              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  justifyContent: "space-around",
+                  marginTop: 15,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => closeModalDelete()}
+                  style={stylesModal.closeButtonDelete}
+                >
+                  <Text style={stylesModal.closeButtonTextDelete}>
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDeleteShift(selectedPlantao.id)}
+                  style={[
+                    stylesModal.deleteButton,
+                    { opacity: submitting ? 0.6 : 1 },
+                  ]}
+                  disabled={submitting}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={stylesModal.titleDelete}>Excluir escala</Text>
+                    {submitting && (
+                      <ActivityIndicator
+                        style={{ marginLeft: 10 }}
+                        size="small"
+                        color="white"
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}
