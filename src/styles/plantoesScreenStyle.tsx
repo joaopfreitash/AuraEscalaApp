@@ -84,6 +84,13 @@ export default StyleSheet.create({
     alignItems: "center",
     flex: 2,
   },
+  containerFlex: {
+    flexDirection: "row",
+    alignContent: "flex-start",
+    justifyContent: "space-between",
+    width: "100%",
+    gap: 10,
+  },
   plantaoDate: {
     fontSize: 13,
     color: "#59994e",
@@ -93,9 +100,10 @@ export default StyleSheet.create({
     color: "#ffffff",
   },
   plantaoMedico: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "bold",
     color: "#ffffff",
+    alignSelf: "flex-start",
   },
   plantaoFuncao: {
     alignSelf: "center",
@@ -243,7 +251,7 @@ export default StyleSheet.create({
   },
   concluidoText: {
     color: "green",
-    fontSize: 15,
+    fontSize: 13,
   },
   searchContainerPai: {
     flexDirection: "row",

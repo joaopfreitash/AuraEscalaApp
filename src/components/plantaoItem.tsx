@@ -29,10 +29,12 @@ const PlantaoItem: React.FC<PlantaoItemProps> = ({ plantao, onPress }) => (
         </View>
       </View>
       <View style={styles.medicoContainer}>
-        {plantao.concluido && (
-          <Text style={styles.concluidoText}>Concluída</Text>
-        )}
-        <Text style={styles.plantaoFuncao}>{plantao.funcao}</Text>
+        <View style={styles.containerFlex}>
+          <Text style={styles.plantaoFuncao}>{plantao.funcao}</Text>
+          {plantao.concluido && (
+            <Text style={styles.concluidoText}>Concluída</Text>
+          )}
+        </View>
         <Text style={styles.plantaoMedico}>{plantao.plantonista}</Text>
       </View>
     </View>
