@@ -17,20 +17,23 @@ const medicosHooks = () => {
         .collection("users")
         .orderBy("createdAt", "desc")
         .get();
+
       const medicosList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
-        const plantaoIds = [
-          ...(data.plantaoIdsAntigos || []),
-          ...(data.plantaoIdsNovos || []),
-        ];
+        const plantaoIdsAntigos = data.plantaoIdsAntigos || [];
+        const plantaoIdsNovos = data.plantaoIdsNovos || [];
+
         return {
           id: doc.id,
           nome: data.name,
           isAdmin: data.isAdmin,
           avatar: require("@/assets/images/hipocrates.png"),
-          plantaoIds: plantaoIds || [],
+          plantaoIdsAntigos, // Adiciona separadamente para facilitar o controle
+          plantaoIdsNovos,
+          totalPlantoes: plantaoIdsAntigos.length + plantaoIdsNovos.length, // Soma o total
         };
       });
+
       setMedicos(medicosList);
       setFilteredMedicos(medicosList);
     } catch (error) {

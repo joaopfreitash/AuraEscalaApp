@@ -20,7 +20,8 @@ export type Medico = {
   id: string;
   nome: string;
   isAdmin: boolean;
-  plantaoIds?: string[];
+  plantaoIdsAntigos?: string[];
+  plantaoIdsNovos?: string[];
 };
 
 export type Hospital = {
