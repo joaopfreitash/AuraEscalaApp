@@ -18,11 +18,14 @@ export const montarRelatorio = (
 
     // Escalas concluídas
     if (concluido) {
-      if (observacoes) {
-        concluidas.push(
-          `\n=> Observação do médico ${plantonista} na função ${funcao} no hospital ${local}:\n\n- ${observacoes}`
-        );
-      }
+      concluidas.push(
+        `
+=> ${plantonista}
+- ${funcao}
+- Hospital ${local}
+- Data: ${dayjs(data).format("DD-MM-YYYY")}
+- Observações: ${observacoes || "Médico não fez observações"}`
+      );
 
       // Contar escalas concluídas por plantonista
       if (plantonista) {
