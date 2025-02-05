@@ -38,6 +38,16 @@ export default function TabLayoutUser() {
       />
 
       <Tabs.Screen
+        name="relatorios"
+        options={{
+          title: "Relatório",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="newspaper" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="(configuracoes)"
         options={{
           headerShown: false,
