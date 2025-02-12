@@ -825,6 +825,7 @@ const plantoesHooks = () => {
   const handleDeleteShift = async (plantaoId: string) => {
     try {
       setSubmitting(true);
+
       const shiftDoc = await firestore()
         .collection("plantoes")
         .doc(plantaoId)
@@ -832,32 +833,41 @@ const plantoesHooks = () => {
       if (!shiftDoc.exists) {
         throw new Error("Escala não encontrada.");
       }
+
       const shiftData = shiftDoc.data();
       const medicoUid = shiftData?.medicoUid;
       const localUid = shiftData?.localUid;
 
-      // 2️⃣ Atualizar o documento do usuário (remover plantão dos arrays)
+      // Remover plantão do usuário e hospital
       if (medicoUid) {
-        const medicoRef = firestore().collection("users").doc(medicoUid);
-        await medicoRef.update({
-          plantaoIdsNovos: firestore.FieldValue.arrayRemove(plantaoId),
-          plantaoIdsAntigos: firestore.FieldValue.arrayRemove(plantaoId),
-        });
+        await firestore()
+          .collection("users")
+          .doc(medicoUid)
+          .update({
+            plantaoIdsNovos: firestore.FieldValue.arrayRemove(plantaoId),
+            plantaoIdsAntigos: firestore.FieldValue.arrayRemove(plantaoId),
+          });
       }
-
-      // 3️⃣ Atualizar o documento do hospital (remover plantão do array)
       if (localUid) {
-        const localRef = firestore().collection("hospitais").doc(localUid);
-        await localRef.update({
-          plantaoIdsH: firestore.FieldValue.arrayRemove(plantaoId),
-        });
+        await firestore()
+          .collection("hospitais")
+          .doc(localUid)
+          .update({
+            plantaoIdsH: firestore.FieldValue.arrayRemove(plantaoId),
+          });
       }
 
-      // 4️⃣ Deletar o documento do plantão
+      // Deletar plantão
       await firestore().collection("plantoes").doc(plantaoId).delete();
 
-      // ✅ Sucesso
-      fetchPlantoes(isConcluido); // Atualiza a lista
+      // Atualizar listas localmente
+      setPlantoes((prev) => prev.filter((p) => p.id !== plantaoId));
+      setFilteredPlantoes((prev) => prev.filter((p) => p.id !== plantaoId));
+
+      // Buscar plantoes novamente para manter sincronizado
+      fetchPlantoes(isConcluido);
+
+      // Notificação de sucesso
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
           message: "Escala excluída com sucesso!",
