@@ -740,22 +740,29 @@ const plantoesHooks = () => {
   }, [selectedDates]); // Dependência no selectedDates
 
   const atualizarDiasEscala = (id: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zerar horas para comparar só a data
+
     const dates: Date[] = [];
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(selectedYear, selectedMonth, day);
-      const escalaRemovedDates = removedDates[id] || []; // Obtém datas removidas da escala atual
+      date.setHours(0, 0, 0, 0); // Zerar horas para evitar problemas na comparação
+
+      const escalaRemovedDates = removedDates[id] || []; // Datas removidas da escala atual
 
       if (
-        selectedWeekdays.includes(date.getDay()) &&
+        selectedWeekdays.includes(date.getDay()) && // Está no dia da semana selecionado
+        date >= today && // ✅ Apenas datas futuras ou o dia atual
         !escalaRemovedDates.some(
           (removed) => removed.getTime() === date.getTime()
-        )
+        ) // Não foi removida
       ) {
         dates.push(date);
       }
     }
+
     setSelectedDates(dates);
   };
 
