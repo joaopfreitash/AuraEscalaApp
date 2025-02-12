@@ -87,10 +87,11 @@ const plantoesHooks = () => {
     { label: "Cirurgião", value: "Cirurgião" },
     { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
     { label: "Anestesista", value: "Anestesista" },
-    { label: "Auxílio Anestesia", value: "Auxílio Anestesia" },
     { label: "Ambulatório", value: "Ambulatório" },
   ]);
   const [modalFixaVisible, setModalFixaVisible] = useState(false);
+  const [auxilioCirurgico, setAuxilioCirurgico] = useState<string>("");
+  const [auxilioCirurgicoAtivo, setAuxilioCirurgicoAtivo] = useState(true);
 
   const { setSearchQuery } = searchBar();
 
@@ -99,6 +100,8 @@ const plantoesHooks = () => {
     setValueMedico("");
     setValueLocal("");
     setValueFuncao("");
+    setAuxilioCirurgico("");
+    setAuxilioCirurgicoAtivo(true);
     setIsButtonEnabled(false);
     setSelectedDate("");
     setSelectedHora("");
@@ -195,13 +198,10 @@ const plantoesHooks = () => {
     setSubmitting(true);
     try {
       setIsButtonEnabled(false);
+
       // Buscar o médico pelo nome
-      const medicoSnapshot = await firestore()
-        .collection("users")
-        .where("name", "==", valueMedico)
-        .get();
-      const medicoDoc = medicoSnapshot.docs[0];
-      const medicoUid = medicoDoc.id;
+      const medicoUid = await getMedicoUid(plantonista);
+      if (!medicoUid) throw new Error("Médico não encontrado.");
 
       // Verificar se já existe um plantão para o mesmo médico, data e horário
       const existingShiftSnapshot = await firestore()
@@ -212,7 +212,6 @@ const plantoesHooks = () => {
         .get();
 
       if (!existingShiftSnapshot.empty) {
-        // Se existir um plantão, exibe um alerta de erro e encerra a função
         if (alertPlantao.current) {
           alertPlantao.current.showMessage({
             message:
@@ -230,50 +229,35 @@ const plantoesHooks = () => {
       }
 
       // Buscar o hospital pelo nome
-      const localSnapshot = await firestore()
-        .collection("hospitais")
-        .where("name", "==", valueLocal)
-        .get();
-      const localDoc = localSnapshot.docs[0];
-      const localUid = localDoc.id;
+      const localUid = await getLocalUid(local);
+      if (!localUid) throw new Error("Hospital não encontrado.");
 
-      // Criar documento de plantão
-      const shiftsDocRef = firestore().collection("plantoes").doc();
-      const shiftId = shiftsDocRef.id;
-
-      await shiftsDocRef.set({
+      // Criar o plantão principal
+      const shiftId = await createShift(
         plantonista,
         local,
         data,
         horario,
         funcao,
-        createdAt: firestore.FieldValue.serverTimestamp(),
         medicoUid,
-        localUid,
-        concluido: false,
-      });
+        localUid
+      );
 
-      const medicoRef = firestore().collection("users").doc(medicoUid);
-      const medicoDocSnapshot = await medicoRef.get();
-      const medicoData = medicoDocSnapshot.data();
-      const plantaoIdsNovos = medicoData?.plantaoIdsNovos || [];
-      const plantaoIdsAntigos = medicoData?.plantaoIdsAntigos || [];
-
-      const updatedPlantaoIdsAntigos = [
-        ...plantaoIdsAntigos,
-        ...plantaoIdsNovos,
-      ];
-      const updatedPlantaoIdsNovos = [shiftId];
-
-      await medicoRef.update({
-        plantaoIdsNovos: updatedPlantaoIdsNovos,
-        plantaoIdsAntigos: updatedPlantaoIdsAntigos,
-      });
-
-      const localRef = firestore().collection("hospitais").doc(localUid);
-      await localRef.update({
-        plantaoIdsH: firestore.FieldValue.arrayUnion(shiftId),
-      });
+      // Se houver médico de auxílio cirúrgico, cadastrar também
+      if (auxilioCirurgico) {
+        const auxilioUid = await getMedicoUid(auxilioCirurgico);
+        if (auxilioUid) {
+          await createShift(
+            auxilioCirurgico,
+            local,
+            data,
+            horario,
+            "Auxílio Cirúrgico",
+            auxilioUid,
+            localUid
+          );
+        }
+      }
 
       resetModal();
       fetchPlantoes(isConcluido);
@@ -300,6 +284,75 @@ const plantoesHooks = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Função para buscar o UID do médico pelo nome
+  const getMedicoUid = async (nomeMedico: string) => {
+    const medicoSnapshot = await firestore()
+      .collection("users")
+      .where("name", "==", nomeMedico)
+      .get();
+
+    return medicoSnapshot.docs[0]?.id || null;
+  };
+
+  // Função para buscar o UID do hospital pelo nome
+  const getLocalUid = async (nomeLocal: string) => {
+    const localSnapshot = await firestore()
+      .collection("hospitais")
+      .where("name", "==", nomeLocal)
+      .get();
+
+    return localSnapshot.docs[0]?.id || null;
+  };
+
+  // Função para criar um plantão
+  const createShift = async (
+    plantonista: string,
+    local: string,
+    data: string,
+    horario: string,
+    funcao: string,
+    medicoUid: string,
+    localUid: string
+  ) => {
+    const shiftsDocRef = firestore().collection("plantoes").doc();
+    const shiftId = shiftsDocRef.id;
+
+    await shiftsDocRef.set({
+      plantonista,
+      local,
+      data,
+      horario,
+      funcao,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      medicoUid,
+      localUid,
+      concluido: false,
+    });
+
+    // Atualizar os IDs dos plantões do médico
+    const medicoRef = firestore().collection("users").doc(medicoUid);
+    const medicoDocSnapshot = await medicoRef.get();
+    const medicoData = medicoDocSnapshot.data();
+    const plantaoIdsNovos = medicoData?.plantaoIdsNovos || [];
+    const plantaoIdsAntigos = medicoData?.plantaoIdsAntigos || [];
+
+    const updatedPlantaoIdsAntigos = [...plantaoIdsAntigos, ...plantaoIdsNovos];
+    const updatedPlantaoIdsNovos = [shiftId];
+
+    await medicoRef.update({
+      plantaoIdsNovos: updatedPlantaoIdsNovos,
+      plantaoIdsAntigos: updatedPlantaoIdsAntigos,
+    });
+
+    // Atualizar os plantões do hospital
+    const localRef = firestore().collection("hospitais").doc(localUid);
+    await localRef.update({
+      plantaoIdsH: firestore.FieldValue.arrayUnion(shiftId),
+    });
+
+    return shiftId;
   };
 
   const [modalAtencaoTitle, setModalAtencaoTitle] = useState("");
@@ -736,6 +789,10 @@ const plantoesHooks = () => {
     }
   };
 
+  const filteredAuxilioCirurgico = itemsMedico.filter(
+    (medico) => medico.value !== valueMedico
+  );
+
   return {
     resetModal,
     fetchPlantoes,
@@ -834,6 +891,11 @@ const plantoesHooks = () => {
     handleDeleteShift,
     resetDates,
     handleConfirmRangeReset,
+    auxilioCirurgico,
+    setAuxilioCirurgico,
+    filteredAuxilioCirurgico,
+    auxilioCirurgicoAtivo,
+    setAuxilioCirurgicoAtivo,
   };
 };
 

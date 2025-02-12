@@ -123,6 +123,11 @@ export default function PlantoesScreen() {
     handleDeleteShift,
     resetDates,
     handleConfirmRangeReset,
+    auxilioCirurgico,
+    setAuxilioCirurgico,
+    filteredAuxilioCirurgico,
+    auxilioCirurgicoAtivo,
+    setAuxilioCirurgicoAtivo,
   } = plantoesHooks();
 
   const {
@@ -140,10 +145,12 @@ export default function PlantoesScreen() {
 
   const [isFocusMedico, setIsFocusMedico] = useState(false);
   const [isFocusFuncao, setIsFocusFuncao] = useState(false);
+  const [isFocusAuxilio, setIsFocusAuxilio] = useState(false);
   const [isFocusHospital, setIsFocusedHospital] = useState(false);
   const dropdownMedicoRef = useRef<any>(null);
   const dropdownLocalRef = useRef<any>(null);
   const dropdownFuncaoRef = useRef<any>(null);
+  const dropdownAuxilioRef = useRef<any>(null);
   const rotation = useRef(new Animated.Value(0)).current;
   const [popupVisible, setPopupVisible] = useState(false);
   const renderLabelMedico = () => {
@@ -192,6 +199,23 @@ export default function PlantoesScreen() {
       return (
         <Text style={[styles.label, !isFocusFuncao && { color: "#59994e" }]}>
           Função
+        </Text>
+      );
+    }
+    return null;
+  };
+  const renderLabelAuxilio = () => {
+    if (isFocusAuxilio) {
+      return (
+        <Text style={[styles.label, isFocusAuxilio && { color: "#59994e" }]}>
+          Auxílio Cirúrgico
+        </Text>
+      );
+    }
+    if (auxilioCirurgico) {
+      return (
+        <Text style={[styles.label, !isFocusAuxilio && { color: "#59994e" }]}>
+          Auxílio Cirúrgico
         </Text>
       );
     }
@@ -291,12 +315,17 @@ export default function PlantoesScreen() {
 
   //Verificar se campos preenchidos para habilitar botão Confirmar
   const checkFields = () => {
+    const isCirurgiao = valueFuncao === "Cirurgião";
+    const isAuxilioValido =
+      !isCirurgiao || !auxilioCirurgicoAtivo || auxilioCirurgico;
+
     if (
       valueMedico &&
       selectedDate &&
       selectedHora &&
       valueLocal &&
-      valueFuncao
+      valueFuncao &&
+      isAuxilioValido
     ) {
       setIsButtonEnabled(true);
     } else {
@@ -306,7 +335,15 @@ export default function PlantoesScreen() {
 
   useEffect(() => {
     checkFields();
-  }, [valueMedico, selectedDate, selectedHora, valueLocal, valueFuncao]);
+  }, [
+    valueMedico,
+    selectedDate,
+    selectedHora,
+    valueLocal,
+    valueFuncao,
+    auxilioCirurgicoAtivo,
+    auxilioCirurgico,
+  ]);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -1109,268 +1146,363 @@ export default function PlantoesScreen() {
               <Ionicons name="close-circle" size={33} color={"#bf3d3d"} />
             </TouchableOpacity>
           </View>
-
-          <View style={styles.containerDataHora}>
-            {/* Seletor de Data */}
-            <TouchableOpacity
-              style={[
-                styles.buttonSeletor,
-                (showDatePicker || selectedDate) && {
-                  borderColor: "#59994e",
-                },
-              ]}
-              onPress={toggleDatePicker}
-            >
-              <Text style={styles.textDateTimePicker}>
-                {selectedDate ? selectedDatePicker : "Data"}
-              </Text>
-            </TouchableOpacity>
-            {renderLabelData()}
-            {Platform.OS === "ios" && showDatePicker && (
-              <Modal
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => toggleDatePickerFalse()}
-              >
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalContentSpinner}>
-                    <DateTimePicker
-                      themeVariant="light"
-                      locale="pt-BR"
-                      value={date.toDate()}
-                      mode="date"
-                      display="spinner"
-                      onChange={handleTempDate}
-                    />
-                    <TouchableOpacity
-                      onPress={() => {
-                        toggleDatePickerFalse();
-                      }}
-                      style={styles.confirmButton}
-                    >
-                      <Text style={styles.confirmButtonText}>Confirmar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
-            )}
-
-            {/* Seletor de Hora */}
-            <TouchableOpacity
-              style={[
-                styles.buttonSeletor,
-                (showTimePicker || selectedHora) && {
-                  borderColor: "#59994e",
-                },
-              ]}
-              onPress={toggleTimePicker}
-            >
-              <Text style={styles.textDateTimePicker}>
-                {selectedHora ? selectedHora : "Hora"}
-              </Text>
-            </TouchableOpacity>
-            {renderLabelHora()}
-            {Platform.OS === "ios" && showTimePicker && (
-              <Modal
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => toggleTimePickerFalse()}
-              >
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalContentSpinner}>
-                    <DateTimePicker
-                      themeVariant="light"
-                      locale="pt-BR"
-                      value={time.toDate()}
-                      mode="time"
-                      display="spinner"
-                      onChange={handleTempTime}
-                    />
-                    <TouchableOpacity
-                      onPress={() => {
-                        toggleTimePickerFalse();
-                      }}
-                      style={styles.confirmButton}
-                    >
-                      <Text style={styles.confirmButtonText}>Confirmar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
-            )}
-          </View>
-
-          <View style={styles.betweenInput}>
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={20}
-              color="black"
-            />
-          </View>
-
-          {/* Seletor de Médico */}
-          <TouchableOpacity
-            onPress={() => {
-              dropdownMedicoRef.current.open();
-            }}
-            style={styles.containerMedico}
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 500, alignItems: "center" }}
+            style={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
           >
-            {renderLabelMedico()}
-            <Dropdown
-              ref={dropdownMedicoRef}
-              style={[
-                styles.dropdown,
-                (isFocusMedico || valueMedico) && {
-                  borderColor: "#59994e",
-                },
-              ]}
-              containerStyle={[styles.dropdownList]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              onFocus={() => {
-                setIsFocusMedico(true);
-              }}
-              onBlur={() => {
-                setIsFocusMedico(false);
-              }}
-              labelField="value"
-              valueField="value"
-              maxHeight={300}
-              value={valueMedico}
-              onChange={(item) => {
-                setValueMedico(item.value);
-                setIsFocusMedico(false);
-              }}
-              data={itemsMedico}
-              search
-              placeholder={isFocusMedico ? "..." : "Selecione o médico"}
-              searchPlaceholder="Busque..."
-            />
-          </TouchableOpacity>
-
-          <View style={styles.betweenInput}>
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={20}
-              color="black"
-            />
-          </View>
-
-          {/* Seletor de Local */}
-          <TouchableOpacity
-            onPress={() => {
-              dropdownLocalRef.current.open();
-            }}
-            style={styles.containerLocal}
-          >
-            {renderLabelLocal()}
-            <Dropdown
-              ref={dropdownLocalRef}
-              style={[
-                styles.dropdown,
-                (isFocusHospital || valueLocal) && {
-                  borderColor: "#59994e",
-                },
-              ]}
-              containerStyle={[styles.dropdownList]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              onFocus={() => setIsFocusedHospital(true)}
-              onBlur={() => setIsFocusedHospital(false)}
-              labelField="value"
-              valueField="value"
-              maxHeight={350}
-              value={valueLocal}
-              onChange={(item) => {
-                setValueLocal(item.value);
-                setIsFocusedHospital(false);
-              }}
-              data={itemsLocal}
-              search
-              placeholder={isFocusHospital ? "..." : "Selecione o hospital"}
-              searchPlaceholder="Busque..."
-            />
-          </TouchableOpacity>
-
-          <View style={styles.betweenInput}>
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={20}
-              color="black"
-            />
-          </View>
-
-          {/* Seletor de Função */}
-          <TouchableOpacity
-            onPress={() => {
-              dropdownFuncaoRef.current.open();
-            }}
-            style={styles.containerFuncao}
-          >
-            {renderLabelFuncao()}
-            <Dropdown
-              ref={dropdownFuncaoRef}
-              style={[
-                styles.dropdown,
-                (isFocusFuncao || valueFuncao) && {
-                  borderColor: "#59994e",
-                },
-              ]}
-              containerStyle={[styles.dropdownList]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              onFocus={() => setIsFocusFuncao(true)}
-              onBlur={() => setIsFocusFuncao(false)}
-              labelField="label"
-              valueField="value"
-              maxHeight={300}
-              value={valueFuncao}
-              onChange={(item) => {
-                setValueFuncao(item.value);
-                setIsFocusFuncao(false);
-              }}
-              data={itemsFuncao}
-              placeholder={isFocusFuncao ? "..." : "Selecione a função"}
-              searchPlaceholder="Busque..."
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.confirmarPlantaoButton,
-              !isButtonEnabled && styles.buttonDisabled,
-            ]}
-            disabled={!isButtonEnabled}
-            onPress={() => {
-              handleRegisterShift(
-                valueMedico,
-                valueLocal,
-                selectedDate,
-                selectedHora,
-                valueFuncao
-              );
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
+            <View style={styles.containerDataHora}>
+              {/* Seletor de Data */}
+              <TouchableOpacity
                 style={[
-                  styles.confirmarPlantaoText,
-                  !isButtonEnabled && styles.buttonTextDisabled,
+                  styles.buttonSeletor,
+                  (showDatePicker || selectedDate) && {
+                    borderColor: "#59994e",
+                  },
                 ]}
+                onPress={toggleDatePicker}
               >
-                Confirmar
-              </Text>
-              {submitting && (
-                <ActivityIndicator
-                  style={{ marginLeft: 10 }}
-                  size="small"
-                  color="white"
-                />
+                <Text style={styles.textDateTimePicker}>
+                  {selectedDate ? selectedDatePicker : "Data"}
+                </Text>
+              </TouchableOpacity>
+              {renderLabelData()}
+              {Platform.OS === "ios" && showDatePicker && (
+                <Modal
+                  transparent={true}
+                  animationType="fade"
+                  onRequestClose={() => toggleDatePickerFalse()}
+                >
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContentSpinner}>
+                      <DateTimePicker
+                        themeVariant="light"
+                        locale="pt-BR"
+                        value={date.toDate()}
+                        mode="date"
+                        display="spinner"
+                        onChange={handleTempDate}
+                      />
+                      <TouchableOpacity
+                        onPress={() => {
+                          toggleDatePickerFalse();
+                        }}
+                        style={styles.confirmButton}
+                      >
+                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              )}
+
+              {/* Seletor de Hora */}
+              <TouchableOpacity
+                style={[
+                  styles.buttonSeletor,
+                  (showTimePicker || selectedHora) && {
+                    borderColor: "#59994e",
+                  },
+                ]}
+                onPress={toggleTimePicker}
+              >
+                <Text style={styles.textDateTimePicker}>
+                  {selectedHora ? selectedHora : "Hora"}
+                </Text>
+              </TouchableOpacity>
+              {renderLabelHora()}
+              {Platform.OS === "ios" && showTimePicker && (
+                <Modal
+                  transparent={true}
+                  animationType="fade"
+                  onRequestClose={() => toggleTimePickerFalse()}
+                >
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContentSpinner}>
+                      <DateTimePicker
+                        themeVariant="light"
+                        locale="pt-BR"
+                        value={time.toDate()}
+                        mode="time"
+                        display="spinner"
+                        onChange={handleTempTime}
+                      />
+                      <TouchableOpacity
+                        onPress={() => {
+                          toggleTimePickerFalse();
+                        }}
+                        style={styles.confirmButton}
+                      >
+                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
               )}
             </View>
-          </TouchableOpacity>
+
+            <View style={styles.betweenInput}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={20}
+                color="black"
+              />
+            </View>
+
+            {/* Seletor de Médico */}
+            <TouchableOpacity
+              onPress={() => {
+                dropdownMedicoRef.current.open();
+              }}
+              style={styles.containerMedico}
+            >
+              {renderLabelMedico()}
+              <Dropdown
+                ref={dropdownMedicoRef}
+                style={[
+                  styles.dropdown,
+                  (isFocusMedico || valueMedico) && {
+                    borderColor: "#59994e",
+                  },
+                ]}
+                containerStyle={[styles.dropdownList]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                onFocus={() => {
+                  setIsFocusMedico(true);
+                }}
+                onBlur={() => {
+                  setIsFocusMedico(false);
+                }}
+                labelField="value"
+                valueField="value"
+                maxHeight={300}
+                value={valueMedico}
+                onChange={(item) => {
+                  setValueMedico(item.value);
+                  setIsFocusMedico(false);
+                }}
+                data={itemsMedico}
+                search
+                placeholder={isFocusMedico ? "..." : "Selecione o médico"}
+                searchPlaceholder="Busque..."
+              />
+            </TouchableOpacity>
+
+            <View style={styles.betweenInput}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={20}
+                color="black"
+              />
+            </View>
+
+            {/* Seletor de Local */}
+            <TouchableOpacity
+              onPress={() => {
+                dropdownLocalRef.current.open();
+              }}
+              style={styles.containerLocal}
+            >
+              {renderLabelLocal()}
+              <Dropdown
+                ref={dropdownLocalRef}
+                style={[
+                  styles.dropdown,
+                  (isFocusHospital || valueLocal) && {
+                    borderColor: "#59994e",
+                  },
+                ]}
+                containerStyle={[styles.dropdownList]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                onFocus={() => setIsFocusedHospital(true)}
+                onBlur={() => setIsFocusedHospital(false)}
+                labelField="value"
+                valueField="value"
+                maxHeight={350}
+                value={valueLocal}
+                onChange={(item) => {
+                  setValueLocal(item.value);
+                  setIsFocusedHospital(false);
+                }}
+                data={itemsLocal}
+                search
+                placeholder={isFocusHospital ? "..." : "Selecione o hospital"}
+                searchPlaceholder="Busque..."
+              />
+            </TouchableOpacity>
+
+            <View style={styles.betweenInput}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={20}
+                color="black"
+              />
+            </View>
+
+            {/* Seletor de Função */}
+            <TouchableOpacity
+              onPress={() => {
+                dropdownFuncaoRef.current.open();
+              }}
+              style={styles.containerFuncao}
+            >
+              {renderLabelFuncao()}
+              <Dropdown
+                ref={dropdownFuncaoRef}
+                style={[
+                  styles.dropdown,
+                  (isFocusFuncao || valueFuncao) && {
+                    borderColor: "#59994e",
+                  },
+                ]}
+                containerStyle={[styles.dropdownList]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                onFocus={() => setIsFocusFuncao(true)}
+                onBlur={() => setIsFocusFuncao(false)}
+                labelField="label"
+                valueField="value"
+                maxHeight={300}
+                value={valueFuncao}
+                onChange={(item) => {
+                  setValueFuncao(item.value);
+                  setIsFocusFuncao(false);
+                  if (item.value !== "Cirurgião") {
+                    setAuxilioCirurgico("");
+                  }
+                }}
+                data={itemsFuncao}
+                placeholder={isFocusFuncao ? "..." : "Selecione a função"}
+                searchPlaceholder="Busque..."
+              />
+            </TouchableOpacity>
+
+            {/* Seletor de Auxílio Cirúgico */}
+            {valueFuncao === "Cirurgião" && (
+              <View
+                style={{
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                {/* Linha com o texto e o Switch */}
+                <View style={styles.betweenInput}>
+                  <MaterialCommunityIcons
+                    name="dots-horizontal"
+                    size={20}
+                    color="black"
+                  />
+                </View>
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingHorizontal: 10,
+                    marginBottom: 30,
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: "white" }}>
+                    Auxílio Cirúrgico?
+                  </Text>
+                  <Switch
+                    value={auxilioCirurgicoAtivo}
+                    onValueChange={(value) => {
+                      setAuxilioCirurgicoAtivo(value);
+                      if (!value) {
+                        setAuxilioCirurgico(""); // Limpa o valor ao desativar
+                      }
+                    }}
+                  />
+                </View>
+
+                {/* Dropdown aparece apenas se o switch estiver ativado */}
+                {auxilioCirurgicoAtivo && (
+                  <View style={{ width: "100%", alignItems: "center" }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        dropdownAuxilioRef.current.open();
+                      }}
+                      style={styles.containerFuncao}
+                    >
+                      {renderLabelAuxilio()}
+                      <Dropdown
+                        ref={dropdownAuxilioRef}
+                        style={[
+                          styles.dropdown,
+                          (isFocusAuxilio || auxilioCirurgico) && {
+                            borderColor: "#59994e",
+                          },
+                        ]}
+                        containerStyle={styles.dropdownList}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        onFocus={() => setIsFocusAuxilio(true)}
+                        onBlur={() => setIsFocusAuxilio(false)}
+                        labelField="value"
+                        valueField="value"
+                        maxHeight={300}
+                        value={auxilioCirurgico}
+                        onChange={(item) => {
+                          setAuxilioCirurgico(item.value);
+                          setIsFocusAuxilio(false);
+                        }}
+                        data={filteredAuxilioCirurgico}
+                        placeholder={
+                          isFocusAuxilio
+                            ? "..."
+                            : "Selecione o auxílio cirúrgico"
+                        }
+                        search
+                        searchPlaceholder="Busque..."
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={[
+                styles.confirmarPlantaoButton,
+                !isButtonEnabled && styles.buttonDisabled,
+              ]}
+              disabled={!isButtonEnabled}
+              onPress={() => {
+                handleRegisterShift(
+                  valueMedico,
+                  valueLocal,
+                  selectedDate,
+                  selectedHora,
+                  valueFuncao
+                );
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.confirmarPlantaoText,
+                    !isButtonEnabled && styles.buttonTextDisabled,
+                  ]}
+                >
+                  Confirmar
+                </Text>
+                {submitting && (
+                  <ActivityIndicator
+                    style={{ marginLeft: 10 }}
+                    size="small"
+                    color="white"
+                  />
+                )}
+              </View>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </Modal>
       <Modal visible={isModalObsVisible} transparent animationType="fade">
