@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import firestore from "@react-native-firebase/firestore";
 import { Medico, Plantao } from "../types";
+import FlashMessage from "react-native-flash-message";
 
 const medicosHooks = () => {
   const [filterType, setFilterType] = useState<string>("todos");
@@ -8,6 +9,11 @@ const medicosHooks = () => {
   const [filteredMedicos, setFilteredMedicos] = useState<Medico[]>([]);
   const [plantoes, setPlantoes] = useState<Plantao[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [isModalDeleteVisible, setIsModalDeleteVisible] = useState(false);
+  const [selectedPlantao, setSelectedPlantao] = useState<Plantao | null>(null);
+  const [isModalObsVisible, setIsModalObsVisible] = useState(false);
+  const alertPlantao = useRef<FlashMessage | null>(null);
 
   // Buscar médicos no FireStore
   const fetchMedicos = async () => {
@@ -95,6 +101,96 @@ const medicosHooks = () => {
     }
   };
 
+  const handleDeleteShift = async (plantaoId: string) => {
+    try {
+      setSubmitting(true);
+
+      const shiftDoc = await firestore()
+        .collection("plantoes")
+        .doc(plantaoId)
+        .get();
+      if (!shiftDoc.exists) {
+        throw new Error("Escala não encontrada.");
+      }
+
+      const shiftData = shiftDoc.data();
+      const medicoUid = shiftData?.medicoUid;
+      const localUid = shiftData?.localUid;
+
+      // Remover plantão do usuário e hospital
+      if (medicoUid) {
+        await firestore()
+          .collection("users")
+          .doc(medicoUid)
+          .update({
+            plantaoIdsNovos: firestore.FieldValue.arrayRemove(plantaoId),
+            plantaoIdsAntigos: firestore.FieldValue.arrayRemove(plantaoId),
+          });
+      }
+      if (localUid) {
+        await firestore()
+          .collection("hospitais")
+          .doc(localUid)
+          .update({
+            plantaoIdsH: firestore.FieldValue.arrayRemove(plantaoId),
+          });
+      }
+
+      // Deletar plantão
+      await firestore().collection("plantoes").doc(plantaoId).delete();
+
+      // Atualizar listas localmente
+      setPlantoes((prev) => prev.filter((p) => p.id !== plantaoId));
+      setFilteredMedicos((prev) => prev.filter((p) => p.id !== plantaoId));
+
+      // Buscar plantoes novamente para manter sincronizado
+      fetchPlantoes(medicoUid);
+
+      // Notificação de sucesso
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Escala excluída com sucesso!",
+          type: "success",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao deletar escala:", error);
+      if (alertPlantao.current) {
+        alertPlantao.current.showMessage({
+          message: "Erro ao excluir escala. Tente novamente.",
+          type: "danger",
+          floating: false,
+          duration: 4000,
+          style: { alignItems: "center" },
+        });
+      }
+    } finally {
+      setSubmitting(false);
+      setIsModalDeleteVisible(false);
+    }
+  };
+
+  const openModalDelete = (plantao: Plantao) => {
+    setSelectedPlantao(plantao); // Armazena o plantão selecionado
+    setIsModalDeleteVisible(true); // Abre o modal
+  };
+
+  const closeModalDelete = () => {
+    setIsModalDeleteVisible(false);
+  };
+
+  const openModalObs = (plantao: Plantao) => {
+    setSelectedPlantao(plantao); // Armazena o plantão selecionado
+    setIsModalObsVisible(true); // Abre o modal
+  };
+
+  const closeModal = () => {
+    setIsModalObsVisible(false);
+  };
+
   return {
     filteredMedicos,
     setFilteredMedicos,
@@ -105,6 +201,15 @@ const medicosHooks = () => {
     fetchPlantoes,
     plantoes,
     loading,
+    handleDeleteShift,
+    openModalDelete,
+    closeModalDelete,
+    isModalDeleteVisible,
+    submitting,
+    openModalObs,
+    closeModal,
+    isModalObsVisible,
+    selectedPlantao,
   };
 };
 

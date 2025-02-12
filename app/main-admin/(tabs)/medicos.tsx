@@ -48,10 +48,17 @@ export default function MedicosScreen() {
     fetchPlantoes,
     plantoes,
     loading,
+    handleDeleteShift,
+    openModalDelete,
+    closeModalDelete,
+    isModalDeleteVisible,
+    submitting,
+    openModalObs,
+    closeModal,
+    isModalObsVisible,
+    selectedPlantao,
   } = medicosHooks();
 
-  const { openModalObs, isModalObsVisible, selectedPlantao, closeModal } =
-    plantoesHooks();
   const [selectedMedico, setSelectedMedico] = useState<Medico | null>(null);
 
   // Chama a função de buscar médicos assim que o componente é montado
@@ -214,6 +221,8 @@ export default function MedicosScreen() {
                   onPress={() => {
                     if (item.concluido) {
                       openModalObs(item);
+                    } else if (!item.concluido) {
+                      openModalDelete(item);
                     }
                   }}
                 />
@@ -297,6 +306,64 @@ export default function MedicosScreen() {
               >
                 <Text style={stylesModal.closeButtonText}>Fechar</Text>
               </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Modal>
+      <Modal visible={isModalDeleteVisible} transparent animationType="fade">
+        {selectedPlantao && (
+          <View style={stylesModal.overlayDelete}>
+            <View style={stylesModal.modalContentDelete}>
+              {/* Verifica se o plantão foi selecionado antes de renderizar */}
+              {selectedPlantao ? (
+                <FlatList
+                  style={styles.flatListContainer}
+                  data={[selectedPlantao]} // Passa um array com o plantão selecionado
+                  renderItem={({ item }) => (
+                    <PlantaoItem plantao={item} onPress={() => {}} />
+                  )}
+                  keyExtractor={(item) => item.id}
+                  numColumns={1}
+                />
+              ) : (
+                <Text>Nenhuma escala selecionada</Text>
+              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  justifyContent: "space-around",
+                  marginTop: 15,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => closeModalDelete()}
+                  style={stylesModal.closeButtonDelete}
+                >
+                  <Text style={stylesModal.closeButtonTextDelete}>
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDeleteShift(selectedPlantao.id)}
+                  style={[
+                    stylesModal.deleteButton,
+                    { opacity: submitting ? 0.6 : 1 },
+                  ]}
+                  disabled={submitting}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={stylesModal.titleDelete}>Excluir escala</Text>
+                    {submitting && (
+                      <ActivityIndicator
+                        style={{ marginLeft: 10 }}
+                        size="small"
+                        color="white"
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}

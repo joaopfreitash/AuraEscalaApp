@@ -129,7 +129,6 @@ export default function PlantoesScreen() {
     filteredAuxilioCirurgico,
     auxilioCirurgicoAtivo,
     setAuxilioCirurgicoAtivo,
-    setEscalasComAuxilio,
     atualizarSwitch,
     filteredAuxilioCirurgicoFixa,
   } = plantoesHooks();
@@ -1643,7 +1642,7 @@ export default function PlantoesScreen() {
                   <ActivityIndicator
                     style={{ marginLeft: 10 }}
                     size="small"
-                    color="white"
+                    color="black"
                   />
                 )}
               </View>
@@ -1723,7 +1722,7 @@ export default function PlantoesScreen() {
                       <ActivityIndicator
                         style={{ marginLeft: 10 }}
                         size="small"
-                        color="white"
+                        color="black"
                       />
                     )}
                   </View>

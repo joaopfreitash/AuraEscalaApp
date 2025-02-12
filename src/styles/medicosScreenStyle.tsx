@@ -17,6 +17,7 @@ export default StyleSheet.create({
     flex: 1,
   },
   flatListContainer: {
+    width: "100%",
     paddingHorizontal: 10,
   },
   medicosTitle: {
