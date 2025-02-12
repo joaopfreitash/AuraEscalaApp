@@ -215,6 +215,7 @@ export default function RelatoriosScreen() {
                     containerStyle={[styles.dropdownList]}
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
+                    itemContainerStyle={styles.selectedItemStyle}
                     onFocus={() => {
                       setIsFocusMes(true);
                     }}

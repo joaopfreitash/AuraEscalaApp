@@ -300,6 +300,8 @@ export default StyleSheet.create({
   },
   dropdownList: {
     borderRadius: 12,
+    paddingBottom: 7,
+    paddingTop: 7,
   },
   inputSearchStyle: {
     height: 40,
@@ -572,5 +574,8 @@ export default StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: "center",
+  },
+  selectedItemStyle: {
+    borderRadius: 12,
   },
 });

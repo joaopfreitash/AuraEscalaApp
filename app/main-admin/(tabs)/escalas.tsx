@@ -939,6 +939,7 @@ export default function PlantoesScreen() {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
+                        itemContainerStyle={styles.selectedItemStyle}
                         onFocus={() => {
                           setIsFocusMedico(true); // Marca o dropdown como em foco
                         }}
@@ -991,6 +992,7 @@ export default function PlantoesScreen() {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
+                        itemContainerStyle={styles.selectedItemStyle}
                         onFocus={() => setIsFocusedHospital(true)}
                         onBlur={() => setIsFocusedHospital(false)}
                         labelField="value"
@@ -1037,6 +1039,7 @@ export default function PlantoesScreen() {
                         containerStyle={[styles.dropdownList]}
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
+                        itemContainerStyle={styles.selectedItemStyle}
                         onFocus={() => setIsFocusFuncao(true)}
                         onBlur={() => setIsFocusFuncao(false)}
                         labelField="label"
@@ -1144,6 +1147,7 @@ export default function PlantoesScreen() {
                                 placeholderStyle={styles.placeholderStyle}
                                 selectedTextStyle={styles.selectedTextStyle}
                                 inputSearchStyle={styles.inputSearchStyle}
+                                itemContainerStyle={styles.selectedItemStyle}
                                 onFocus={() => setIsFocusAuxilio(true)}
                                 onBlur={() => setIsFocusAuxilio(false)}
                                 labelField="value"
@@ -1408,6 +1412,7 @@ export default function PlantoesScreen() {
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
+                itemContainerStyle={styles.selectedItemStyle}
                 onFocus={() => {
                   setIsFocusMedico(true);
                 }}
@@ -1457,6 +1462,7 @@ export default function PlantoesScreen() {
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
+                itemContainerStyle={styles.selectedItemStyle}
                 onFocus={() => setIsFocusedHospital(true)}
                 onBlur={() => setIsFocusedHospital(false)}
                 labelField="value"
@@ -1501,6 +1507,7 @@ export default function PlantoesScreen() {
                 containerStyle={[styles.dropdownList]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
+                itemContainerStyle={styles.selectedItemStyle}
                 onFocus={() => setIsFocusFuncao(true)}
                 onBlur={() => setIsFocusFuncao(false)}
                 labelField="label"
@@ -1581,6 +1588,7 @@ export default function PlantoesScreen() {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
+                        itemContainerStyle={styles.selectedItemStyle}
                         onFocus={() => setIsFocusAuxilio(true)}
                         onBlur={() => setIsFocusAuxilio(false)}
                         labelField="value"

@@ -133,6 +133,8 @@ export default StyleSheet.create({
   },
   dropdownList: {
     borderRadius: 12,
+    paddingBottom: 7,
+    paddingTop: 7,
   },
   placeholderStyle: {
     color: "black",
@@ -180,5 +182,8 @@ export default StyleSheet.create({
   cancelButtonText: {
     color: "white",
     textAlign: "center",
+  },
+  selectedItemStyle: {
+    borderRadius: 12,
   },
 });
