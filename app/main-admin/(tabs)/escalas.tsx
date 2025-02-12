@@ -96,6 +96,7 @@ export default function PlantoesScreen() {
     escalasComDataSelecionada,
     escalasComMedico,
     escalasComFuncao,
+    escalasComAuxilio,
     escalasComHora,
     escalasComLocal,
     handleRegisterFixedShift,
@@ -128,6 +129,9 @@ export default function PlantoesScreen() {
     filteredAuxilioCirurgico,
     auxilioCirurgicoAtivo,
     setAuxilioCirurgicoAtivo,
+    setEscalasComAuxilio,
+    atualizarSwitch,
+    filteredAuxilioCirurgicoFixa,
   } = plantoesHooks();
 
   const {
@@ -272,7 +276,7 @@ export default function PlantoesScreen() {
   };
   const renderLabelFixaMisc = (
     escalaId: number,
-    campo: "medico" | "local" | "funcao" | "hora"
+    campo: "medico" | "local" | "funcao" | "hora" | "auxiliocirurgico"
   ) => {
     switch (campo) {
       case "medico":
@@ -288,6 +292,11 @@ export default function PlantoesScreen() {
       case "funcao":
         if (isFocusFuncao || escalasComFuncao.includes(escalaId)) {
           return <Text style={[styles.labelFixa]}>Função</Text>;
+        }
+        break;
+      case "auxiliocirurgico":
+        if (isFocusAuxilio || escalasComAuxilio.includes(escalaId)) {
+          return <Text style={[styles.labelFixa]}>Auxílio Cirúrgico</Text>;
         }
         break;
       case "hora":
@@ -599,13 +608,15 @@ export default function PlantoesScreen() {
                     <Text style={styles.escalaText}>Nova escala fixa</Text>
                     <Ionicons
                       name={
-                        // Verificando se todos os campos estão preenchidos
+                        // Verificando se todos os campos estão preenchidos e a validação do auxilio
                         escala.dias.length > 0 &&
                         escala.hora &&
                         escala.medico &&
                         escala.local &&
-                        escala.funcao
-                          ? "checkmark-circle" // Se todos os valores estão preenchidos
+                        escala.funcao &&
+                        (!escala.auxiliocirurgicoativo ||
+                          escala.auxiliocirurgico) // Verificação do estado de auxilia cirúrgico
+                          ? "checkmark-circle" // Se todos os valores estão preenchidos e validado
                           : escala.aberta
                           ? "chevron-up" // Se a escala está aberta
                           : "chevron-down" // Caso contrário
@@ -616,10 +627,12 @@ export default function PlantoesScreen() {
                         escala.hora &&
                         escala.medico &&
                         escala.local &&
-                        escala.funcao
-                          ? "#59994e"
-                          : "white"
-                      } // Cor verde se completa, branca caso contrário
+                        escala.funcao &&
+                        (!escala.auxiliocirurgicoativo ||
+                          escala.auxiliocirurgico) // Verificação extra
+                          ? "#59994e" // Cor verde se completa e validado
+                          : "white" // Cor branca caso contrário
+                      }
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -1033,14 +1046,134 @@ export default function PlantoesScreen() {
                         onChange={(item) => {
                           atualizarEscala(escala.id, "funcao", item.value);
                           setIsFocusFuncao(false);
+                          if (item.value !== "Cirurgião") {
+                            atualizarEscala(escala.id, "auxiliocirurgico", "");
+                            atualizarSwitch(
+                              escala.id,
+                              "auxiliocirurgicoativo",
+                              false
+                            );
+                          }
                         }}
                         data={itemsFuncao}
                         placeholder={
                           isFocusFuncao ? "..." : "Selecione a função"
                         }
-                        searchPlaceholder="Busque..."
                       />
                     </TouchableOpacity>
+
+                    {/* Seletor de Auxílio Cirúgico */}
+                    {escala.funcao === "Cirurgião" && (
+                      <View
+                        style={{
+                          width: "100%",
+                          alignItems: "center",
+                        }}
+                      >
+                        {/* Linha com o texto e o Switch */}
+                        <View style={styles.betweenInput}>
+                          <MaterialCommunityIcons
+                            name="dots-horizontal"
+                            size={20}
+                            color="black"
+                          />
+                        </View>
+                        <View
+                          style={{
+                            width: "100%",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            paddingHorizontal: 10,
+                            marginBottom: 30,
+                          }}
+                        >
+                          <Text style={{ fontSize: 16, color: "white" }}>
+                            Auxílio Cirúrgico?
+                          </Text>
+                          <Switch
+                            value={escala.auxiliocirurgicoativo}
+                            onValueChange={(value) => {
+                              if (!value) {
+                                atualizarSwitch(
+                                  escala.id,
+                                  "auxiliocirurgicoativo",
+                                  false
+                                );
+                                atualizarEscala(
+                                  escala.id,
+                                  "auxiliocirurgico",
+                                  ""
+                                );
+                                setIsFocusAuxilio(false);
+                              }
+                              if (value) {
+                                atualizarSwitch(
+                                  escala.id,
+                                  "auxiliocirurgicoativo",
+                                  true
+                                );
+                              }
+                            }}
+                          />
+                        </View>
+
+                        {/* Dropdown aparece apenas se o switch estiver ativado */}
+                        {escala.auxiliocirurgicoativo && (
+                          <View style={{ width: "100%", alignItems: "center" }}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                dropdownAuxilioRef.current.open();
+                              }}
+                              style={styles.containerFuncao}
+                            >
+                              {renderLabelFixaMisc(
+                                escala.id,
+                                "auxiliocirurgico"
+                              )}
+                              <Dropdown
+                                ref={dropdownAuxilioRef}
+                                style={[
+                                  styles.dropdown,
+                                  (isFocusAuxilio ||
+                                    escala.auxiliocirurgico) && {
+                                    borderColor: "#59994e",
+                                  },
+                                ]}
+                                containerStyle={styles.dropdownList}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                onFocus={() => setIsFocusAuxilio(true)}
+                                onBlur={() => setIsFocusAuxilio(false)}
+                                labelField="value"
+                                valueField="value"
+                                maxHeight={300}
+                                value={escala.auxiliocirurgico}
+                                onChange={(item) => {
+                                  atualizarEscala(
+                                    escala.id,
+                                    "auxiliocirurgico",
+                                    item.value
+                                  );
+                                  setIsFocusAuxilio(false);
+                                }}
+                                data={filteredAuxilioCirurgicoFixa(
+                                  escala.medico
+                                )}
+                                placeholder={
+                                  isFocusAuxilio
+                                    ? "..."
+                                    : "Selecione o auxílio cirúrgico"
+                                }
+                                search
+                                searchPlaceholder="Busque..."
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
                 )}
               </View>
@@ -1055,18 +1188,20 @@ export default function PlantoesScreen() {
                 <Entypo name="add-to-list" size={24} color="white" />
               </TouchableOpacity>
             )}
+
             {/* Botão "Confirmar" */}
             <TouchableOpacity
               style={[
                 styles.confirmButtonFixa,
                 (loading ||
-                  !escalas.some(
+                  !escalas.every(
                     (escala) =>
                       escala.dias.length > 0 &&
                       escala.hora &&
                       escala.medico &&
                       escala.local &&
-                      escala.funcao
+                      escala.funcao &&
+                      (!escala.auxiliocirurgicoativo || escala.auxiliocirurgico) // Adiciona a nova regra
                   )) &&
                   styles.buttonDisabled,
               ]}
@@ -1077,12 +1212,13 @@ export default function PlantoesScreen() {
                     escala.hora &&
                     escala.medico &&
                     escala.local &&
-                    escala.funcao
+                    escala.funcao &&
+                    (!escala.auxiliocirurgicoativo || escala.auxiliocirurgico) // Validação extra
                 );
 
-                if (escalasCompletas.length > 0) {
-                  setLoading(true); // Ativa o estado de carregamento
-                  await handleRegisterFixedShift(); // Chama a função e aguarda a resposta
+                if (escalasCompletas.length === escalas.length) {
+                  setLoading(true);
+                  await handleRegisterFixedShift();
                   setModalFixaVisible(false);
                   setEscalas([]);
                   setLoading(false);
@@ -1091,13 +1227,14 @@ export default function PlantoesScreen() {
                 }
               }}
               disabled={
-                !escalas.some(
+                !escalas.every(
                   (escala) =>
                     escala.dias.length > 0 &&
                     escala.hora &&
                     escala.medico &&
                     escala.local &&
-                    escala.funcao
+                    escala.funcao &&
+                    (!escala.auxiliocirurgicoativo || escala.auxiliocirurgico) // Validação extra
                 ) || loading
               }
             >
@@ -1105,13 +1242,15 @@ export default function PlantoesScreen() {
                 <Text
                   style={[
                     loading ||
-                    !escalas.some(
+                    !escalas.every(
                       (escala) =>
                         escala.dias.length > 0 &&
                         escala.hora &&
                         escala.medico &&
                         escala.local &&
-                        escala.funcao
+                        escala.funcao &&
+                        (!escala.auxiliocirurgicoativo ||
+                          escala.auxiliocirurgico) // Validação extra
                     )
                       ? styles.textConfirmButtonDisabled
                       : styles.textConfirmButtonEnabled,
@@ -1377,7 +1516,6 @@ export default function PlantoesScreen() {
                 }}
                 data={itemsFuncao}
                 placeholder={isFocusFuncao ? "..." : "Selecione a função"}
-                searchPlaceholder="Busque..."
               />
             </TouchableOpacity>
 

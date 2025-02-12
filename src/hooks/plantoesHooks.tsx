@@ -23,6 +23,10 @@ const plantoesHooks = () => {
   const [escalasComMedico, setEscalasComMedico] = useState<number[]>([]);
   const [escalasComLocal, setEscalasComLocal] = useState<number[]>([]);
   const [escalasComFuncao, setEscalasComFuncao] = useState<number[]>([]);
+  const [escalasComAuxilio, setEscalasComAuxilio] = useState<number[]>([]);
+  const [escalasComAuxilioAtivo, setEscalasComAuxilioAtivo] = useState<
+    number[]
+  >([]);
   const [escalasComHora, setEscalasComHora] = useState<number[]>([]);
 
   const [escalas, setEscalas] = useState<
@@ -33,6 +37,8 @@ const plantoesHooks = () => {
       medico?: string;
       local?: string;
       funcao?: string;
+      auxiliocirurgico?: string;
+      auxiliocirurgicoativo: boolean;
       hora?: string;
     }[]
   >([
@@ -43,6 +49,8 @@ const plantoesHooks = () => {
       medico: "",
       local: "",
       funcao: "",
+      auxiliocirurgico: "",
+      auxiliocirurgicoativo: true,
       hora: "",
     },
   ]);
@@ -371,7 +379,7 @@ const plantoesHooks = () => {
     try {
       setIsButtonEnabled(false);
       for (const escala of escalas) {
-        const { medico, local, dias, funcao, hora } = escala;
+        const { medico, local, dias, funcao, hora, auxiliocirurgico } = escala;
 
         const medicoSnapshot = await firestore()
           .collection("users")
@@ -421,6 +429,7 @@ const plantoesHooks = () => {
           const shiftId = shiftsDocRef.id;
 
           try {
+            // Cria o plantão principal
             await shiftsDocRef.set({
               plantonista: medico,
               local,
@@ -428,11 +437,65 @@ const plantoesHooks = () => {
               horario: hora,
               funcao,
               createdAt: firestore.FieldValue.serverTimestamp(),
-              medicoUid,
+              medicoUid, // Médico principal
               localUid,
               escalafixa: true,
               concluido: false,
             });
+
+            // Caso exista auxiliar cirúrgico, cria o plantão para o auxiliar
+            if (auxiliocirurgico && auxiliocirurgico !== "") {
+              const auxilioCirurgicoSnapshot = await firestore()
+                .collection("users")
+                .where("name", "==", auxiliocirurgico)
+                .get();
+
+              if (auxilioCirurgicoSnapshot.empty) {
+                console.error("Auxiliar Cirúrgico não encontrado.");
+                throw new Error("Auxiliar Cirúrgico não encontrado.");
+              }
+
+              const auxilioCirurgicoDoc = auxilioCirurgicoSnapshot.docs[0];
+              const auxiliocirurgicoUid = auxilioCirurgicoDoc.id;
+
+              const auxilioCirurgicoShiftDocRef = firestore()
+                .collection("plantoes")
+                .doc();
+              const auxilioCirurgicoShiftId = auxilioCirurgicoShiftDocRef.id;
+
+              await auxilioCirurgicoShiftDocRef.set({
+                plantonista: auxiliocirurgico,
+                local,
+                data: dia,
+                horario: hora,
+                funcao: "Auxílio Cirúrgico", // Função do plantão do auxiliar
+                createdAt: firestore.FieldValue.serverTimestamp(),
+                medicoUid: auxiliocirurgicoUid, // Usando o medicoUid do auxiliar
+                localUid,
+                escalafixa: true,
+                concluido: false,
+              });
+
+              // Atualiza o auxiliar cirúrgico com a nova escala
+              const auxiliarRef = firestore()
+                .collection("users")
+                .doc(auxiliocirurgicoUid);
+              await auxiliarRef.update({
+                plantaoIdsNovos: firestore.FieldValue.arrayUnion(
+                  auxilioCirurgicoShiftId
+                ),
+              });
+
+              // Atualiza o hospital com a nova escala do auxiliar
+              const localRef = firestore()
+                .collection("hospitais")
+                .doc(localUid);
+              await localRef.update({
+                plantaoIdsH: firestore.FieldValue.arrayUnion(
+                  auxilioCirurgicoShiftId
+                ), // Adiciona o plantão do auxiliar no hospital
+              });
+            }
 
             // Atualiza o médico com a nova escala
             const medicoRef = firestore().collection("users").doc(medicoUid);
@@ -488,7 +551,6 @@ const plantoesHooks = () => {
         });
       }
     } catch (error) {
-      console.error("Erro ao cadastrar escala fixa:", error);
       if (alertPlantao.current) {
         alertPlantao.current.showMessage({
           message: "Ocorreu um erro, tente novamente.",
@@ -552,7 +614,15 @@ const plantoesHooks = () => {
 
   const adicionarEscala = () => {
     if (escalas.length < 5) {
-      setEscalas([...escalas, { id: Date.now(), aberta: false, dias: [] }]);
+      setEscalas([
+        ...escalas,
+        {
+          id: Date.now(),
+          aberta: false,
+          dias: [],
+          auxiliocirurgicoativo: true,
+        },
+      ]);
     }
   };
 
@@ -691,7 +761,7 @@ const plantoesHooks = () => {
 
   const atualizarEscala = (
     id: number,
-    campo: "medico" | "local" | "funcao" | "hora",
+    campo: "medico" | "local" | "funcao" | "hora" | "auxiliocirurgico",
     valor: string
   ) => {
     setEscalas((prevEscalas) => {
@@ -709,10 +779,35 @@ const plantoesHooks = () => {
       if (campo === "funcao" && valor !== "") {
         setEscalasComFuncao((prev) => [...prev, id]);
       }
+      if (campo === "auxiliocirurgico" && valor !== "") {
+        setEscalasComAuxilio((prev) => [...prev, id]);
+      }
+      if (campo === "auxiliocirurgico" && valor == "") {
+        setEscalasComAuxilio([]);
+      }
       if (campo === "hora" && valor !== "") {
         setEscalasComHora((prev) => [...prev, id]);
       }
 
+      return escalasAtualizadas;
+    });
+  };
+
+  const atualizarSwitch = (
+    id: number,
+    campo: "auxiliocirurgicoativo",
+    valor: boolean
+  ) => {
+    setEscalas((prevEscalas) => {
+      const escalasAtualizadas = prevEscalas.map((escala) =>
+        escala.id === id ? { ...escala, [campo]: valor } : escala
+      );
+      if (campo === "auxiliocirurgicoativo" && valor == true) {
+        setEscalasComAuxilioAtivo((prev) => [...prev, id]);
+      }
+      if (campo === "auxiliocirurgicoativo" && valor == false) {
+        setEscalasComAuxilioAtivo((prev) => [...prev, id]);
+      }
       return escalasAtualizadas;
     });
   };
@@ -793,6 +888,10 @@ const plantoesHooks = () => {
     (medico) => medico.value !== valueMedico
   );
 
+  const filteredAuxilioCirurgicoFixa = (medicoSelecionado: any) => {
+    return itemsMedico.filter((medico) => medico.value !== medicoSelecionado);
+  };
+
   return {
     resetModal,
     fetchPlantoes,
@@ -861,6 +960,8 @@ const plantoesHooks = () => {
     setEscalasComDataSelecionada,
     escalasComMedico,
     escalasComFuncao,
+    escalasComAuxilio,
+    setEscalasComAuxilio,
     escalasComHora,
     escalasComLocal,
     handleRegisterFixedShift,
@@ -896,6 +997,8 @@ const plantoesHooks = () => {
     filteredAuxilioCirurgico,
     auxilioCirurgicoAtivo,
     setAuxilioCirurgicoAtivo,
+    atualizarSwitch,
+    filteredAuxilioCirurgicoFixa,
   };
 };
 
