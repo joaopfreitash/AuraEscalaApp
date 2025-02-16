@@ -2,7 +2,7 @@
   "expo": {
     "name": "Aura Escalas",
     "slug": "auraescalaappv4",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/auraicon.png",
     "scheme": "exp+auraescalaappv4",

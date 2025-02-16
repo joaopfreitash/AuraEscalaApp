@@ -96,6 +96,8 @@ const plantoesHooks = () => {
     { label: "Auxílio Cirúrgico", value: "Auxílio Cirúrgico" },
     { label: "Anestesista", value: "Anestesista" },
     { label: "Ambulatório", value: "Ambulatório" },
+    { label: "Ambulatório Cirurgia", value: "Ambulatório Cirurgia" },
+    { label: "Ambulatório Anestesia", value: "Ambulatório Anestesia" },
   ]);
   const [modalFixaVisible, setModalFixaVisible] = useState(false);
   const [auxilioCirurgico, setAuxilioCirurgico] = useState<string>("");

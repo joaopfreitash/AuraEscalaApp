@@ -947,7 +947,7 @@ export default function PlantoesScreen() {
                         }}
                         labelField="value"
                         valueField="value"
-                        maxHeight={300}
+                        maxHeight={285}
                         value={escala.medico}
                         onChange={(item) => {
                           setValueMedico(item.value);
@@ -996,7 +996,7 @@ export default function PlantoesScreen() {
                         onBlur={() => setIsFocusedHospital(false)}
                         labelField="value"
                         valueField="value"
-                        maxHeight={350}
+                        maxHeight={285}
                         value={escala.local}
                         onChange={(item) => {
                           atualizarEscala(escala.id, "local", item.value);
@@ -1043,7 +1043,7 @@ export default function PlantoesScreen() {
                         onBlur={() => setIsFocusFuncao(false)}
                         labelField="label"
                         valueField="value"
-                        maxHeight={300}
+                        maxHeight={285}
                         value={escala.funcao}
                         onChange={(item) => {
                           atualizarEscala(escala.id, "funcao", item.value);
@@ -1420,7 +1420,7 @@ export default function PlantoesScreen() {
                 }}
                 labelField="value"
                 valueField="value"
-                maxHeight={300}
+                maxHeight={285}
                 value={valueMedico}
                 onChange={(item) => {
                   setValueMedico(item.value);
@@ -1466,7 +1466,7 @@ export default function PlantoesScreen() {
                 onBlur={() => setIsFocusedHospital(false)}
                 labelField="value"
                 valueField="value"
-                maxHeight={350}
+                maxHeight={285}
                 value={valueLocal}
                 onChange={(item) => {
                   setValueLocal(item.value);
@@ -1511,7 +1511,7 @@ export default function PlantoesScreen() {
                 onBlur={() => setIsFocusFuncao(false)}
                 labelField="label"
                 valueField="value"
-                maxHeight={300}
+                maxHeight={285}
                 value={valueFuncao}
                 onChange={(item) => {
                   setValueFuncao(item.value);
