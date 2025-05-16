@@ -31,30 +31,30 @@ Atuei diretamente durante todo o ciclo de vida da aplicação, inclusive atualme
 
 ### 🔐 Login
 
-![Login](assets/images/1.jpg)
+<img src="assets/images/1.jpg" alt="Login" width="300"/>
 
 ### 🏠 Telas iniciais
 
-![Tela inicial sem escalas no dia](assets/images/2.jpg)
-![Tela inicial com escalas no dia](assets/images/3.jpg)
+<img src="assets/images/2.jpg" alt="Tela inicial sem escalas" width="300"/>
+<img src="assets/images/3.jpg" alt="Tela inicial com escalas" width="300"/>
 
 ### 📅 Escalas
 
-![Escalas](assets/images/4.jpg)
-![Cadastrar escala](assets/images/5.jpg)
-![Cadastrar repetição de escala](assets/images/6.jpg)
+<img src="assets/images/4.jpg" alt="Escalas" width="300"/>
+<img src="assets/images/5.jpg" alt="Cadastrar escala" width="300"/>
+<img src="assets/images/6.jpg" alt="Repetição de escala" width="300"/>
 
 ### 👨‍⚕️ Médicos
 
-![Usuários](assets/images/7.jpg)
+<img src="assets/images/7.jpg" alt="Médicos" width="300"/>
 
 ### 📊 Relatórios
 
-![Relatórios](assets/images/8.jpg)
+<img src="assets/images/8.jpg" alt="Relatórios" width="300"/>
 
 ### ⚙️ Configurações
 
-![Configurações](assets/images/9.jpg)
+<img src="assets/images/9.jpg" alt="Configurações" width="300"/>
 
 ## ⚠️ Aviso Legal
 
