@@ -55,11 +55,3 @@ Atuei diretamente durante todo o ciclo de vida da aplicação, inclusive atualme
 ### ⚙️ Configurações
 
 <img src="assets/images/9.jpg" alt="Configurações" width="300"/>
-
-## ⚠️ Aviso Legal
-
-Este repositório é propriedade privada. **Todos os direitos reservados.**
-
-Nenhum trecho deste código pode ser copiado, reproduzido, distribuído ou utilizado, total ou parcialmente, sem a permissão explícita do autor.
-
-Se tiver interesse em utilizar este projeto, entre em contato via [LinkedIn](https://www.linkedin.com/in/joaopfreitas8/).
