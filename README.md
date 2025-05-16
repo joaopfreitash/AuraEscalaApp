@@ -1,50 +1,40 @@
-# Welcome to your Expo app 👋
+# 📅 Aura Escalas
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile (Atualmente somente com suporte para IOS) desenvolvido para auxiliar na gestão de escalas de profissionais da saúde, facilitando o controle de plantões e turnos em clínicas e hospitais.
 
-## Get started
+## 🚀 Tecnologias Utilizadas
 
-1. Install dependencies
+- **React Native** com Expo
+- **TypeScript**
+- **Firebase** (Autenticação e Firestore)
+- **React Navigation**
+- **Styled Components**
 
-   ```bash
-   npm install
-   ```
+## 🧩 Funcionalidades
 
-2. Start the app
+- Cadastro e autenticação de usuários
+- Visualização de escalas semanais/mensais
+- Notificações de alterações nas escalas
+- Interface intuitiva adaptada para uso clínico
+- Diferente funções para médicos e administradores
+- Relatórios completos de plantões em aberto e concluídos
 
-   ```bash
-    npx expo start
-   ```
+## 👨‍💻 Meu Papel no Projeto
 
-In the output, you'll find options to open the app in a
+Atuei diretamente durante todo o ciclo de vida da aplicação, inclusive atualmente na manutenção:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Levantamento de Requisitos**: Colaborei com a equipe médica para entender as necessidades específicas da gestão de escalas.
+- **Desenvolvimento**: Implementei a interface e a lógica de negócios utilizando React Native e Firebase.
+- **Qualidade de Software**: Realizei testes para garantir a estabilidade e usabilidade do aplicativo.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🖼️ Capturas de Tela
 
-## Get a fresh project
+_Adicione aqui imagens ilustrativas do aplicativo em funcionamento._
 
-When you're ready, run:
+## ⚠️ Aviso Legal
 
-```bash
-npm run reset-project
-```
+Este repositório é propriedade privada. **Todos os direitos reservados.**
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Nenhum trecho deste código pode ser copiado, reproduzido, distribuído ou utilizado, total ou parcialmente, sem a permissão explícita do autor.
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Se tiver interesse em utilizar este projeto, entre em contato via [LinkedIn](https://www.linkedin.com/in/joaopfreitas8/).
