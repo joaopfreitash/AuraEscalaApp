@@ -29,7 +29,32 @@ Atuei diretamente durante todo o ciclo de vida da aplicação, inclusive atualme
 
 ## 🖼️ Capturas de Tela
 
-_Adicione aqui imagens ilustrativas do aplicativo em funcionamento._
+### 🔐 Login
+
+![Login](assets/images/1.jpg)
+
+### 🏠 Telas iniciais
+
+![Tela inicial sem escalas no dia](assets/images/2.jpg)
+![Tela inicial com escalas no dia](assets/images/3.jpg)
+
+### 📅 Escalas
+
+![Escalas](assets/images/4.jpg)
+![Cadastrar escala](assets/images/5.jpg)
+![Cadastrar repetição de escala](assets/images/6.jpg)
+
+### 👨‍⚕️ Médicos
+
+![Usuários](assets/images/7.jpg)
+
+### 📊 Relatórios
+
+![Relatórios](assets/images/8.jpg)
+
+### ⚙️ Configurações
+
+![Configurações](assets/images/9.jpg)
 
 ## ⚠️ Aviso Legal
 
